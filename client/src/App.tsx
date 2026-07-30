@@ -16,6 +16,7 @@ import { ExpensesPage } from './features/expenses/ExpensesPage';
 import { SuppliersPage } from './features/suppliers/SuppliersPage';
 import { ShiftsListPage } from './features/shifts/ShiftsListPage';
 import { ShiftDetailPage } from './features/shifts/ShiftDetailPage';
+import { ReportsPage } from './features/reports/ReportsPage';
 import { SalesReportPage } from './features/reports/SalesReportPage';
 import { CreditAgingPage } from './features/reports/CreditAgingPage';
 import { HealthCheck } from './components/HealthCheck';

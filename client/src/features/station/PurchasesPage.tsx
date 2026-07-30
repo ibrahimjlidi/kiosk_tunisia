@@ -3,7 +3,7 @@ import { fetchProducts } from '../../services/stationApi';
 import { fetchPurchases, createPurchase } from '../../services/purchaseApi';
 import { Product } from '../../types/station';
 import { ProductPurchase } from '../../types/purchase';
-import { BoxSeam, ShoppingCart, Plus, RefreshCw, AlertCircle } from 'lucide-react';
+import { ShoppingCart, Plus, RefreshCw, AlertCircle } from 'lucide-react';
 
 export const PurchasesPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);

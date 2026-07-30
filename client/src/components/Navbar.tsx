@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Fuel, LogOut, Users, LayoutDashboard,
   Gauge, Database, Building2, Package, Clock,
-  ShoppingCart, FileText, DollarSign
+  ShoppingCart, FileText, DollarSign, BarChart3
 } from 'lucide-react';
 
 const roleColors: Record<string, string> = {
@@ -69,6 +69,7 @@ export const Navbar: React.FC = () => {
             <NavLink to="/pumps" icon={<Gauge className="w-3.5 h-3.5" />} label="Pumps" current={location.pathname} />
             <NavLink to="/tanks" icon={<Database className="w-3.5 h-3.5" />} label="Tanks" current={location.pathname} />
             <NavLink to="/shifts" icon={<Clock className="w-3.5 h-3.5" />} label="Shifts" current={location.pathname} />
+            <NavLink to="/reports/sales" icon={<BarChart3 className="w-3.5 h-3.5" />} label="Reports" current={location.pathname} />
             {(user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.role === 'SUPERVISOR') && (
               <>
                 <NavLink to="/suppliers" icon={<FileText className="w-3.5 h-3.5" />} label="Suppliers" current={location.pathname} />

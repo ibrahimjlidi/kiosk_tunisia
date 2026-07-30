@@ -31,9 +31,8 @@ export const CustomerDetailPage: React.FC = () => {
       await addCustomerTransaction(id, { type, amount: amt, notes });
       const txRes = await fetchCustomerTransactions(id);
       setTxs(txRes.transactions || []);
-      const cRes = await fetchCustomers();
-      const c = cRes.customers.find((x:any) => x._id === id);
-      setCustomer(c || null);
+      const cRes = await fetchCustomer(id);
+      setCustomer(cRes.customer || null);
       setAmount(0); setNotes('');
     } catch (err:any) { alert(err?.response?.data?.message || 'Failed'); }
   };

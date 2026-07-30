@@ -74,7 +74,7 @@ export const SuppliersPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <BoxSeam className="w-5 h-5 text-cyan-400" /> Supplier Directory
+            <Package className="w-5 h-5 text-cyan-400" /> Supplier Directory
           </h2>
           <p className="text-xs text-slate-400">Manage fuel and kiosk suppliers for purchasing and expense workflows.</p>
         </div>

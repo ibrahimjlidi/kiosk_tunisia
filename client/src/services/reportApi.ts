@@ -1,6 +1,6 @@
 import { api } from './api';
 import { AgingBucket } from '../types/customer';
-import { Sale } from '../types/shift';
+import { Sale } from '../types/sale';
 
 export const fetchCreditAging = async (station?: string): Promise<{ success: boolean; data: AgingBucket[] }> => {
   const res = await api.get('/reports/credits/aging', { params: station ? { station } : undefined });
