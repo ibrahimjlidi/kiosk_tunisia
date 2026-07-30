@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Fuel, LogOut, Users, LayoutDashboard,
-  Gauge, Database, Building2, Package, Clock
+  Gauge, Database, Building2, Package, Clock,
+  ShoppingCart, FileText, DollarSign
 } from 'lucide-react';
 
 const roleColors: Record<string, string> = {
@@ -63,9 +64,16 @@ export const Navbar: React.FC = () => {
             <NavLink to="/dashboard" icon={<LayoutDashboard className="w-3.5 h-3.5" />} label="Dashboard" current={location.pathname} />
             <NavLink to="/station" icon={<Building2 className="w-3.5 h-3.5" />} label="Station" current={location.pathname} />
             <NavLink to="/products" icon={<Package className="w-3.5 h-3.5" />} label="Products" current={location.pathname} />
+            <NavLink to="/purchases" icon={<ShoppingCart className="w-3.5 h-3.5" />} label="Purchases" current={location.pathname} />
+            <NavLink to="/expenses" icon={<DollarSign className="w-3.5 h-3.5" />} label="Expenses" current={location.pathname} />
             <NavLink to="/pumps" icon={<Gauge className="w-3.5 h-3.5" />} label="Pumps" current={location.pathname} />
             <NavLink to="/tanks" icon={<Database className="w-3.5 h-3.5" />} label="Tanks" current={location.pathname} />
             <NavLink to="/shifts" icon={<Clock className="w-3.5 h-3.5" />} label="Shifts" current={location.pathname} />
+            {(user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.role === 'SUPERVISOR') && (
+              <>
+                <NavLink to="/suppliers" icon={<FileText className="w-3.5 h-3.5" />} label="Suppliers" current={location.pathname} />
+              </>
+            )}
             {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
               <>
                 <NavLink to="/customers" icon={<Users className="w-3.5 h-3.5" />} label="Customers" current={location.pathname} />

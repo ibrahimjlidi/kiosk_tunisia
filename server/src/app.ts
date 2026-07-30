@@ -12,6 +12,9 @@ import pumpRoutes from './routes/pump.routes';
 import customerRoutes from './routes/customer.routes';
 import shiftRoutes from './routes/shift.routes';
 import saleRoutes from './routes/sale.routes';
+import purchaseRoutes from './routes/purchase.routes';
+import supplierRoutes from './routes/supplier.routes';
+import expenseRoutes from './routes/expense.routes';
 import reportRoutes from './routes/report.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
@@ -37,6 +40,9 @@ app.use('/api/v1/pumps', pumpRoutes);
 app.use('/api/v1/customers', customerRoutes);
 app.use('/api/v1/shifts', shiftRoutes);
 app.use('/api/v1/sales', saleRoutes);
+app.use('/api/v1/purchases', purchaseRoutes);
+app.use('/api/v1/suppliers', supplierRoutes);
+app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/reports', reportRoutes);
 
 // 404 Handler

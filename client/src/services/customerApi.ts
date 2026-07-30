@@ -11,6 +11,11 @@ export const createCustomer = async (data: Partial<Customer>): Promise<{ success
   return res.data;
 };
 
+export const fetchCustomer = async (customerId: string): Promise<{ success: boolean; customer: Customer }> => {
+  const res = await api.get(`/customers/${customerId}`);
+  return res.data;
+};
+
 export const fetchCustomerTransactions = async (customerId: string): Promise<{ success: boolean; transactions: CreditTransaction[] }> => {
   const res = await api.get(`/customers/${customerId}/transactions`);
   return res.data;

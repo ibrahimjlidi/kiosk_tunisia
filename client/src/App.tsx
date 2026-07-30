@@ -8,11 +8,16 @@ import { UserManagementPage } from './features/users/UserManagementPage';
 import { CustomersPage } from './features/customers/CustomersPage';
 import { CustomerDetailPage } from './features/customers/CustomerDetailPage';
 import { ProductsPage } from './features/station/ProductsPage';
+import { PurchasesPage } from './features/station/PurchasesPage';
 import { PumpsPage } from './features/station/PumpsPage';
 import { TanksPage } from './features/station/TanksPage';
 import { StationPage } from './features/station/StationPage';
+import { ExpensesPage } from './features/expenses/ExpensesPage';
+import { SuppliersPage } from './features/suppliers/SuppliersPage';
 import { ShiftsListPage } from './features/shifts/ShiftsListPage';
 import { ShiftDetailPage } from './features/shifts/ShiftDetailPage';
+import { SalesReportPage } from './features/reports/SalesReportPage';
+import { CreditAgingPage } from './features/reports/CreditAgingPage';
 import { HealthCheck } from './components/HealthCheck';
 import { ShieldCheck, Layers, Cpu, Building2, Gauge, Database, Package, Clock } from 'lucide-react';
 
@@ -60,10 +65,15 @@ const LayoutWithNavbar: React.FC = () => (
         <Route path="/dashboard"    element={<DashboardView />} />
         <Route path="/station"      element={<StationPage />} />
         <Route path="/products"     element={<ProductsPage />} />
+        <Route path="/purchases"    element={<PurchasesPage />} />
+        <Route path="/expenses"     element={<ExpensesPage />} />
+        <Route path="/suppliers"    element={<SuppliersPage />} />
         <Route path="/pumps"        element={<PumpsPage />} />
         <Route path="/tanks"        element={<TanksPage />} />
         <Route path="/shifts"       element={<ShiftsListPage />} />
         <Route path="/shifts/:id"   element={<ShiftDetailPage />} />
+        <Route path="/reports/sales" element={<SalesReportPage />} />
+        <Route path="/reports/credits" element={<CreditAgingPage />} />
         <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />}>
           <Route path="/users"      element={<UserManagementPage />} />
           <Route path="/customers" element={<CustomersPage />} />

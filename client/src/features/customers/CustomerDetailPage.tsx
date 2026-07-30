@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { fetchCustomerTransactions, addCustomerTransaction, fetchCustomers } from '../../services/customerApi';
+import { useParams, Link } from 'react-router-dom';
+import { fetchCustomerTransactions, addCustomerTransaction, fetchCustomer } from '../../services/customerApi';
 import { Customer, CreditTransaction } from '../../types/customer';
 import { ArrowLeft, Plus } from 'lucide-react';
 
@@ -16,9 +16,8 @@ export const CustomerDetailPage: React.FC = () => {
     (async () => {
       if (!id) return;
       try {
-        const cRes = await fetchCustomers();
-        const c = cRes.customers.find((x:any) => x._id === id);
-        setCustomer(c || null);
+        const cRes = await fetchCustomer(id);
+        setCustomer(cRes.customer);
         const txRes = await fetchCustomerTransactions(id);
         setTxs(txRes.transactions || []);
       } catch (err) { console.error(err); }
@@ -39,7 +38,12 @@ export const CustomerDetailPage: React.FC = () => {
     } catch (err:any) { alert(err?.response?.data?.message || 'Failed'); }
   };
 
-  if (!customer) return <div className="text-sm text-slate-400">Customer not found</div>;
+  if (!customer) return (
+    <div className="space-y-4 text-slate-400 text-sm">
+      <div>Customer not found.</div>
+      <Link to="/customers" className="text-cyan-400 hover:text-cyan-200">Back to customer list</Link>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
