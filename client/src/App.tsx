@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Navbar } from './components/Navbar';
+import { Sidebar } from './components/Navbar';
 import { LoginPage } from './features/auth/LoginPage';
 import { UserManagementPage } from './features/users/UserManagementPage';
 import { CustomersPage } from './features/customers/CustomersPage';
@@ -60,29 +60,31 @@ const DashboardView: React.FC = () => (
 
 const LayoutWithNavbar: React.FC = () => (
   <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-    <Navbar />
-    <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8">
-      <Routes>
-        <Route path="/dashboard"    element={<DashboardView />} />
-        <Route path="/station"      element={<StationPage />} />
-        <Route path="/products"     element={<ProductsPage />} />
-        <Route path="/purchases"    element={<PurchasesPage />} />
-        <Route path="/expenses"     element={<ExpensesPage />} />
-        <Route path="/suppliers"    element={<SuppliersPage />} />
-        <Route path="/pumps"        element={<PumpsPage />} />
-        <Route path="/tanks"        element={<TanksPage />} />
-        <Route path="/shifts"       element={<ShiftsListPage />} />
-        <Route path="/shifts/:id"   element={<ShiftDetailPage />} />
-        <Route path="/reports/sales" element={<SalesReportPage />} />
-        <Route path="/reports/credits" element={<CreditAgingPage />} />
-        <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />}>
-          <Route path="/users"      element={<UserManagementPage />} />
-          <Route path="/customers" element={<CustomersPage />} />
-          <Route path="/customers/:id" element={<CustomerDetailPage />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </main>
+    <div className="flex flex-1">
+      <Sidebar />
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 lg:px-8">
+        <Routes>
+          <Route path="/dashboard"    element={<DashboardView />} />
+          <Route path="/station"      element={<StationPage />} />
+          <Route path="/products"     element={<ProductsPage />} />
+          <Route path="/purchases"    element={<PurchasesPage />} />
+          <Route path="/expenses"     element={<ExpensesPage />} />
+          <Route path="/suppliers"    element={<SuppliersPage />} />
+          <Route path="/pumps"        element={<PumpsPage />} />
+          <Route path="/tanks"        element={<TanksPage />} />
+          <Route path="/shifts"       element={<ShiftsListPage />} />
+          <Route path="/shifts/:id"   element={<ShiftDetailPage />} />
+          <Route path="/reports/sales" element={<SalesReportPage />} />
+          <Route path="/reports/credits" element={<CreditAgingPage />} />
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />}>
+            <Route path="/users"      element={<UserManagementPage />} />
+            <Route path="/customers" element={<CustomersPage />} />
+            <Route path="/customers/:id" element={<CustomerDetailPage />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </main>
+    </div>
     <footer className="border-t border-slate-800 bg-slate-900/30 py-4 text-center text-xs text-slate-500">
       FuelStation ERP © 2026 — Built with Clean Architecture (Tunisia Kiosque System)
     </footer>
