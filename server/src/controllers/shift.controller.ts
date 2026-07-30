@@ -8,6 +8,7 @@ import {
   aggregateShiftTotals,
   rolloverIndexesToPumps,
 } from '../services/shift.service';
+import { createSalesForShift } from '../services/sale.service';
 
 const SHIFT_TYPE_NUMBER: Record<ShiftType, number> = {
   MORNING:   1,
@@ -215,10 +216,18 @@ export const closeShift = async (req: AuthRequest, res: Response): Promise<void>
 
     await shift.save();
 
-    // Roll over closing indexes to Pump model
-    await rolloverIndexesToPumps(shift.pumpReadings);
+    // Create Sale documents from readings
+    try {
+      const createdCount = await createSalesForShift(shift._id);
+      // Roll over closing indexes to Pump model
+      await rolloverIndexesToPumps(shift.pumpReadings);
 
-    res.status(200).json({ success: true, message: 'Shift closed successfully and indexes rolled over', shift });
+      res.status(200).json({ success: true, message: `Shift closed successfully, ${createdCount} sale(s) recorded, and indexes rolled over`, shift });
+    } catch (err: any) {
+      // If sales creation fails, still attempt rollover but report error
+      await rolloverIndexesToPumps(shift.pumpReadings).catch(() => {});
+      res.status(500).json({ success: false, message: `Shift closed but failed to record sales: ${err.message}`, shift });
+    }
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }

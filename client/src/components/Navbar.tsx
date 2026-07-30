@@ -67,7 +67,10 @@ export const Navbar: React.FC = () => {
             <NavLink to="/tanks" icon={<Database className="w-3.5 h-3.5" />} label="Tanks" current={location.pathname} />
             <NavLink to="/shifts" icon={<Clock className="w-3.5 h-3.5" />} label="Shifts" current={location.pathname} />
             {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
-              <NavLink to="/users" icon={<Users className="w-3.5 h-3.5" />} label="Users" current={location.pathname} />
+              <>
+                <NavLink to="/customers" icon={<Users className="w-3.5 h-3.5" />} label="Customers" current={location.pathname} />
+                <NavLink to="/users" icon={<Users className="w-3.5 h-3.5" />} label="Users" current={location.pathname} />
+              </>
             )}
           </nav>
         </div>

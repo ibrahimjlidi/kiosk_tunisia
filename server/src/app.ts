@@ -9,7 +9,10 @@ import productRoutes from './routes/product.routes';
 import stationRoutes from './routes/station.routes';
 import tankRoutes from './routes/tank.routes';
 import pumpRoutes from './routes/pump.routes';
+import customerRoutes from './routes/customer.routes';
 import shiftRoutes from './routes/shift.routes';
+import saleRoutes from './routes/sale.routes';
+import reportRoutes from './routes/report.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app: Application = express();
@@ -31,7 +34,10 @@ app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/stations', stationRoutes);
 app.use('/api/v1/tanks', tankRoutes);
 app.use('/api/v1/pumps', pumpRoutes);
+app.use('/api/v1/customers', customerRoutes);
 app.use('/api/v1/shifts', shiftRoutes);
+app.use('/api/v1/sales', saleRoutes);
+app.use('/api/v1/reports', reportRoutes);
 
 // 404 Handler
 app.use('*', (_req, res) => {

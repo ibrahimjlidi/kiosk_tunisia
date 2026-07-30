@@ -5,6 +5,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { LoginPage } from './features/auth/LoginPage';
 import { UserManagementPage } from './features/users/UserManagementPage';
+import { CustomersPage } from './features/customers/CustomersPage';
+import { CustomerDetailPage } from './features/customers/CustomerDetailPage';
 import { ProductsPage } from './features/station/ProductsPage';
 import { PumpsPage } from './features/station/PumpsPage';
 import { TanksPage } from './features/station/TanksPage';
@@ -64,6 +66,8 @@ const LayoutWithNavbar: React.FC = () => (
         <Route path="/shifts/:id"   element={<ShiftDetailPage />} />
         <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />}>
           <Route path="/users"      element={<UserManagementPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/customers/:id" element={<CustomerDetailPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

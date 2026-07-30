@@ -8,6 +8,9 @@ import {
   AlertCircle, RefreshCw, TrendingUp, DollarSign,
   CheckCircle2, XCircle, Banknote, CreditCard
 } from 'lucide-react';
+import { fetchCustomers } from '../../services/customerApi';
+import { createSale } from '../../services/saleApi';
+import { Customer } from '../../types/customer';
 
 const SHIFT_ICONS: Record<ShiftType, React.ReactNode> = {
   MORNING:   <Sun    className="w-5 h-5 text-amber-400" />,
@@ -35,6 +38,13 @@ export const ShiftDetailPage: React.FC = () => {
   const [error, setError]   = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+
+  // Sale modal
+  const [saleModalOpen, setSaleModalOpen] = useState(false);
+  const [activePistol, setActivePistol] = useState<{ pumpId: string; pistolId: string; pr?: any } | null>(null);
+  const [salePaymentMethod, setSalePaymentMethod] = useState<string>('CASH');
+  const [saleCustomerId, setSaleCustomerId] = useState<string>('');
 
   // Local editable closing indexes: pumpIndex-pistolId => closingIndex
   const [localIndexes, setLocalIndexes] = useState<Record<string, number>>({});
@@ -75,6 +85,16 @@ export const ShiftDetailPage: React.FC = () => {
   };
 
   useEffect(() => { load(); }, [id]);
+
+  useEffect(() => {
+    // load customers for sale modal
+    (async () => {
+      try {
+        const res = await fetchCustomers();
+        setCustomers(res.customers || []);
+      } catch (err) { /* ignore */ }
+    })();
+  }, []);
 
   const handleSaveReadings = async () => {
     if (!shift) return;
@@ -263,6 +283,15 @@ export const ShiftDetailPage: React.FC = () => {
                       <td className="px-4 py-2.5 font-mono text-amber-300">{c.vatAmount.toFixed(3)}</td>
                       <td className="px-4 py-2.5 font-mono font-semibold text-emerald-400">{c.amountTTC.toFixed(3)}</td>
                       <td className="px-4 py-2.5 font-mono text-cyan-400">+{c.profit.toFixed(3)}</td>
+                      <td className="px-4 py-2.5 text-right">
+                        {!isClosed && c.volume > 0 && (
+                          <button
+                            onClick={() => { setActivePistol({ pumpId: pr.pump, pistolId: pistol.pistolId, pr: { pr, pistol } }); setSaleModalOpen(true); }}
+                            className="px-2 py-1 bg-slate-800 text-slate-200 rounded text-xs">
+                            Record Sale
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })
@@ -379,6 +408,73 @@ export const ShiftDetailPage: React.FC = () => {
             <Lock className="w-4 h-4" />
             <span>Close Shift & Lock</span>
           </button>
+        </div>
+      )}
+
+      {/* Record Sale Modal */}
+      {saleModalOpen && activePistol && (
+        <div className="fixed inset-0 bg-slate-950/80 z-50 flex items-center justify-center p-4">
+          <div className="glass-panel p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold text-white">Record Sale</h3>
+            <div className="space-y-3 mt-3 text-sm">
+              <div>
+                <label className="block text-xs text-slate-400">Payment Method</label>
+                <select value={salePaymentMethod} onChange={(e)=>setSalePaymentMethod(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100">
+                  <option value="CASH">Cash</option>
+                  <option value="BANK_CARD">Bank Card</option>
+                  <option value="FUEL_CARD">Fuel Card</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                  <option value="CREDIT">Credit</option>
+                </select>
+              </div>
+              {salePaymentMethod === 'CREDIT' && (
+                <div>
+                  <label className="block text-xs text-slate-400">Customer</label>
+                  <select value={saleCustomerId} onChange={(e)=>setSaleCustomerId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100">
+                    <option value="">Select customer</option>
+                    {customers.map(c => <option key={c._id} value={c._id}>{c.name} — {c.creditBalance.toFixed(3)} TND</option>)}
+                  </select>
+                </div>
+              )}
+              <div className="flex items-center justify-end space-x-2 pt-4">
+                <button onClick={()=>{ setSaleModalOpen(false); setActivePistol(null); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded">Cancel</button>
+                <button onClick={async ()=>{
+                  if (!activePistol) return;
+                  const { pr, pistol } = activePistol.pr;
+                  const key = `${pr.pump}-${pistol.pistolId}`;
+                  const ci = localIndexes[key] ?? pistol.closingIndex;
+                  const c = calcLocally(pistol, ci);
+                  const payload: any = {
+                    station: typeof shift.station === 'object' ? shift.station._id : shift.station,
+                    shift: shift._id,
+                    pump: pr.pump,
+                    pistol: pistol.pistolId,
+                    product: pistol.product,
+                    productName: pistol.productName,
+                    productCode: pistol.productCode,
+                    quantity: c.volume,
+                    purchasePrice: pistol.purchasePrice,
+                    sellingPrice: pistol.sellingPrice,
+                    vatRate: pistol.vatRate,
+                    amountHT: c.amountHT,
+                    vatAmount: c.vatAmount,
+                    amountTTC: c.amountTTC,
+                    profit: c.profit,
+                    paymentMethod: salePaymentMethod,
+                  };
+                  if (salePaymentMethod === 'CREDIT') payload.customer = saleCustomerId;
+                  try {
+                    await createSale(payload);
+                    alert('Sale recorded');
+                    setSaleModalOpen(false); setActivePistol(null);
+                    load();
+                  } catch (err:any) {
+                    alert(err?.response?.data?.message || 'Failed to record sale');
+                  }
+                }} className="px-4 py-2 bg-cyan-600 text-white rounded">Record</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
