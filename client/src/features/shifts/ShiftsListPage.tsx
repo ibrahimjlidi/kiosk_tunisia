@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { fetchShifts, openShift as apiOpenShift, closeShift as apiCloseShift, reopenShift as apiReopenShift } from '../../services/shiftApi';
 import { fetchStations } from '../../services/stationApi';
+import { fetchAllUsers } from '../../services/authApi';
 import { Shift, ShiftType } from '../../types/shift';
 import { Station } from '../../types/station';
+import { User } from '../../types/auth';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Clock, Sun, Sunset, Moon, Plus, CheckCircle2, XCircle, Eye, RefreshCw, AlertCircle, RotateCcw } from 'lucide-react';
@@ -23,6 +25,7 @@ export const ShiftsListPage: React.FC = () => {
   const { user } = useAuth();
   const [shifts, setShifts]     = useState<Shift[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
+  const [users, setUsers]       = useState<User[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
 
@@ -35,18 +38,21 @@ export const ShiftsListPage: React.FC = () => {
   const [newShiftType, setNewShiftType] = useState<ShiftType>('MORNING');
   const [newStationId, setNewStationId] = useState<string>('');
   const [newDate, setNewDate]         = useState<string>(new Date().toISOString().slice(0, 10));
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [opening, setOpening]         = useState(false);
   const [modalError, setModalError]   = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [shiftRes, stationRes] = await Promise.all([
+      const [shiftRes, stationRes, userRes] = await Promise.all([
         fetchShifts({ date: dateFilter || undefined, station: stationFilter || undefined }),
         fetchStations(),
+        fetchAllUsers(),
       ]);
       setShifts(shiftRes.shifts);
       setStations(stationRes.stations);
+      setUsers(userRes.users.filter((u) => u.active));
       if (!newStationId && stationRes.stations.length > 0) {
         setNewStationId(stationRes.stations[0]._id);
       }
@@ -63,7 +69,7 @@ export const ShiftsListPage: React.FC = () => {
     e.preventDefault();
     setModalError(null); setOpening(true);
     try {
-      await apiOpenShift({ stationId: newStationId, shiftType: newShiftType, shiftDate: newDate });
+      await apiOpenShift({ stationId: newStationId, shiftType: newShiftType, shiftDate: newDate, employeeIds: selectedEmployees });
       setShowModal(false);
       load();
     } catch (err: any) {
@@ -193,6 +199,11 @@ export const ShiftsListPage: React.FC = () => {
                               {new Date(shift.shiftDate).toLocaleDateString('fr-TN')}
                               {openedBy && ` — ${openedBy.firstName} ${openedBy.lastName}`}
                             </div>
+                            {shift.employees.length > 0 && (
+                              <div className="text-[10px] text-cyan-400 mt-1">
+                                Staff: {shift.employees.map((employee) => `${employee.firstName} ${employee.lastName}`).join(', ')}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>
@@ -298,6 +309,20 @@ export const ShiftsListPage: React.FC = () => {
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="block text-slate-300 mb-1">Assigned staff</label>
+                <select
+                  multiple
+                  value={selectedEmployees}
+                  onChange={(e) => setSelectedEmployees(Array.from(e.target.selectedOptions, (option) => option.value))}
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 min-h-[96px]"
+                >
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>{user.firstName} {user.lastName} · {user.role}</option>
+                  ))}
+                </select>
+                <div className="text-[10px] text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple staff.</div>
               </div>
               <div className="flex items-center justify-end space-x-2 pt-4 border-t border-slate-800">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700">Cancel</button>

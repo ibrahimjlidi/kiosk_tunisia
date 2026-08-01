@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { BarChart3, Clock, ShieldCheck } from 'lucide-react';
+import { BarChart3, Clock, ClipboardList, TrendingUp } from 'lucide-react';
 
 const ReportLink: React.FC<{ to: string; label: string; icon: React.ReactNode }> = ({ to, label, icon }) => {
   const location = useLocation();
@@ -20,7 +20,10 @@ const ReportLink: React.FC<{ to: string; label: string; icon: React.ReactNode }>
 
 export const ReportsNav: React.FC = () => (
   <div className="flex flex-wrap gap-2 mb-4">
+    <ReportLink to="/reports" icon={<BarChart3 className="w-4 h-4" />} label="Overview" />
     <ReportLink to="/reports/sales" icon={<BarChart3 className="w-4 h-4" />} label="Sales Report" />
+    <ReportLink to="/reports/analytics" icon={<TrendingUp className="w-4 h-4" />} label="Analytics" />
+    <ReportLink to="/reports/audit" icon={<ClipboardList className="w-4 h-4" />} label="Audit" />
     <ReportLink to="/reports/credits" icon={<Clock className="w-4 h-4" />} label="Credit Aging" />
   </div>
 );

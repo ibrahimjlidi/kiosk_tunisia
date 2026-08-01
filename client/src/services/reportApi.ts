@@ -11,3 +11,8 @@ export const fetchSales = async (params?: any): Promise<{ success: boolean; coun
   const res = await api.get('/sales', { params });
   return res.data;
 };
+
+export const fetchAnalyticsSummary = async (params?: { date?: string; station?: string }) => {
+  const res = await api.get('/reports/summary', { params });
+  return res.data;
+};

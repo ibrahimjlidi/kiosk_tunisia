@@ -16,10 +16,14 @@ import { ExpensesPage } from './features/expenses/ExpensesPage';
 import { SuppliersPage } from './features/suppliers/SuppliersPage';
 import { ShiftsListPage } from './features/shifts/ShiftsListPage';
 import { ShiftDetailPage } from './features/shifts/ShiftDetailPage';
-import { ReportsPage } from './features/reports/ReportsPage';
+import { HealthCheck } from './components/HealthCheck';
+import { PosPage } from './features/pos/PosPage';
+import { ServicesPage } from './features/services/ServicesPage';
+import { ReportsShellPage } from './features/reports/ReportsShellPage';
 import { SalesReportPage } from './features/reports/SalesReportPage';
 import { CreditAgingPage } from './features/reports/CreditAgingPage';
-import { HealthCheck } from './components/HealthCheck';
+import { AuditPage } from './features/reports/AuditPage';
+import { AnalyticsPage } from './features/reports/AnalyticsPage';
 import { ShieldCheck, Layers, Cpu, Building2, Gauge, Database, Package, Clock } from 'lucide-react';
 
 const DashboardView: React.FC = () => (
@@ -74,8 +78,13 @@ const LayoutWithNavbar: React.FC = () => (
           <Route path="/tanks"        element={<TanksPage />} />
           <Route path="/shifts"       element={<ShiftsListPage />} />
           <Route path="/shifts/:id"   element={<ShiftDetailPage />} />
+          <Route path="/pos"          element={<PosPage />} />
+          <Route path="/services"     element={<ServicesPage />} />
+          <Route path="/reports"      element={<ReportsShellPage />} />
           <Route path="/reports/sales" element={<SalesReportPage />} />
           <Route path="/reports/credits" element={<CreditAgingPage />} />
+          <Route path="/reports/audit" element={<AuditPage />} />
+          <Route path="/reports/analytics" element={<AnalyticsPage />} />
           <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} />}>
             <Route path="/users"      element={<UserManagementPage />} />
             <Route path="/customers" element={<CustomersPage />} />

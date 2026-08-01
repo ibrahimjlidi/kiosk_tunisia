@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCreditAging } from '../../services/reportApi';
 import { AgingBucket } from '../../types/customer';
-import { ReportsNav } from '../../components/ReportsNav';
 
 export const CreditAgingPage: React.FC = () => {
   const [aging, setAging] = useState<AgingBucket[]>([]);
@@ -23,7 +22,6 @@ export const CreditAgingPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <ReportsNav />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Credit Aging Report</h2>

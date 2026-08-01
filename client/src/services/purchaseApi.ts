@@ -8,6 +8,7 @@ export const fetchPurchases = async (params?: { product?: string; station?: stri
 
 export const createPurchase = async (data: {
   product: string;
+  station?: string;
   supplier?: string;
   quantity: number;
   unitCost: number;

@@ -5,7 +5,7 @@ import {
   Fuel, LogOut, Users, LayoutDashboard,
   Gauge, Database, Building2, Package, Clock,
   ShoppingCart, FileText, DollarSign, BarChart3,
-  Menu, X
+  Menu, X, Wrench
 } from 'lucide-react';
 
 const roleColors: Record<string, string> = {
@@ -59,7 +59,9 @@ export const Sidebar: React.FC = () => {
     { to: '/pumps', label: 'Pumps', icon: <Gauge className="w-4 h-4" /> },
     { to: '/tanks', label: 'Tanks', icon: <Database className="w-4 h-4" /> },
     { to: '/shifts', label: 'Shifts', icon: <Clock className="w-4 h-4" /> },
-    { to: '/reports/sales', label: 'Reports', icon: <BarChart3 className="w-4 h-4" /> },
+    { to: '/pos', label: 'POS', icon: <ShoppingCart className="w-4 h-4" /> },
+    { to: '/services', label: 'Services', icon: <Wrench className="w-4 h-4" /> },
+    { to: '/reports', label: 'Reports', icon: <BarChart3 className="w-4 h-4" /> },
   ];
 
   return (

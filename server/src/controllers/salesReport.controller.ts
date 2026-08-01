@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { aggregateSalesByDay, aggregateSalesByProduct, aggregateSalesByShift } from '../services/salesReport.service';
+import { aggregateSalesByDay, aggregateSalesByProduct, aggregateSalesByShift, getAnalyticsSummary } from '../services/salesReport.service';
 
 export const dailySalesReport = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -25,6 +25,16 @@ export const shiftSalesReport = async (req: Request, res: Response): Promise<voi
   try {
     const { date, station } = req.query;
     const data = await aggregateSalesByShift(date as string | undefined, station as string | undefined);
+    res.status(200).json({ success: true, data });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const analyticsSummaryReport = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { date, station } = req.query;
+    const data = await getAnalyticsSummary(date as string | undefined, station as string | undefined);
     res.status(200).json({ success: true, data });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });

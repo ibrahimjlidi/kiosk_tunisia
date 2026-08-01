@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchSales } from '../../services/reportApi';
 import { Sale } from '../../types/sale';
-import { ReportsNav } from '../../components/ReportsNav';
 
 export const SalesReportPage: React.FC = () => {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -24,7 +23,6 @@ export const SalesReportPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <ReportsNav />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Sales Report</h2>
