@@ -16,6 +16,10 @@ import purchaseRoutes from './routes/purchase.routes';
 import supplierRoutes from './routes/supplier.routes';
 import expenseRoutes from './routes/expense.routes';
 import reportRoutes from './routes/report.routes';
+import purchaseOrderRoutes from './routes/purchaseOrder.routes';
+import tankGaugingRoutes from './routes/tankGauging.routes';
+import dailyClosureRoutes from './routes/dailyClosure.routes';
+import kifReturnRoutes from './routes/kifReturn.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app: Application = express();
@@ -44,6 +48,11 @@ app.use('/api/v1/purchases', purchaseRoutes);
 app.use('/api/v1/suppliers', supplierRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/suppliers', supplierRoutes);
+app.use('/api/v1/purchase-orders', purchaseOrderRoutes);
+app.use('/api/v1/tank-gaugings', tankGaugingRoutes);
+app.use('/api/v1/daily-closures', dailyClosureRoutes);
+app.use('/api/v1/kif-returns', kifReturnRoutes);
 
 // 404 Handler
 app.use('*', (_req, res) => {

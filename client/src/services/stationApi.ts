@@ -1,5 +1,5 @@
 import { api } from './api';
-import { Product, Station, Tank, Pump } from '../types/station';
+import { Product, Station, Tank, Pump, Supplier, PurchaseOrder, TankGauging } from '../types/station';
 
 export type TankPayload = Omit<Partial<Tank>, 'station' | 'product'> & {
   station: string;
@@ -99,5 +99,62 @@ export const updatePump = async (id: string, data: Partial<PumpPayload>): Promis
 
 export const deletePump = async (id: string): Promise<{ success: boolean; message: string }> => {
   const response = await api.delete<{ success: boolean; message: string }>(`/pumps/${id}`);
+    return response.data;
+};
+// Supplier API
+export const fetchSuppliers = async (): Promise<{ success: boolean; suppliers: Supplier[] }> => {
+  const response = await api.get<{ success: boolean; suppliers: Supplier[] }>('/suppliers');
+  return response.data;
+};
+
+export const createSupplier = async (data: Partial<Supplier>): Promise<{ success: boolean; supplier: Supplier }> => {
+  const response = await api.post<{ success: boolean; supplier: Supplier }>('/suppliers', data);
+  return response.data;
+};
+
+export const updateSupplier = async (id: string, data: Partial<Supplier>): Promise<{ success: boolean; supplier: Supplier }> => {
+  const response = await api.put<{ success: boolean; supplier: Supplier }>(`/suppliers/${id}`, data);
+  return response.data;
+};
+
+export const deleteSupplier = async (id: string): Promise<{ success: boolean; message: string }> => {
+  const response = await api.delete<{ success: boolean; message: string }>(`/suppliers/${id}`);
+  return response.data;
+};
+
+// Purchase Order API
+export const fetchPurchaseOrders = async (params?: any): Promise<{ success: boolean; orders: PurchaseOrder[] }> => {
+  const response = await api.get<{ success: boolean; orders: PurchaseOrder[] }>('/purchase-orders', { params });
+  return response.data;
+};
+
+export const fetchPurchaseOrderById = async (id: string): Promise<{ success: boolean; order: PurchaseOrder }> => {
+  const response = await api.get<{ success: boolean; order: PurchaseOrder }>(`/purchase-orders/${id}`);
+  return response.data;
+};
+
+export const createPurchaseOrder = async (data: any): Promise<{ success: boolean; order: PurchaseOrder }> => {
+  const response = await api.post<{ success: boolean; order: PurchaseOrder }>('/purchase-orders', data);
+  return response.data;
+};
+
+export const deliverPurchaseOrder = async (id: string, data?: any): Promise<{ success: boolean; order: PurchaseOrder }> => {
+  const response = await api.put<{ success: boolean; order: PurchaseOrder }>(`/purchase-orders/${id}/deliver`, data);
+  return response.data;
+};
+
+export const cancelPurchaseOrder = async (id: string): Promise<{ success: boolean; order: PurchaseOrder }> => {
+  const response = await api.put<{ success: boolean; order: PurchaseOrder }>(`/purchase-orders/${id}/cancel`);
+  return response.data;
+};
+
+// Tank Gauging API
+export const fetchTankGaugings = async (params?: any): Promise<{ success: boolean; gaugings: TankGauging[] }> => {
+  const response = await api.get<{ success: boolean; gaugings: TankGauging[] }>('/tank-gaugings', { params });
+  return response.data;
+};
+
+export const createTankGauging = async (data: any): Promise<{ success: boolean; gauging: TankGauging }> => {
+  const response = await api.post<{ success: boolean; gauging: TankGauging }>('/tank-gaugings', data);
   return response.data;
 };

@@ -9,6 +9,7 @@ export interface AuthRequest extends Request {
     email: string;
     role: UserRole;
     username: string;
+    permissions: string[];
   };
 }
 
@@ -17,6 +18,7 @@ export interface JwtPayload {
   email: string;
   role: UserRole;
   username: string;
+  permissions: string[];
 }
 
 export const authenticate = async (
@@ -67,6 +69,7 @@ export const authenticate = async (
       email: currentUser.email,
       role: currentUser.role,
       username: currentUser.username,
+      permissions: decoded.permissions || [],
     };
 
     next();
@@ -92,6 +95,31 @@ export const authorizeRoles = (...allowedRoles: UserRole[]) => {
       res.status(403).json({
         success: false,
         message: `Forbidden: Role '${req.user.role}' is not authorized to access this resource.`,
+      });
+      return;
+    }
+
+    next();
+  };
+};
+
+export const authorize = (...requiredPermissions: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required.',
+      });
+      return;
+    }
+
+    const permissions = req.user.permissions || [];
+    const missingPermissions = requiredPermissions.filter((permission) => !permissions.includes(permission));
+
+    if (missingPermissions.length > 0) {
+      res.status(403).json({
+        success: false,
+        message: `Forbidden: Missing permission(s): ${missingPermissions.join(', ')}`,
       });
       return;
     }

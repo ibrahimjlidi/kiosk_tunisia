@@ -1,12 +1,21 @@
 import { Router } from 'express';
+import {
+  getAllSuppliers,
+  getSupplierById,
+  createSupplier,
+  updateSupplier,
+  deleteSupplier,
+} from '../controllers/supplier.controller';
 import { authenticate, authorizeRoles } from '../middlewares/auth.middleware';
-import { listSuppliers, addSupplier, editSupplier } from '../controllers/supplier.controller';
 
 const router = Router();
+
 router.use(authenticate);
 
-router.get('/', authorizeRoles('ADMIN','MANAGER','SUPERVISOR'), listSuppliers);
-router.post('/', authorizeRoles('ADMIN','MANAGER'), addSupplier);
-router.put('/:id', authorizeRoles('ADMIN','MANAGER'), editSupplier);
+router.get('/', getAllSuppliers);
+router.get('/:id', getSupplierById);
+router.post('/', authorizeRoles('ADMIN', 'MANAGER'), createSupplier);
+router.put('/:id', authorizeRoles('ADMIN', 'MANAGER'), updateSupplier);
+router.delete('/:id', authorizeRoles('ADMIN'), deleteSupplier);
 
 export default router;

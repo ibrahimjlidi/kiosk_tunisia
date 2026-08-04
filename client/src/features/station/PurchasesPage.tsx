@@ -173,8 +173,10 @@ export const PurchasesPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="grid gap-4 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Product</label>
+                <label htmlFor="purchase-product" className="block text-slate-300 mb-1">Product</label>
                 <select
+                  id="purchase-product"
+                  name="purchase-product"
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -218,8 +220,10 @@ export const PurchasesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Quantity</label>
+                  <label htmlFor="purchase-quantity" className="block text-slate-300 mb-1">Quantity</label>
                   <input
+                    id="purchase-quantity"
+                    name="purchase-quantity"
                     type="number"
                     step="0.001"
                     min="0"
@@ -232,8 +236,10 @@ export const PurchasesPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Unit Cost</label>
+                  <label htmlFor="purchase-unit-cost" className="block text-slate-300 mb-1">Unit Cost</label>
                   <input
+                    id="purchase-unit-cost"
+                    name="purchase-unit-cost"
                     type="number"
                     step="0.001"
                     min="0"

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getAllUsers, getUserById, updateUserRole, deleteUser } from '../controllers/user.controller';
-import { authenticate, authorizeRoles } from '../middlewares/auth.middleware';
+import { authenticate, authorize, authorizeRoles } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -8,9 +8,9 @@ const router = Router();
 router.use(authenticate);
 
 // Restricted to ADMIN & MANAGER for viewing, ADMIN for modifying
-router.get('/', authorizeRoles('ADMIN', 'MANAGER'), getAllUsers);
-router.get('/:id', authorizeRoles('ADMIN', 'MANAGER'), getUserById);
-router.put('/:id', authorizeRoles('ADMIN'), updateUserRole);
-router.delete('/:id', authorizeRoles('ADMIN'), deleteUser);
+router.get('/', authorizeRoles('ADMIN', 'MANAGER'), authorize('users.read'), getAllUsers);
+router.get('/:id', authorizeRoles('ADMIN', 'MANAGER'), authorize('users.read'), getUserById);
+router.put('/:id', authorizeRoles('ADMIN'), authorize('users.manage'), updateUserRole);
+router.delete('/:id', authorizeRoles('ADMIN'), authorize('users.manage'), deleteUser);
 
 export default router;

@@ -218,8 +218,10 @@ export const ProductsPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Product Name</label>
+                <label htmlFor="product-name" className="block text-slate-300 mb-1">Product Name</label>
                 <input
+                  id="product-name"
+                  name="product-name"
                   type="text"
                   required
                   value={name}
@@ -231,8 +233,10 @@ export const ProductsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Product Code</label>
+                  <label htmlFor="product-code" className="block text-slate-300 mb-1">Product Code</label>
                   <input
+                    id="product-code"
+                    name="product-code"
                     type="text"
                     required
                     value={code}
@@ -243,8 +247,10 @@ export const ProductsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 mb-1">Category</label>
+                  <label htmlFor="product-category" className="block text-slate-300 mb-1">Category</label>
                   <select
+                    id="product-category"
+                    name="product-category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value as ProductCategory)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -258,8 +264,10 @@ export const ProductsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Purchase Price (TND)</label>
+                  <label htmlFor="product-purchase-price" className="block text-slate-300 mb-1">Purchase Price (TND)</label>
                   <input
+                    id="product-purchase-price"
+                    name="product-purchase-price"
                     type="number"
                     step="0.001"
                     required
@@ -270,8 +278,10 @@ export const ProductsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 mb-1">Selling Price (TTC/TND)</label>
+                  <label htmlFor="product-selling-price" className="block text-slate-300 mb-1">Selling Price (TTC/TND)</label>
                   <input
+                    id="product-selling-price"
+                    name="product-selling-price"
                     type="number"
                     step="0.001"
                     required
@@ -284,8 +294,10 @@ export const ProductsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">VAT Rate (%)</label>
+                  <label htmlFor="product-vat-rate" className="block text-slate-300 mb-1">VAT Rate (%)</label>
                   <input
+                    id="product-vat-rate"
+                    name="product-vat-rate"
                     type="number"
                     required
                     value={vatRate}
@@ -295,8 +307,10 @@ export const ProductsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 mb-1">Min Alert Stock</label>
+                  <label htmlFor="product-min-stock-alert" className="block text-slate-300 mb-1">Min Alert Stock</label>
                   <input
+                    id="product-min-stock-alert"
+                    name="product-min-stock-alert"
                     type="number"
                     required
                     value={minStockAlert}

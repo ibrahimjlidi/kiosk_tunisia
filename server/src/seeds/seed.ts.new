@@ -110,7 +110,7 @@ async function seed() {
         { pumpNumber: `PUMP-${index + 1}-B`, product: gasoil50._id, secondProduct: super95._id },
       ];
 
-      const createdPumps = (await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
+      const createdPumps = await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
         station: station._id,
         pumpNumber: pump.pumpNumber,
         active: true,
@@ -118,15 +118,7 @@ async function seed() {
           { pistolNumber: 1, product: pump.product, currentClosingIndex: 1100 + index * 50 + pumpIndex * 10, active: true },
           { pistolNumber: 2, product: pump.secondProduct, currentClosingIndex: 900 + index * 40 + pumpIndex * 10, active: true },
         ],
-      })))) as Array<{
-        _id: mongoose.Types.ObjectId;
-        pumpNumber: string;
-        pistols: Array<{
-          _id?: mongoose.Types.ObjectId;
-          pistolNumber: number;
-          product: mongoose.Types.ObjectId;
-        }>;
-      }>;
+      })));
 
       const createdTanks = await Tank.insertMany([
         { station: station._id, product: gasoil._id, tankNumber: `TANK-${index + 1}-A`, capacity: 20000, currentStock: 14000 + index * 300, minLevelAlert: 2000, active: true },
@@ -171,7 +163,7 @@ async function seed() {
         { station: station._id, type: 'OPERATING', description: 'Cleaning supplies', amount: 80 + index * 15, paid: true, notes: `Daily operating cost ${station.name}` },
         { station: station._id, type: 'MAINTENANCE', description: 'Pump maintenance', amount: 180 + index * 20, paid: true, notes: `Maintenance visit ${station.name}` },
         { station: station._id, type: 'UTILITY', description: 'Electricity', amount: 120 + index * 10, paid: true, notes: `Utility bill ${station.name}` },
-        { station: station._id, type: 'OTHER', description: 'Stock replenishment', amount: 60 + index * 8, paid: true, notes: `Kiosk restock ${station.name}` },
+        { station: station._id, type: 'KIOSK', description: 'Stock replenishment', amount: 60 + index * 8, paid: true, notes: `Kiosk restock ${station.name}` },
       ]);
 
       const morningShift = await Shift.create({

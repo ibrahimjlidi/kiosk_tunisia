@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { getAllProducts, createProduct, updateProduct, deleteProduct } from '../controllers/product.controller';
-import { authenticate, authorizeRoles } from '../middlewares/auth.middleware';
+import { authenticate, authorize, authorizeRoles } from '../middlewares/auth.middleware';
 
 const router = Router();
 
 router.use(authenticate);
 
-router.get('/', getAllProducts);
-router.post('/', authorizeRoles('ADMIN', 'MANAGER'), createProduct);
-router.put('/:id', authorizeRoles('ADMIN', 'MANAGER'), updateProduct);
-router.delete('/:id', authorizeRoles('ADMIN'), deleteProduct);
+router.get('/', authorize('products.read'), getAllProducts);
+router.post('/', authorizeRoles('ADMIN', 'MANAGER'), authorize('products.manage'), createProduct);
+router.put('/:id', authorizeRoles('ADMIN', 'MANAGER'), authorize('products.manage'), updateProduct);
+router.delete('/:id', authorizeRoles('ADMIN'), authorize('products.manage'), deleteProduct);
 
 export default router;

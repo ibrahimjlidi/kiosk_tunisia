@@ -44,17 +44,38 @@ export const ShiftsListPage: React.FC = () => {
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
+
     try {
-      const [shiftRes, stationRes, userRes] = await Promise.all([
+      const [shiftResult, stationResult, userResult] = await Promise.allSettled([
         fetchShifts({ date: dateFilter || undefined, station: stationFilter || undefined }),
         fetchStations(),
         fetchAllUsers(),
       ]);
-      setShifts(shiftRes.shifts);
-      setStations(stationRes.stations);
-      setUsers(userRes.users.filter((u) => u.active));
-      if (!newStationId && stationRes.stations.length > 0) {
-        setNewStationId(stationRes.stations[0]._id);
+
+      if (shiftResult.status === 'fulfilled') {
+        setShifts(shiftResult.value.shifts);
+      } else {
+        setShifts([]);
+      }
+
+      if (stationResult.status === 'fulfilled') {
+        setStations(stationResult.value.stations);
+        if (!newStationId && stationResult.value.stations.length > 0) {
+          setNewStationId(stationResult.value.stations[0]._id);
+        }
+      } else {
+        setStations([]);
+      }
+
+      if (userResult.status === 'fulfilled') {
+        setUsers(userResult.value.users.filter((u) => u.active));
+      } else {
+        setUsers([]);
+      }
+
+      const hasAnyData = shiftResult.status === 'fulfilled' || stationResult.status === 'fulfilled' || userResult.status === 'fulfilled';
+      if (!hasAnyData) {
+        setError('Failed to load shifts');
       }
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to load shifts');
@@ -276,8 +297,10 @@ export const ShiftsListPage: React.FC = () => {
             )}
             <form onSubmit={handleOpenShift} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Station</label>
+                <label htmlFor="shift-station" className="block text-slate-300 mb-1">Station</label>
                 <select
+                  id="shift-station"
+                  name="shift-station"
                   required
                   value={newStationId}
                   onChange={(e) => setNewStationId(e.target.value)}
@@ -288,8 +311,10 @@ export const ShiftsListPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Shift Type</label>
+                  <label htmlFor="shift-type" className="block text-slate-300 mb-1">Shift Type</label>
                   <select
+                    id="shift-type"
+                    name="shift-type"
                     value={newShiftType}
                     onChange={(e) => setNewShiftType(e.target.value as ShiftType)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"

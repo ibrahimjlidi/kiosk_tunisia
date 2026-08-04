@@ -151,8 +151,10 @@ export const SuppliersPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="grid gap-3 text-xs">
               <div>
-                <label className="block text-slate-300 mb-1">Supplier Name</label>
+                <label htmlFor="supplier-name" className="block text-slate-300 mb-1">Supplier Name</label>
                 <input
+                  id="supplier-name"
+                  name="supplier-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -162,8 +164,10 @@ export const SuppliersPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Phone</label>
+                  <label htmlFor="supplier-phone" className="block text-slate-300 mb-1">Phone</label>
                   <input
+                    id="supplier-phone"
+                    name="supplier-phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -171,8 +175,10 @@ export const SuppliersPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Email</label>
+                  <label htmlFor="supplier-email" className="block text-slate-300 mb-1">Email</label>
                   <input
+                    id="supplier-email"
+                    name="supplier-email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -181,8 +187,10 @@ export const SuppliersPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-slate-300 mb-1">Address</label>
+                <label htmlFor="supplier-address" className="block text-slate-300 mb-1">Address</label>
                 <textarea
+                  id="supplier-address"
+                  name="supplier-address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="w-full min-h-[80px] bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"

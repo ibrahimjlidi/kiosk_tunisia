@@ -53,3 +53,60 @@ export interface Pump {
   pistols: Pistol[];
   active: boolean;
 }
+
+// Phase 11: Supplier
+export interface Supplier {
+  _id: string;
+  name: string;
+  code: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  taxId: string;
+  active: boolean;
+  createdAt?: string;
+}
+
+export type PurchaseOrderStatus = 'PENDING' | 'DELIVERED' | 'CANCELLED';
+
+export interface PurchaseItem {
+  product: string | Product;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  tank?: string | Tank;
+}
+
+export interface PurchaseOrder {
+  _id: string;
+  supplier: Supplier | string;
+  station: Station | string;
+  orderNumber: string;
+  orderDate: string;
+  deliveryDate?: string;
+  status: PurchaseOrderStatus;
+  items: PurchaseItem[];
+  totalAmount: number;
+  notes: string;
+  createdBy: any;
+  deliveredBy?: string;
+  createdAt: string;
+}
+
+// Phase 12: Tank Gauging
+export interface TankGauging {
+  _id: string;
+  tank: Tank | string;
+  station: Station | string;
+  gaugedAt: string;
+  dipReading: number;
+  calculatedVolume: number;
+  waterLevel: number;
+  temperature: number;
+  theoreticalStock: number;
+  variance: number;
+  operator: any;
+  notes: string;
+  createdAt: string;
+}

@@ -82,8 +82,8 @@ export const ServicesPage: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_0.55fr] gap-6">
         <div className="glass-panel p-5 space-y-4">
           <div>
-            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Station</label>
-            <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+            <label htmlFor="service-station" className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Station</label>
+            <select id="service-station" name="service-station" value={stationId} onChange={(e) => setStationId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
               {stations.map((station) => (
                 <option key={station._id} value={station._id}>{station.name}</option>
               ))}
@@ -91,8 +91,8 @@ export const ServicesPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Service</label>
-            <select value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+            <label htmlFor="service-select" className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Service</label>
+            <select id="service-select" name="service-select" value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
               {services.map((service) => (
                 <option key={service._id} value={service._id}>{service.name}</option>
               ))}
@@ -100,8 +100,8 @@ export const ServicesPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Quantity</label>
-            <input type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
+            <label htmlFor="service-quantity" className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Quantity</label>
+            <input id="service-quantity" name="service-quantity" type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
           </div>
 
           {selectedService && (

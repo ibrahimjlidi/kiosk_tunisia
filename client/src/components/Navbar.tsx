@@ -5,7 +5,8 @@ import {
   Fuel, LogOut, Users, LayoutDashboard,
   Gauge, Database, Building2, Package, Clock,
   ShoppingCart, FileText, DollarSign, BarChart3,
-  Menu, X, Wrench
+  Menu, X, Wrench,
+  Truck, ClipboardList, Ruler
 } from 'lucide-react';
 
 const roleColors: Record<string, string> = {
@@ -94,6 +95,23 @@ export const Sidebar: React.FC = () => {
               <div className="text-[11px] text-slate-500">Kiosque Tunisia</div>
             </div>
           </Link>
+          <nav className="hidden lg:flex items-center space-x-1">
+            <NavLink to="/dashboard" icon={<LayoutDashboard className="w-3.5 h-3.5" />} label="Dashboard" current={location.pathname} />
+            <NavLink to="/station" icon={<Building2 className="w-3.5 h-3.5" />} label="Station" current={location.pathname} />
+            <NavLink to="/products" icon={<Package className="w-3.5 h-3.5" />} label="Products" current={location.pathname} />
+            <NavLink to="/pumps" icon={<Gauge className="w-3.5 h-3.5" />} label="Pumps" current={location.pathname} />
+            <NavLink to="/tanks" icon={<Database className="w-3.5 h-3.5" />} label="Tanks" current={location.pathname} />
+            <NavLink to="/shifts" icon={<Clock className="w-3.5 h-3.5" />} label="Shifts" current={location.pathname} />
+            <NavLink to="/suppliers" icon={<Truck className="w-3.5 h-3.5" />} label="Suppliers" current={location.pathname} />
+            <NavLink to="/purchase-orders" icon={<ClipboardList className="w-3.5 h-3.5" />} label="Purchases" current={location.pathname} />
+            <NavLink to="/tank-gauging" icon={<Ruler className="w-3.5 h-3.5" />} label="Gauging" current={location.pathname} />
+            {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
+              <>
+                <NavLink to="/customers" icon={<Users className="w-3.5 h-3.5" />} label="Customers" current={location.pathname} />
+                <NavLink to="/users" icon={<Users className="w-3.5 h-3.5" />} label="Users" current={location.pathname} />
+              </>
+            )}
+          </nav>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-3 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">

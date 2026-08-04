@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { UserRole } from '../types/auth';
 import {
   Fuel, LogOut, Users, LayoutDashboard, Gauge, Database, Building2, Package, Clock,
-  ShoppingCart, FileText, DollarSign, BarChart3, Menu, X, Wrench, Bell, MessageSquare, Moon, Search
+  ShoppingCart, FileText, DollarSign, BarChart3, Menu, X, Wrench, Bell, MessageSquare, Moon, Search, ShieldCheck, ClipboardCheck
 } from 'lucide-react';
 
 interface NavItem {
   to: string;
   label: string;
   icon: React.ReactNode;
+  allowedRoles?: UserRole[];
+  requiredPermissions?: string[];
 }
 
 interface LayoutProps {
@@ -29,19 +32,39 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath }) => {
   };
 
   const navItems: NavItem[] = [
-    { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { to: '/station', label: 'Station', icon: <Building2 className="w-5 h-5" /> },
-    { to: '/pumps', label: 'Pumps', icon: <Gauge className="w-5 h-5" /> },
-    { to: '/tanks', label: 'Tanks', icon: <Database className="w-5 h-5" /> },
-    { to: '/products', label: 'Products', icon: <Package className="w-5 h-5" /> },
-    { to: '/purchases', label: 'Purchases', icon: <ShoppingCart className="w-5 h-5" /> },
-    { to: '/expenses', label: 'Expenses', icon: <DollarSign className="w-5 h-5" /> },
-    { to: '/shifts', label: 'Shifts', icon: <Clock className="w-5 h-5" /> },
-    { to: '/pos', label: 'POS', icon: <ShoppingCart className="w-5 h-5" /> },
-    { to: '/services', label: 'Services', icon: <Wrench className="w-5 h-5" /> },
-    { to: '/reports', label: 'Reports', icon: <BarChart3 className="w-5 h-5" /> },
-    { to: '/users', label: 'Users', icon: <Users className="w-5 h-5" /> },
+    { to: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/station', label: 'Station', icon: <Building2 className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/pumps', label: 'Pumps', icon: <Gauge className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/tanks', label: 'Tanks', icon: <Database className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/products', label: 'Products', icon: <Package className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/purchases', label: 'Purchases', icon: <ShoppingCart className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/expenses', label: 'Expenses', icon: <DollarSign className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/shifts', label: 'Shifts', icon: <Clock className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/pos', label: 'POS', icon: <ShoppingCart className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/services', label: 'Services', icon: <Wrench className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/reports', label: 'Reports', icon: <BarChart3 className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'] },
+    { to: '/daily-close', label: 'Daily Close', icon: <ShieldCheck className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'] },
+    { to: '/kif-returns', label: 'Kif Returns', icon: <ClipboardCheck className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'] },
+    { to: '/suppliers', label: 'Suppliers', icon: <FileText className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'] },
+    { to: '/customers', label: 'Customers', icon: <Users className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER'], requiredPermissions: ['customers.read'] },
+    { to: '/users', label: 'Users', icon: <Users className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER'], requiredPermissions: ['users.read'] },
   ];
+
+  const visibleNavItems = useMemo(() => {
+    return navItems.filter((item) => {
+      const role = user?.role;
+      const permissions = user?.permissions || [];
+
+      if (!role) return false;
+      if (item.allowedRoles && !item.allowedRoles.includes(role)) return false;
+      if (item.requiredPermissions?.length) {
+        const hasAllPermissions = item.requiredPermissions.every((permission) => permissions.includes(permission));
+        if (!hasAllPermissions) return false;
+      }
+
+      return true;
+    });
+  }, [navItems, user?.role, user?.permissions]);
 
   const isActive = (path: string) => currentPath === path || (path !== '/dashboard' && currentPath.startsWith(path));
 
@@ -121,7 +144,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath }) => {
           }`}
         >
           <nav className="px-4 py-6 space-y-2">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const active = isActive(item.to);
               return (
                 <Link

@@ -10,6 +10,7 @@ export interface User {
   phone?: string;
   active: boolean;
   station?: string;
+  permissions?: string[];
 }
 
 export interface AuthState {

@@ -77,7 +77,10 @@ export const ExpensesPage: React.FC = () => {
     setModalError(null);
 
     try {
-      await createExpense({ station, supplier, type, description, amount, paid, notes });
+      const payload: Record<string, unknown> = { type, description, amount, paid, notes };
+      if (station) payload.station = station;
+      if (supplier) payload.supplier = supplier;
+      await createExpense(payload as Parameters<typeof createExpense>[0]);
       setShowModal(false);
       await loadData();
     } catch (err: any) {
@@ -181,8 +184,10 @@ export const ExpensesPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="grid gap-4 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-300 mb-1">Station</label>
+                  <label htmlFor="expense-station" className="block text-slate-300 mb-1">Station</label>
                   <select
+                    id="expense-station"
+                    name="expense-station"
                     value={station}
                     onChange={(e) => setStation(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -196,8 +201,10 @@ export const ExpensesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Supplier</label>
+                  <label htmlFor="expense-supplier" className="block text-slate-300 mb-1">Supplier</label>
                   <select
+                    id="expense-supplier"
+                    name="expense-supplier"
                     value={supplier}
                     onChange={(e) => setSupplier(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -214,8 +221,10 @@ export const ExpensesPage: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-slate-300 mb-1">Expense Type</label>
+                  <label htmlFor="expense-type" className="block text-slate-300 mb-1">Expense Type</label>
                   <select
+                    id="expense-type"
+                    name="expense-type"
                     value={type}
                     onChange={(e) => setType(e.target.value as ExpenseType)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
@@ -226,8 +235,10 @@ export const ExpensesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Amount</label>
+                  <label htmlFor="expense-amount" className="block text-slate-300 mb-1">Amount</label>
                   <input
+                    id="expense-amount"
+                    name="expense-amount"
                     type="number"
                     step="0.001"
                     min="0"
@@ -240,8 +251,10 @@ export const ExpensesPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Description</label>
+                <label htmlFor="expense-description" className="block text-slate-300 mb-1">Description</label>
                 <input
+                  id="expense-description"
+                  name="expense-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"

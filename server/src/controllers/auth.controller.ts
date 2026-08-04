@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/User';
 import { generateToken } from '../utils/token';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { getRolePermissions } from '../utils/permissions';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -43,6 +44,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         firstName: user.firstName,
         lastName: user.lastName,
         active: user.active,
+        permissions: getRolePermissions(user.role),
       },
     });
   } catch (error: any) {
@@ -85,6 +87,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         firstName: user.firstName,
         lastName: user.lastName,
         active: user.active,
+        permissions: getRolePermissions(user.role),
       },
     });
   } catch (error: any) {
@@ -112,6 +115,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
         phone: user.phone,
         active: user.active,
         station: user.station,
+        permissions: getRolePermissions(user.role),
       },
     });
   } catch (error: any) {
