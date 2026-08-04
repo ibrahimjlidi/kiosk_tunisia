@@ -35,6 +35,11 @@ export const updateProduct = async (id: string, data: Partial<Product>): Promise
   return response.data;
 };
 
+export const deleteProduct = async (id: string): Promise<{ success: boolean; message: string }> => {
+  const response = await api.delete<{ success: boolean; message: string }>(`/products/${id}`);
+  return response.data;
+};
+
 // Station API
 export const fetchStations = async (): Promise<{ success: boolean; stations: Station[] }> => {
   const response = await api.get<{ success: boolean; stations: Station[] }>('/stations');

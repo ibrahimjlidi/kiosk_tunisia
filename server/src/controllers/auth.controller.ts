@@ -1,8 +1,31 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
-import { generateToken } from '../utils/token';
+import { config } from '../config/env';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { getRolePermissions } from '../utils/permissions';
+import { sendSuccess, sendError } from '../helpers/apiResponse';
+import { logAuditEvent } from '../helpers/auditLog';
+import { parseCookies } from '../helpers/cookies';
+import {
+  createRefreshToken,
+  generateAccessToken,
+  getRefreshCookieOptions,
+  revokeRefreshToken,
+  verifyRefreshToken,
+  findValidRefreshToken,
+} from '../services/auth.service';
+
+const buildUserPayload = (user: any) => ({
+  id: user._id,
+  username: user.username,
+  email: user.email,
+  role: user.role,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  active: user.active,
+  station: user.station,
+  permissions: getRolePermissions(user.role),
+});
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -10,13 +33,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      res.status(400).json({ success: false, message: 'Email is already registered' });
+      sendError(res, 'Email is already registered', 400);
       return;
     }
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
-      res.status(400).json({ success: false, message: 'Username is already taken' });
+      sendError(res, 'Username is already taken', 400);
       return;
     }
 
@@ -30,25 +53,41 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       role: role || 'OPERATOR',
     });
 
-    const token = generateToken(user);
-
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        active: user.active,
-        permissions: getRolePermissions(user.role),
-      },
+    const token = generateAccessToken({
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      username: user.username,
+      permissions: getRolePermissions(user.role),
     });
+    const refreshToken = await createRefreshToken(user._id.toString());
+
+    res.cookie('refresh_token', refreshToken.token, getRefreshCookieOptions());
+
+    await logAuditEvent({
+      user: user._id,
+      action: 'USER_REGISTERED',
+      status: 'SUCCESS',
+      message: `User ${user.email} registered`,
+    });
+
+    sendSuccess(
+      res,
+      {
+        message: 'User registered successfully',
+        token,
+        user: buildUserPayload(user),
+      },
+      201
+    );
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error registering user' });
+    await logAuditEvent({
+      action: 'USER_REGISTER_FAILED',
+      status: 'FAILURE',
+      message: error.message,
+      metadata: { body: req.body },
+    });
+    sendError(res, error.message || 'Error registering user', 500);
   }
 };
 
@@ -58,40 +97,128 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      res.status(401).json({ success: false, message: 'Invalid email or password' });
+      sendError(res, 'Invalid email or password', 401);
       return;
     }
 
     if (!user.active) {
-      res.status(403).json({ success: false, message: 'Account is deactivated. Contact Administrator.' });
+      sendError(res, 'Account is deactivated. Contact Administrator.', 403);
       return;
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      res.status(401).json({ success: false, message: 'Invalid email or password' });
+      sendError(res, 'Invalid email or password', 401);
       return;
     }
 
-    const token = generateToken(user);
+    const token = generateAccessToken({
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      username: user.username,
+      permissions: getRolePermissions(user.role),
+    });
+    const refreshToken = await createRefreshToken(user._id.toString());
 
-    res.status(200).json({
-      success: true,
+    res.cookie('refresh_token', refreshToken.token, getRefreshCookieOptions());
+
+    await logAuditEvent({
+      user: user._id,
+      action: 'USER_LOGIN',
+      status: 'SUCCESS',
+      message: `User ${user.email} logged in`,
+    });
+
+    sendSuccess(res, {
       message: 'Login successful',
       token,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        active: user.active,
-        permissions: getRolePermissions(user.role),
-      },
+      user: buildUserPayload(user),
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error logging in' });
+    await logAuditEvent({
+      action: 'USER_LOGIN_FAILED',
+      status: 'FAILURE',
+      message: error.message,
+      metadata: { body: req.body },
+    });
+    sendError(res, error.message || 'Error logging in', 500);
+  }
+};
+
+export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const cookies = parseCookies(req.headers.cookie);
+    const refreshToken = cookies['refresh_token'];
+
+    if (!refreshToken) {
+      sendError(res, 'Refresh token is missing.', 401);
+      return;
+    }
+
+    const storedToken = await findValidRefreshToken(refreshToken);
+    if (!storedToken) {
+      sendError(res, 'Refresh token is invalid or expired.', 401);
+      return;
+    }
+
+    const payload = verifyRefreshToken(refreshToken) as { id: string };
+    const user = await User.findById(payload.id);
+    if (!user || !user.active) {
+      sendError(res, 'Refresh session invalid.', 401);
+      return;
+    }
+
+    const token = generateAccessToken({
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      username: user.username,
+      permissions: getRolePermissions(user.role),
+    });
+
+    const newRefreshToken = await revokeRefreshToken(refreshToken).then(() => createRefreshToken(user._id.toString()));
+
+    res.cookie('refresh_token', newRefreshToken.token, getRefreshCookieOptions());
+
+    await logAuditEvent({
+      user: user._id,
+      action: 'REFRESH_TOKEN',
+      status: 'SUCCESS',
+      message: `Refresh token rotated for user ${user.email}`,
+    });
+
+    sendSuccess(res, { message: 'Access token refreshed', token });
+  } catch (error: any) {
+    await logAuditEvent({
+      action: 'REFRESH_TOKEN_FAILED',
+      status: 'FAILURE',
+      message: error.message,
+    });
+    sendError(res, error.message || 'Error refreshing access token', 401);
+  }
+};
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const cookies = parseCookies(req.headers.cookie);
+    const refreshToken = cookies['refresh_token'];
+
+    if (refreshToken) {
+      await revokeRefreshToken(refreshToken);
+    }
+
+    res.cookie('refresh_token', '', {
+      httpOnly: true,
+      secure: config.nodeEnv === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 0,
+    });
+
+    sendSuccess(res, { message: 'Logged out successfully' });
+  } catch (error: any) {
+    sendError(res, error.message || 'Error logging out', 500);
   }
 };
 
@@ -99,26 +226,14 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.user?.id);
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' });
+      sendError(res, 'User not found', 404);
       return;
     }
 
-    res.status(200).json({
-      success: true,
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        active: user.active,
-        station: user.station,
-        permissions: getRolePermissions(user.role),
-      },
+    sendSuccess(res, {
+      user: buildUserPayload(user),
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error fetching user profile' });
+    sendError(res, error.message || 'Error fetching user profile', 500);
   }
 };

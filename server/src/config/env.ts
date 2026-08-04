@@ -9,5 +9,7 @@ export const config = {
   mongoUri: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/fuelstation_erp',
   jwtSecret: process.env.JWT_SECRET || 'super_secret_jwt_key_fuelstation_2026_tunisia',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'super_secret_refresh_token_key_fuelstation_2026',
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
 };

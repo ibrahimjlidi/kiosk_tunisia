@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProducts, createProduct, updateProduct } from '../../services/stationApi';
+import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../../services/stationApi';
 import { Product, ProductCategory } from '../../types/station';
 import { Fuel, Plus, Edit2, RefreshCw, AlertCircle, TrendingUp, DollarSign } from 'lucide-react';
 
@@ -19,6 +19,8 @@ export const ProductsPage: React.FC = () => {
   const [sellingPrice, setSellingPrice] = useState<number>(0);
   const [vatRate, setVatRate] = useState<number>(19);
   const [minStockAlert, setMinStockAlert] = useState<number>(2000);
+  const [currentStock, setCurrentStock] = useState<number>(0);
+  const [active, setActive] = useState(true);
   const [modalError, setModalError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -61,12 +63,18 @@ export const ProductsPage: React.FC = () => {
     setSellingPrice(product.sellingPrice);
     setVatRate(product.vatRate);
     setMinStockAlert(product.minStockAlert);
+    setCurrentStock(product.currentStock);
+    setActive(product.active);
     setModalError(null);
     setShowModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (sellingPrice < purchasePrice) {
+      setModalError('Selling price should be greater than or equal to purchase price.');
+      return;
+    }
     setModalError(null);
     setSaving(true);
     try {
@@ -79,6 +87,8 @@ export const ProductsPage: React.FC = () => {
           sellingPrice,
           vatRate,
           minStockAlert,
+          currentStock,
+          active,
         });
       } else {
         await createProduct({
@@ -89,6 +99,8 @@ export const ProductsPage: React.FC = () => {
           sellingPrice,
           vatRate,
           minStockAlert,
+          currentStock,
+          active,
         });
       }
       setShowModal(false);
@@ -97,6 +109,18 @@ export const ProductsPage: React.FC = () => {
       setModalError(err?.response?.data?.message || 'Error saving product');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!window.confirm('Supprimer ce produit ? Cette action est irréversible.')) {
+      return;
+    }
+    try {
+      await deleteProduct(productId);
+      loadProducts();
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Erreur lors de la suppression du produit');
     }
   };
 
@@ -143,6 +167,7 @@ export const ProductsPage: React.FC = () => {
                   <th className="px-4 py-3">Purchase Price (HT/TND)</th>
                   <th className="px-4 py-3">Selling Price (TTC/TND)</th>
                   <th className="px-4 py-3">VAT Rate</th>
+                  <th className="px-4 py-3">Stock</th>
                   <th className="px-4 py-3">Margin / Liter</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -181,16 +206,33 @@ export const ProductsPage: React.FC = () => {
                         {p.vatRate}%
                       </td>
 
+                      <td className="px-4 py-3 font-mono text-slate-300">
+                        {p.currentStock.toLocaleString('fr-TN')} {p.unitOfMeasure === 'LITER' ? 'L' : p.unitOfMeasure === 'UNIT' ? 'pcs' : 'svc'}
+                      </td>
+
                       <td className="px-4 py-3 font-mono text-cyan-400 font-medium">
                         +{margin.toFixed(3)} TND
                       </td>
 
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right space-x-1 flex justify-end">
+                        <span className={`px-2 py-1 rounded text-[10px] font-semibold border ${
+                          p.active
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                            : 'bg-red-500/10 text-red-400 border-red-500/20'
+                        }`}>
+                          {p.active ? 'Active' : 'Inactive'}
+                        </span>
                         <button
                           onClick={() => openEditModal(p)}
                           className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded transition-colors"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(p._id)}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-slate-800 rounded transition-colors"
+                        >
+                          Delete
                         </button>
                       </td>
                     </tr>
@@ -289,6 +331,32 @@ export const ProductsPage: React.FC = () => {
                     onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
                     className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
                   />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="product-current-stock" className="block text-slate-300 mb-1">Current Stock</label>
+                  <input
+                    id="product-current-stock"
+                    name="product-current-stock"
+                    type="number"
+                    step="0.001"
+                    value={currentStock}
+                    onChange={(e) => setCurrentStock(parseFloat(e.target.value) || 0)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="product-status" className="block text-slate-300 mb-1">Status</label>
+                  <select
+                    id="product-status"
+                    value={active ? 'active' : 'inactive'}
+                    onChange={(e) => setActive(e.target.value === 'active')}
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
                 </div>
               </div>
 

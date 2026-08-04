@@ -31,6 +31,36 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+export const createUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username, email, password, firstName, lastName, role, active, station } = req.body;
+    const newUser = await User.create({
+      username,
+      email,
+      password,
+      firstName,
+      lastName,
+      role: role as UserRole,
+      active: active !== undefined ? active : true,
+      station,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role,
+        active: newUser.active,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Error creating user' });
+  }
+};
+
 export const updateUserRole = async (req: Request, res: Response): Promise<void> => {
   try {
     const { role, active } = req.body;

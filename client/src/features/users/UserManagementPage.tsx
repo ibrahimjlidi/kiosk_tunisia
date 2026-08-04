@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchAllUsers, registerUser, updateUserRoleAndStatus } from '../../services/authApi';
+import { fetchAllUsers, createUser, updateUserRoleAndStatus } from '../../services/authApi';
 import { User, UserRole } from '../../types/auth';
 import { Users, UserPlus, Shield, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -41,13 +41,14 @@ export const UserManagementPage: React.FC = () => {
     setCreateError(null);
     setCreateLoading(true);
     try {
-      await registerUser({
+      await createUser({
         username,
         email,
         password,
         firstName,
         lastName,
         role,
+        active: true,
       });
       setShowAddModal(false);
       setUsername('');
@@ -55,6 +56,7 @@ export const UserManagementPage: React.FC = () => {
       setPassword('');
       setFirstName('');
       setLastName('');
+      setRole('OPERATOR');
       loadUsers();
     } catch (err: any) {
       setCreateError(err?.response?.data?.message || 'Failed to create user');

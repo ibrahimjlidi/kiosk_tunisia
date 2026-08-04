@@ -108,10 +108,37 @@ export const TanksPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!station || !product || !tankNumber.trim()) {
       setModalError('Station, product and tank number are required.');
       return;
     }
+
+    if (capacity <= 0) {
+      setModalError('Tank capacity must be greater than zero.');
+      return;
+    }
+
+    if (currentStock < 0) {
+      setModalError('Current stock cannot be negative.');
+      return;
+    }
+
+    if (minLevelAlert < 0) {
+      setModalError('Minimum alert level cannot be negative.');
+      return;
+    }
+
+    if (currentStock > capacity) {
+      setModalError('Current stock cannot exceed tank capacity.');
+      return;
+    }
+
+    if (minLevelAlert > capacity) {
+      setModalError('Minimum alert level cannot exceed tank capacity.');
+      return;
+    }
+
     setSaving(true);
     setModalError(null);
     try {
@@ -201,12 +228,21 @@ export const TanksPage: React.FC = () => {
                       {stationObj ? stationObj.name : 'No station'}
                     </div>
                   </div>
-                  {low && (
-                    <div className="flex items-center space-x-1 text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-[10px] font-bold">
-                      <AlertTriangle className="w-3 h-3" />
-                      <span>LOW STOCK</span>
-                    </div>
-                  )}
+                  <div className="flex flex-col items-end gap-1">
+                    <span className={`px-2 py-1 rounded text-[10px] font-semibold border ${
+                      tank.active
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                        : 'bg-red-500/10 text-red-400 border-red-500/20'
+                    }`}>
+                      {tank.active ? 'Active' : 'Inactive'}
+                    </span>
+                    {low && (
+                      <div className="flex items-center space-x-1 text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded text-[10px] font-bold">
+                        <AlertTriangle className="w-3 h-3" />
+                        <span>LOW STOCK</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="px-5 py-2 space-y-2">
@@ -353,6 +389,21 @@ export const TanksPage: React.FC = () => {
                     className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-cyan-500"
                   />
                   <label htmlFor="tank-active" className="text-slate-300 text-sm">Active tank</label>
+                </div>
+              </div>
+
+              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+                <div className="flex items-center justify-between">
+                  <span>Capacity</span>
+                  <span className="font-mono text-cyan-400">{capacity.toLocaleString('fr-TN')} L</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span>Current stock</span>
+                  <span className="font-mono text-emerald-400">{currentStock.toLocaleString('fr-TN')} L</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span>Alert threshold</span>
+                  <span className="font-mono text-amber-400">{minLevelAlert.toLocaleString('fr-TN')} L</span>
                 </div>
               </div>
 

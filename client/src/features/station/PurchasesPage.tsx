@@ -58,6 +58,22 @@ export const PurchasesPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!selectedProduct || !selectedStation) {
+      setModalError('Please select both a product and a station.');
+      return;
+    }
+
+    if (quantity <= 0) {
+      setModalError('Quantity must be greater than zero.');
+      return;
+    }
+
+    if (unitCost < 0) {
+      setModalError('Unit cost cannot be negative.');
+      return;
+    }
+
     setModalError(null);
     setSaving(true);
 
@@ -170,6 +186,21 @@ export const PurchasesPage: React.FC = () => {
             </div>
 
             {modalError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs">{modalError}</div>}
+
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="flex items-center justify-between">
+                <span>Product</span>
+                <span className="font-mono text-cyan-400">{products.find((p) => p._id === selectedProduct)?.name || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Station</span>
+                <span className="font-mono text-slate-200">{stations.find((s) => s._id === selectedStation)?.name || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Expected total</span>
+                <span className="font-mono text-emerald-400">{(quantity * unitCost).toFixed(3)} TND</span>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="grid gap-4 text-xs">
               <div>

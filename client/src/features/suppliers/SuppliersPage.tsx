@@ -44,13 +44,21 @@ export const SuppliersPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setModalError('Supplier name is required');
+      setModalError('Supplier name is required.');
+      return;
+    }
+    if (phone && !/^\+?[0-9\s-]{8,}$/.test(phone.trim())) {
+      setModalError('Phone number format is invalid.');
+      return;
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setModalError('Email format is invalid.');
       return;
     }
     setSaving(true);
     setModalError(null);
     try {
-      await createSupplier({ name, phone, email, address });
+      await createSupplier({ name: name.trim(), phone: phone.trim(), email: email.trim(), address: address.trim() });
       setShowModal(false);
       await loadSuppliers();
     } catch (err: any) {
@@ -148,6 +156,21 @@ export const SuppliersPage: React.FC = () => {
             </div>
 
             {modalError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs">{modalError}</div>}
+
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="flex items-center justify-between">
+                <span>Supplier</span>
+                <span className="font-mono text-cyan-400">{name.trim() || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Contact</span>
+                <span className="font-mono text-slate-200">{phone.trim() || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Email</span>
+                <span className="font-mono text-slate-200">{email.trim() || '—'}</span>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="grid gap-3 text-xs">
               <div>

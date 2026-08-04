@@ -48,7 +48,6 @@ app.use('/api/v1/purchases', purchaseRoutes);
 app.use('/api/v1/suppliers', supplierRoutes);
 app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/reports', reportRoutes);
-app.use('/api/v1/suppliers', supplierRoutes);
 app.use('/api/v1/purchase-orders', purchaseOrderRoutes);
 app.use('/api/v1/tank-gaugings', tankGaugingRoutes);
 app.use('/api/v1/daily-closures', dailyClosureRoutes);

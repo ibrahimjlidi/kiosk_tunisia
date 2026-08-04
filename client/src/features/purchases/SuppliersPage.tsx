@@ -12,6 +12,8 @@ export const SuppliersPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [page, setPage] = useState(1);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const pageSize = 8;
 
   const [form, setForm] = useState({
@@ -43,12 +45,14 @@ export const SuppliersPage: React.FC = () => {
 
   const openCreate = () => {
     setEditing(null);
+    setModalError(null);
     setForm({ name: '', code: '', contactPerson: '', phone: '', email: '', address: '', taxId: '' });
     setShowModal(true);
   };
 
   const openEdit = (s: Supplier) => {
     setEditing(s);
+    setModalError(null);
     setForm({
       name: s.name, code: s.code, contactPerson: s.contactPerson || '',
       phone: s.phone || '', email: s.email || '', address: s.address || '', taxId: s.taxId || ''
@@ -57,6 +61,23 @@ export const SuppliersPage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (!form.name.trim() || !form.code.trim()) {
+      setModalError('Supplier name and code are required.');
+      return;
+    }
+
+    if (form.phone && !/^\+?[0-9\s-]{8,}$/.test(form.phone.trim())) {
+      setModalError('Phone number format is invalid.');
+      return;
+    }
+
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setModalError('Email format is invalid.');
+      return;
+    }
+
+    setModalError(null);
+    setSaving(true);
     try {
       if (editing) {
         await updateSupplier(editing._id, form);
@@ -65,8 +86,10 @@ export const SuppliersPage: React.FC = () => {
       }
       setShowModal(false);
       loadSuppliers();
-    } catch (err) {
-      console.error('Save failed', err);
+    } catch (err: any) {
+      setModalError(err?.response?.data?.message || 'Save failed');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -136,16 +159,21 @@ export const SuppliersPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-              {canManage && (
-                <div className="flex items-center space-x-1">
-                  <button onClick={() => openEdit(s)} className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors">
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button onClick={() => handleDelete(s._id)} className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${s.active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                  {s.active ? 'ACTIVE' : 'INACTIVE'}
+                </span>
+                {canManage && (
+                  <div className="flex items-center space-x-1">
+                    <button onClick={() => openEdit(s)} className="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => handleDelete(s._id)} className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -171,6 +199,25 @@ export const SuppliersPage: React.FC = () => {
               <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-slate-200">
                 <X className="w-4 h-4" />
               </button>
+            </div>
+            {modalError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded text-rose-300 text-xs">
+                {modalError}
+              </div>
+            )}
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="flex items-center justify-between">
+                <span>Name</span>
+                <span className="font-mono text-cyan-400">{form.name.trim() || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Code</span>
+                <span className="font-mono text-slate-200">{form.code.trim() || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Contact</span>
+                <span className="font-mono text-amber-400">{form.contactPerson.trim() || '—'}</span>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
@@ -204,8 +251,8 @@ export const SuppliersPage: React.FC = () => {
             </div>
             <div className="flex justify-end space-x-2 pt-2">
               <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg">Cancel</button>
-              <button onClick={handleSave} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">
-                {editing ? 'Update' : 'Create'}
+              <button disabled={saving} onClick={handleSave} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-60">
+                {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
               </button>
             </div>
           </div>

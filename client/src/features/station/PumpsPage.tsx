@@ -128,12 +128,29 @@ export const PumpsPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!stationId || !pumpNumber.trim()) {
+      setModalError('Station and pump number are required.');
+      return;
+    }
+
+    if (pistols.length === 0) {
+      setModalError('At least one pistol must be assigned to the pump.');
+      return;
+    }
+
+    const invalidPistol = pistols.find((pistol) => !pistol.productId || pistol.currentClosingIndex < 0);
+    if (invalidPistol) {
+      setModalError('Each pistol must have a product and a non-negative closing index.');
+      return;
+    }
+
     setModalError(null);
     setSaving(true);
     try {
       const payload: PumpPayload = {
         station: stationId,
-        pumpNumber,
+        pumpNumber: pumpNumber.trim().toUpperCase(),
         active,
         pistols: pistols.map((p) => ({
           pistolNumber: p.pistolNumber,
@@ -149,6 +166,7 @@ export const PumpsPage: React.FC = () => {
         await createPump(payload);
       }
       setShowModal(false);
+      resetForm();
       loadPumps();
     } catch (err: any) {
       setModalError(err?.response?.data?.message || 'Error saving pump');
@@ -355,6 +373,21 @@ export const PumpsPage: React.FC = () => {
                 </button>
               </div>
 
+              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+                <div className="flex items-center justify-between">
+                  <span>Station</span>
+                  <span className="font-mono text-cyan-400">{stations.find((item) => item._id === stationId)?.name || '—'}</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span>Pump</span>
+                  <span className="font-mono text-slate-200">{pumpNumber.trim() || '—'}</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span>Pistols</span>
+                  <span className="font-mono text-amber-400">{pistols.length}</span>
+                </div>
+              </div>
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="text-sm font-semibold text-slate-100">Pistols</div>
@@ -436,7 +469,7 @@ export const PumpsPage: React.FC = () => {
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{editingPump ? 'Save Pump' : 'Create Pump'}</span>
+                  <span>{saving ? 'Saving...' : editingPump ? 'Save Pump' : 'Create Pump'}</span>
                 </button>
                 <button
                   type="button"

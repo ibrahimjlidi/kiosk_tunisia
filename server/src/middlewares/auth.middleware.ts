@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
 import { User, IUser, UserRole } from '../models/User';
+import { sendError } from '../helpers/apiResponse';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -37,30 +38,20 @@ export const authenticate = async (
     }
 
     if (!token) {
-      res.status(401).json({
-        success: false,
-        message: 'Authentication token is missing. Access denied.',
-      });
+      sendError(res, 'Authentication token is missing. Access denied.', 401);
       return;
     }
 
     const decoded = jwt.verify(token, config.jwtSecret) as JwtPayload;
     
-    // Check if user still exists and is active
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
-      res.status(401).json({
-        success: false,
-        message: 'The user belonging to this token no longer exists.',
-      });
+      sendError(res, 'The user belonging to this token no longer exists.', 401);
       return;
     }
 
     if (!currentUser.active) {
-      res.status(403).json({
-        success: false,
-        message: 'Your account has been deactivated. Contact an administrator.',
-      });
+      sendError(res, 'Your account has been deactivated. Contact an administrator.', 403);
       return;
     }
 
@@ -74,28 +65,23 @@ export const authenticate = async (
 
     next();
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: 'Invalid or expired authentication token.',
-    });
+    sendError(res, 'Invalid or expired authentication token.', 401);
   }
 };
 
 export const authorizeRoles = (...allowedRoles: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        message: 'Authentication required.',
-      });
+      sendError(res, 'Authentication required.', 401);
       return;
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({
-        success: false,
-        message: `Forbidden: Role '${req.user.role}' is not authorized to access this resource.`,
-      });
+      sendError(
+        res,
+        `Forbidden: Role '${req.user.role}' is not authorized to access this resource.`,
+        403
+      );
       return;
     }
 
@@ -106,10 +92,7 @@ export const authorizeRoles = (...allowedRoles: UserRole[]) => {
 export const authorize = (...requiredPermissions: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        message: 'Authentication required.',
-      });
+      sendError(res, 'Authentication required.', 401);
       return;
     }
 
@@ -117,10 +100,11 @@ export const authorize = (...requiredPermissions: string[]) => {
     const missingPermissions = requiredPermissions.filter((permission) => !permissions.includes(permission));
 
     if (missingPermissions.length > 0) {
-      res.status(403).json({
-        success: false,
-        message: `Forbidden: Missing permission(s): ${missingPermissions.join(', ')}`,
-      });
+      sendError(
+        res,
+        `Forbidden: Missing permission(s): ${missingPermissions.join(', ')}`,
+        403
+      );
       return;
     }
 

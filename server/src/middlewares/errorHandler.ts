@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
+import { sendError } from '../helpers/apiResponse';
 
 export interface CustomError extends Error {
   statusCode?: number;
+  errors?: { field?: string; message: string; code?: string }[];
 }
 
 export const errorHandler = (
@@ -15,9 +17,11 @@ export const errorHandler = (
 
   console.error(`[Error] ${statusCode} - ${message}`);
 
-  res.status(statusCode).json({
-    success: false,
+  return sendError(
+    res,
     message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-  });
+    statusCode,
+    err.errors,
+    process.env.NODE_ENV === 'development' && err.stack ? { stack: err.stack } : undefined
+  );
 };

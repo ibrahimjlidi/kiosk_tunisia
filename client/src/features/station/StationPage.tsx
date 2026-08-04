@@ -72,16 +72,41 @@ export const StationPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!name.trim() || !code.trim() || !address.trim() || !city.trim()) {
+      setModalError('Station name, code, address and city are required.');
+      return;
+    }
+
+    if (phone && !/^\+?[0-9\s-]{8,}$/.test(phone.trim())) {
+      setModalError('Phone number format is invalid.');
+      return;
+    }
+
+    if (taxId && taxId.trim().length < 3) {
+      setModalError('Tax ID must contain at least 3 characters.');
+      return;
+    }
+
     setModalError(null);
     setSaving(true);
     try {
-      const payload = { name, code, address, city, phone, taxId, active };
+      const payload = {
+        name: name.trim(),
+        code: code.trim().toUpperCase(),
+        address: address.trim(),
+        city: city.trim(),
+        phone: phone.trim(),
+        taxId: taxId.trim(),
+        active,
+      };
       if (editingStation) {
         await updateStation(editingStation._id, payload);
       } else {
         await createStation(payload);
       }
       setShowModal(false);
+      resetForm();
       loadStations();
     } catch (err: any) {
       setModalError(err?.response?.data?.message || 'Error saving station');
@@ -177,13 +202,16 @@ export const StationPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-                station.active
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  : 'bg-red-500/10 text-red-400 border-red-500/20'
-              }`}>
-                {station.active ? 'ACTIVE' : 'INACTIVE'}
-              </span>
+              <div className="flex items-center justify-between gap-2">
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
+                  station.active
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    : 'bg-red-500/10 text-red-400 border-red-500/20'
+                }`}>
+                  {station.active ? 'ACTIVE' : 'INACTIVE'}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">{station.code}</span>
+              </div>
 
               <div className="space-y-2 text-xs">
                 <div className="flex items-center space-x-2 text-slate-400">
@@ -315,6 +343,23 @@ export const StationPage: React.FC = () => {
                 </button>
               </div>
 
+              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+                <div className="flex items-center justify-between">
+                  <span>Station label</span>
+                  <span className="font-mono text-cyan-400">{code.trim() || '—'}</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span>City</span>
+                  <span className="font-mono text-slate-200">{city.trim() || '—'}</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span>Status</span>
+                  <span className={active ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
+                    {active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              </div>
+
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <button
                   type="submit"
@@ -322,7 +367,7 @@ export const StationPage: React.FC = () => {
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{editingStation ? 'Save Changes' : 'Create Station'}</span>
+                  <span>{saving ? 'Saving...' : editingStation ? 'Save Changes' : 'Create Station'}</span>
                 </button>
                 <button
                   type="button"

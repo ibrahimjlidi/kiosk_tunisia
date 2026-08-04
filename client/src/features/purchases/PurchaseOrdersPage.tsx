@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { fetchPurchaseOrders, createPurchaseOrder, deliverPurchaseOrder, cancelPurchaseOrder, fetchSuppliers, fetchProducts, fetchTanks } from '../../services/stationApi';
-import { PurchaseOrder, Supplier, Product, Tank } from '../../types/station';
+import { fetchPurchaseOrders, createPurchaseOrder, deliverPurchaseOrder, cancelPurchaseOrder, fetchSuppliers, fetchProducts, fetchTanks, fetchStations } from '../../services/stationApi';
+import { PurchaseOrder, Supplier, Product, Tank, Station } from '../../types/station';
 import { ClipboardList, Plus, Search, X, ChevronLeft, ChevronRight, RefreshCw, Truck, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,9 +10,12 @@ export const PurchaseOrdersPage: React.FC = () => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [tanks, setTanks] = useState<Tank[]>([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 6;
 
@@ -27,16 +30,18 @@ export const PurchaseOrdersPage: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [ordersRes, suppliersRes, productsRes, tanksRes] = await Promise.all([
+      const [ordersRes, suppliersRes, productsRes, tanksRes, stationsRes] = await Promise.all([
         fetchPurchaseOrders(),
         fetchSuppliers(),
         fetchProducts(),
-        fetchTanks()
+        fetchTanks(),
+        fetchStations()
       ]);
       setOrders(ordersRes.orders || []);
       setSuppliers(suppliersRes.suppliers || []);
       setProducts(productsRes.products || []);
       setTanks(tanksRes.tanks || []);
+      setStations(stationsRes.stations || []);
     } catch (err) {
       console.error('Failed to load data', err);
     } finally {
@@ -53,6 +58,7 @@ export const PurchaseOrdersPage: React.FC = () => {
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   const openCreate = () => {
+    setModalError(null);
     setForm({
       supplier: '', station: '', orderNumber: `PO-${Date.now()}`,
       orderDate: new Date().toISOString().split('T')[0],
@@ -81,12 +87,27 @@ export const PurchaseOrdersPage: React.FC = () => {
   };
 
   const handleCreate = async () => {
+    if (!form.supplier || !form.station || !form.orderNumber.trim()) {
+      setModalError('Supplier, station, and order number are required.');
+      return;
+    }
+
+    const invalidItem = form.items.find((item) => !item.product || !item.tank || item.quantity <= 0 || item.unitPrice < 0);
+    if (invalidItem) {
+      setModalError('Each order line needs a product, tank, positive quantity, and a valid unit price.');
+      return;
+    }
+
+    setModalError(null);
+    setSaving(true);
     try {
       await createPurchaseOrder(form);
       setShowModal(false);
-      loadData();
-    } catch (err) {
-      console.error('Create failed', err);
+      await loadData();
+    } catch (err: any) {
+      setModalError(err?.response?.data?.message || 'Create failed');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -213,6 +234,28 @@ export const PurchaseOrdersPage: React.FC = () => {
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {modalError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded text-rose-300 text-xs">
+                {modalError}
+              </div>
+            )}
+
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="flex items-center justify-between">
+                <span>Supplier</span>
+                <span className="font-mono text-cyan-400">{suppliers.find((item) => item._id === form.supplier)?.name || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Station</span>
+                <span className="font-mono text-slate-200">{stations.find((item) => item._id === form.station)?.name || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Items</span>
+                <span className="font-mono text-amber-400">{form.items.length}</span>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Supplier *</label>
@@ -224,6 +267,15 @@ export const PurchaseOrdersPage: React.FC = () => {
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Order Number *</label>
                 <input value={form.orderNumber} onChange={e => setForm({ ...form, orderNumber: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+              </div>
+              <div>
+                <label className="text-[10px] text-slate-400 uppercase tracking-wider">Station *</label>
+                <select value={form.station} onChange={e => setForm({ ...form, station: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50">
+                  <option value="">Select station</option>
+                  {stations.map((station) => (
+                    <option key={station._id} value={station._id}>{station.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Order Date</label>
@@ -272,7 +324,9 @@ export const PurchaseOrdersPage: React.FC = () => {
 
             <div className="flex justify-end space-x-2 pt-2">
               <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg">Cancel</button>
-              <button onClick={handleCreate} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">Create Order</button>
+              <button disabled={saving} onClick={handleCreate} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-60">
+                {saving ? 'Saving...' : 'Create Order'}
+              </button>
             </div>
           </div>
         </div>

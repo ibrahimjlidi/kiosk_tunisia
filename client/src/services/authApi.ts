@@ -11,6 +11,16 @@ export const registerUser = async (userData: Record<string, any>): Promise<Regis
   return response.data;
 };
 
+export const refreshAccessToken = async (): Promise<{ success: boolean; token: string }> => {
+  const response = await api.post<{ success: boolean; token: string }>('/auth/refresh');
+  return response.data;
+};
+
+export const logoutUser = async (): Promise<{ success: boolean; message: string }> => {
+  const response = await api.post<{ success: boolean; message: string }>('/auth/logout');
+  return response.data;
+};
+
 export const fetchCurrentUser = async (): Promise<{ success: boolean; user: User }> => {
   const response = await api.get<{ success: boolean; user: User }>('/auth/me');
   return response.data;
@@ -18,6 +28,11 @@ export const fetchCurrentUser = async (): Promise<{ success: boolean; user: User
 
 export const fetchAllUsers = async (): Promise<{ success: boolean; users: User[] }> => {
   const response = await api.get<{ success: boolean; users: User[] }>('/users');
+  return response.data;
+};
+
+export const createUser = async (userData: Record<string, any>): Promise<{ success: boolean; user: User }> => {
+  const response = await api.post<{ success: boolean; user: User }>('/users', userData);
   return response.data;
 };
 
