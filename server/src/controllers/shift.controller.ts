@@ -9,6 +9,7 @@ import {
   rolloverIndexesToPumps,
 } from '../services/shift.service';
 import { createSalesForShift } from '../services/sale.service';
+import { normalizeApiError } from '../helpers/errorResponse';
 
 const SHIFT_TYPE_NUMBER: Record<ShiftType, number> = {
   MORNING:   1,
@@ -39,8 +40,8 @@ export const getShifts = async (req: Request, res: Response): Promise<void> => {
       .sort({ shiftDate: -1, shiftNumber: 1 });
 
     res.status(200).json({ success: true, count: shifts.length, shifts });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load shifts.') });
   }
 };
 
@@ -55,8 +56,8 @@ export const getShiftById = async (req: Request, res: Response): Promise<void> =
 
     if (!shift) { res.status(404).json({ success: false, message: 'Shift not found' }); return; }
     res.status(200).json({ success: true, shift });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load shift.') });
   }
 };
 
@@ -73,11 +74,10 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
     const station = await Station.findById(stationId);
     if (!station) { res.status(404).json({ success: false, message: 'Station not found' }); return; }
 
-    const date   = new Date(shiftDate);
+    const date = new Date(shiftDate);
     const dayStart = new Date(date); dayStart.setHours(0, 0, 0, 0);
-    const dayEnd   = new Date(date); dayEnd.setHours(23, 59, 59, 999);
+    const dayEnd = new Date(date); dayEnd.setHours(23, 59, 59, 999);
 
-    // Check for duplicate shift
     const existing = await Shift.findOne({
       station: stationId,
       shiftType,
@@ -91,20 +91,25 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
     const shiftNumber = SHIFT_TYPE_NUMBER[shiftType as ShiftType];
     const pumpReadings = await buildInitialPumpReadings(stationId, date, shiftNumber);
 
+    if (!pumpReadings.length) {
+      res.status(400).json({ success: false, message: 'No active pumps are configured for this station. Open a pump structure before starting the shift.' });
+      return;
+    }
+
     const shift = await Shift.create({
-      station:     stationId,
+      station: stationId,
       shiftType,
-      shiftDate:   date,
+      shiftDate: date,
       shiftNumber,
-      openedBy:    req.user!.id,
-      employees:   employeeIds || [],
+      openedBy: req.user!.id,
+      employees: employeeIds || [],
       pumpReadings,
-      openedAt:    new Date(),
+      openedAt: new Date(),
     });
 
     res.status(201).json({ success: true, message: `${shiftType} shift opened successfully`, shift });
-  } catch (err: any) {
-    res.status(400).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(400).json({ success: false, message: normalizeApiError(error, 'Unable to open shift.') });
   }
 };
 
@@ -118,19 +123,20 @@ export const updateShiftReadings = async (req: Request, res: Response): Promise<
       return;
     }
 
-    // req.body.readings: [{ pumpId, pistolId, closingIndex }]
     const updates: { pumpId: string; pistolId: string; closingIndex: number }[] = req.body.readings || [];
 
     for (const update of updates) {
-      const pumpReading = shift.pumpReadings.find(
-        (pr) => pr.pump.toString() === update.pumpId
-      );
-      if (!pumpReading) continue;
+      const pumpReading = shift.pumpReadings.find((pr) => pr.pump.toString() === update.pumpId);
+      if (!pumpReading) {
+        res.status(400).json({ success: false, message: `Pump ${update.pumpId} is not part of this shift.` });
+        return;
+      }
 
-      const pistolReading = pumpReading.pistolReadings.find(
-        (pr) => pr.pistolId.toString() === update.pistolId
-      );
-      if (!pistolReading) continue;
+      const pistolReading = pumpReading.pistolReadings.find((pr) => pr.pistolId.toString() === update.pistolId);
+      if (!pistolReading) {
+        res.status(400).json({ success: false, message: `Pistol ${update.pistolId} is not linked to pump ${update.pumpId}.` });
+        return;
+      }
 
       if (update.closingIndex < pistolReading.openingIndex) {
         res.status(400).json({
@@ -142,7 +148,6 @@ export const updateShiftReadings = async (req: Request, res: Response): Promise<
 
       pistolReading.closingIndex = update.closingIndex;
 
-      // Recalculate financials
       const calc = calcPistolFinancials(
         pistolReading.openingIndex,
         pistolReading.closingIndex,
@@ -153,14 +158,13 @@ export const updateShiftReadings = async (req: Request, res: Response): Promise<
       Object.assign(pistolReading, calc);
     }
 
-    // Re-aggregate shift totals
     const totals = aggregateShiftTotals(shift.pumpReadings);
     Object.assign(shift, totals);
 
     await shift.save();
     res.status(200).json({ success: true, message: 'Readings updated and recalculated', shift });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to update shift readings.') });
   }
 };
 
@@ -187,8 +191,8 @@ export const updateShiftPayments = async (req: Request, res: Response): Promise<
 
     await shift.save();
     res.status(200).json({ success: true, message: 'Payments updated', shift });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to update shift payments.') });
   }
 };
 
@@ -202,34 +206,43 @@ export const closeShift = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    // Business rule: readings must be done (at least one reading has closingIndex > openingIndex OR all are 0)
-    // Payments must be recorded
-    if (shift.totalPayments === 0 && shift.totalSalesTTC > 0) {
-      res.status(400).json({ success: false, message: 'Payments must be recorded before closing the shift' });
+    const hasReadings = shift.pumpReadings.some((pump) =>
+      pump.pistolReadings.some((pistol) => pistol.closingIndex >= pistol.openingIndex)
+    );
+
+    if (!hasReadings) {
+      res.status(400).json({ success: false, message: 'At least one pistol must have a valid closing index before closing the shift.' });
       return;
     }
 
-    shift.status   = 'CLOSED';
+    if (shift.totalPayments === 0 && shift.totalSalesTTC > 0) {
+      res.status(400).json({ success: false, message: 'Payments must be recorded before closing the shift.' });
+      return;
+    }
+
+    if (!shift.isBalanced && Math.abs(shift.balance) > 0.001) {
+      res.status(400).json({ success: false, message: `Shift is not balanced. Current difference is ${shift.balance.toFixed(3)} TND.` });
+      return;
+    }
+
+    shift.status = 'CLOSED';
     shift.closedBy = req.user!.id as any;
     shift.closedAt = new Date();
-    shift.notes    = req.body.notes || '';
+    shift.notes = req.body.notes || '';
 
     await shift.save();
 
-    // Create Sale documents from readings
     try {
       const createdCount = await createSalesForShift(shift._id);
-      // Roll over closing indexes to Pump model
       await rolloverIndexesToPumps(shift.pumpReadings);
 
       res.status(200).json({ success: true, message: `Shift closed successfully, ${createdCount} sale(s) recorded, and indexes rolled over`, shift });
-    } catch (err: any) {
-      // If sales creation fails, still attempt rollover but report error
+    } catch (error: any) {
       await rolloverIndexesToPumps(shift.pumpReadings).catch(() => {});
-      res.status(500).json({ success: false, message: `Shift closed but failed to record sales: ${err.message}`, shift });
+      res.status(500).json({ success: false, message: normalizeApiError(error, 'Shift closed but failed to record sales.'), shift });
     }
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to close shift.') });
   }
 };
 
@@ -243,13 +256,13 @@ export const reopenShift = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    shift.status   = 'OPEN';
+    shift.status = 'OPEN';
     shift.closedBy = undefined;
     shift.closedAt = undefined;
     await shift.save();
 
     res.status(200).json({ success: true, message: 'Shift reopened by administrator', shift });
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to reopen shift.') });
   }
 };

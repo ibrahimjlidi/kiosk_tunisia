@@ -29,6 +29,9 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'customers.manage',
     'users.read',
     'users.manage',
+    'settings.read',
+    'settings.manage',
+    'audit.read',
   ],
   MANAGER: [
     'dashboard.read',
@@ -57,6 +60,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'customers.read',
     'customers.manage',
     'users.read',
+    'settings.read',
+    'audit.read',
   ],
   SUPERVISOR: [
     'dashboard.read',
@@ -77,6 +82,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'suppliers.read',
     'customers.read',
     'users.read',
+    'settings.read',
+    'audit.read',
   ],
   OPERATOR: [
     'dashboard.read',
@@ -92,6 +99,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'shifts.manage',
     'services.manage',
     'reports.read',
+    'settings.read',
   ],
 };
 

@@ -106,11 +106,15 @@ const PurchaseOrderSchema: Schema<IPurchaseOrder> = new Schema(
   }
 );
 
-// Auto-calculate totalAmount before saving
+// Auto-calculate line totals and order total before saving
 PurchaseOrderSchema.pre('save', function (next) {
   if (this.items && this.items.length > 0) {
+    this.items.forEach((item) => {
+      item.totalPrice = parseFloat((item.quantity * item.unitPrice).toFixed(3));
+    });
+
     this.totalAmount = parseFloat(
-      this.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0).toFixed(3)
+      this.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(3)
     );
   }
   next();

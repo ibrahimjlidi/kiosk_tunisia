@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User, UserRole } from '../models/User';
+import { normalizeApiError } from '../helpers/errorResponse';
 
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -10,7 +11,7 @@ export const getAllUsers = async (_req: Request, res: Response): Promise<void> =
       users,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error fetching users' });
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load users.') });
   }
 };
 
@@ -18,7 +19,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
   try {
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' });
+      res.status(404).json({ success: false, message: 'User not found.' });
       return;
     }
 
@@ -27,7 +28,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
       user,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error fetching user' });
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load user.') });
   }
 };
 
@@ -57,7 +58,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       },
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error creating user' });
+    res.status(400).json({ success: false, message: normalizeApiError(error, 'Unable to create user.') });
   }
 };
 
@@ -68,7 +69,7 @@ export const updateUserRole = async (req: Request, res: Response): Promise<void>
 
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' });
+      res.status(404).json({ success: false, message: 'User not found.' });
       return;
     }
 
@@ -89,7 +90,7 @@ export const updateUserRole = async (req: Request, res: Response): Promise<void>
       },
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error updating user' });
+    res.status(400).json({ success: false, message: normalizeApiError(error, 'Unable to update user.') });
   }
 };
 
@@ -97,7 +98,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found' });
+      res.status(404).json({ success: false, message: 'User not found.' });
       return;
     }
 
@@ -106,6 +107,6 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
       message: 'User deleted successfully',
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Error deleting user' });
+    res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to delete user.') });
   }
 };

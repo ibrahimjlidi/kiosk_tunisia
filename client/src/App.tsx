@@ -30,21 +30,45 @@ import { AuditPage } from './features/reports/AuditPage';
 import { AnalyticsPage } from './features/reports/AnalyticsPage';
 import { DailyClosePage } from './features/reports/DailyClosePage';
 import { KifReturnsPage } from './features/reports/KifReturnsPage';
-import { ShieldCheck, Layers, Cpu, Building2, Gauge, Database, Package, Clock, Truck, ClipboardList, Ruler, BarChart3, TrendingUp } from 'lucide-react';
+import { TeamsPage } from './features/teams/TeamsPage';
+import { SettingsPage } from './features/settings/SettingsPage';
+import { AuditLogPage } from './features/audit/AuditLogPage';
+import { ShieldCheck, Building2, Gauge, Database, Package, Clock, BarChart3, TrendingUp } from 'lucide-react';
 import { fetchAnalyticsSummary } from './services/reportApi';
+import { fetchAllUsers } from './services/authApi';
+import { fetchProducts, fetchPumps, fetchStations, fetchTanks } from './services/stationApi';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const DashboardView: React.FC = () => {
   const [summary, setSummary] = useState<any>(null);
+  const [dashboardStats, setDashboardStats] = useState<Array<{ label: string; value: string; icon: JSX.Element; bgColor: string }>>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
-        const res = await fetchAnalyticsSummary({ date: new Date().toISOString().slice(0, 10) });
-        setSummary(res.data);
+        const today = new Date().toISOString().slice(0, 10);
+        const [analyticsRes, stationsRes, productsRes, pumpsRes, tanksRes, usersRes] = await Promise.all([
+          fetchAnalyticsSummary({ date: today }),
+          fetchStations(),
+          fetchProducts(),
+          fetchPumps(),
+          fetchTanks(),
+          fetchAllUsers(),
+        ]);
+
+        const liveSummary = analyticsRes.data;
+        setSummary(liveSummary);
+        setDashboardStats([
+          { icon: <Building2 className="w-6 h-6" />, bgColor: 'from-blue-500 to-blue-600', label: 'Stations', value: `${stationsRes.stations.length}` },
+          { icon: <Gauge className="w-6 h-6" />, bgColor: 'from-green-500 to-green-600', label: 'Pumps', value: `${pumpsRes.pumps.length}` },
+          { icon: <Package className="w-6 h-6" />, bgColor: 'from-amber-500 to-amber-600', label: 'Products', value: `${productsRes.products.length}` },
+          { icon: <Clock className="w-6 h-6" />, bgColor: 'from-cyan-500 to-cyan-600', label: 'Active Shifts', value: `${liveSummary?.audit?.openShifts ?? 0}` },
+          { icon: <Database className="w-6 h-6" />, bgColor: 'from-purple-500 to-purple-600', label: 'Tanks', value: `${tanksRes.tanks.length}` },
+          { icon: <ShieldCheck className="w-6 h-6" />, bgColor: 'from-rose-500 to-rose-600', label: 'Users', value: `${usersRes.users.length}` },
+        ]);
       } catch (error) {
         console.error(error);
       } finally {
@@ -79,15 +103,6 @@ const DashboardView: React.FC = () => {
     }],
   }), [summary]);
 
-  const stats = [
-    { icon: <Building2 className="w-6 h-6" />, bgColor: 'from-blue-500 to-blue-600', label: 'Stations', value: '1' },
-    { icon: <Gauge className="w-6 h-6" />, bgColor: 'from-green-500 to-green-600', label: 'Pumps', value: '4' },
-    { icon: <Package className="w-6 h-6" />, bgColor: 'from-amber-500 to-amber-600', label: 'Products', value: '3' },
-    { icon: <Clock className="w-6 h-6" />, bgColor: 'from-cyan-500 to-cyan-600', label: 'Active Shifts', value: '1' },
-    { icon: <Database className="w-6 h-6" />, bgColor: 'from-purple-500 to-purple-600', label: 'Tanks', value: '8' },
-    { icon: <ShieldCheck className="w-6 h-6" />, bgColor: 'from-rose-500 to-rose-600', label: 'Users', value: '5' },
-  ];
-
   return (
     <div className="space-y-8">
       <div>
@@ -98,7 +113,7 @@ const DashboardView: React.FC = () => {
       <HealthCheck />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {stats.map((stat, idx) => (
+        {dashboardStats.map((stat, idx) => (
           <div key={idx} className="glass-panel p-6 flex items-start justify-between">
             <div>
               <div className="text-slate-400 text-sm font-medium">{stat.label}</div>
@@ -230,7 +245,20 @@ const AppContent: React.FC = () => {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermissions={['users.read']} />}>
+          <Route path="/employees" element={<UserManagementPage />} />
           <Route path="/users" element={<UserManagementPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'SUPERVISOR']} requiredPermissions={['users.read']} />}>
+          <Route path="/teams" element={<TeamsPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'SUPERVISOR']} requiredPermissions={['settings.read']} />}>
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermissions={['audit.read']} />}>
+          <Route path="/audit-logs" element={<AuditLogPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']} requiredPermissions={['customers.read']} />}>

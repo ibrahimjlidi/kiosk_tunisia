@@ -20,6 +20,9 @@ import purchaseOrderRoutes from './routes/purchaseOrder.routes';
 import tankGaugingRoutes from './routes/tankGauging.routes';
 import dailyClosureRoutes from './routes/dailyClosure.routes';
 import kifReturnRoutes from './routes/kifReturn.routes';
+import teamRoutes from './routes/team.routes';
+import settingRoutes from './routes/setting.routes';
+import auditLogRoutes from './routes/auditLog.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app: Application = express();
@@ -52,6 +55,9 @@ app.use('/api/v1/purchase-orders', purchaseOrderRoutes);
 app.use('/api/v1/tank-gaugings', tankGaugingRoutes);
 app.use('/api/v1/daily-closures', dailyClosureRoutes);
 app.use('/api/v1/kif-returns', kifReturnRoutes);
+app.use('/api/v1/teams', teamRoutes);
+app.use('/api/v1/settings', settingRoutes);
+app.use('/api/v1/audit-logs', auditLogRoutes);
 
 // 404 Handler
 app.use('*', (_req, res) => {

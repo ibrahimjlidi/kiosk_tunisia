@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types/auth';
 import {
   Fuel, LogOut, Users, LayoutDashboard, Gauge, Database, Building2, Package, Clock,
-  ShoppingCart, FileText, DollarSign, BarChart3, Menu, X, Wrench, Bell, MessageSquare, Moon, Search, ShieldCheck, ClipboardCheck
+  ShoppingCart, FileText, DollarSign, BarChart3, Menu, X, Wrench, Bell, MessageSquare, Moon, Search, ShieldCheck, ClipboardCheck, BriefcaseBusiness, SlidersHorizontal, ScrollText
 } from 'lucide-react';
 
 interface NavItem {
@@ -47,7 +47,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath }) => {
     { to: '/kif-returns', label: 'Kif Returns', icon: <ClipboardCheck className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'] },
     { to: '/suppliers', label: 'Suppliers', icon: <FileText className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'] },
     { to: '/customers', label: 'Customers', icon: <Users className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER'], requiredPermissions: ['customers.read'] },
+    { to: '/employees', label: 'Employees', icon: <Users className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER'], requiredPermissions: ['users.read'] },
     { to: '/users', label: 'Users', icon: <Users className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER'], requiredPermissions: ['users.read'] },
+    { to: '/teams', label: 'Teams', icon: <BriefcaseBusiness className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'], requiredPermissions: ['users.read'] },
+    { to: '/settings', label: 'Settings', icon: <SlidersHorizontal className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER', 'SUPERVISOR'], requiredPermissions: ['settings.read'] },
+    { to: '/audit-logs', label: 'Audit Logs', icon: <ScrollText className="w-5 h-5" />, allowedRoles: ['ADMIN', 'MANAGER'], requiredPermissions: ['audit.read'] },
   ];
 
   const visibleNavItems = useMemo(() => {

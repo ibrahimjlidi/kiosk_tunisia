@@ -36,28 +36,59 @@ export const UserManagementPage: React.FC = () => {
     loadUsers();
   }, []);
 
+  const resetCreateForm = () => {
+    setUsername('');
+    setEmail('');
+    setPassword('');
+    setFirstName('');
+    setLastName('');
+    setRole('OPERATOR');
+    setCreateError(null);
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+
+    if (!trimmedUsername || !trimmedEmail || !trimmedFirstName || !trimmedLastName) {
+      setCreateError('First name, last name, username and email are required.');
+      return;
+    }
+
+    if (trimmedUsername.length < 3) {
+      setCreateError('Username must be at least 3 characters long.');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setCreateError('Email format is invalid.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setCreateError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setCreateError(null);
     setCreateLoading(true);
     try {
       await createUser({
-        username,
-        email,
+        username: trimmedUsername,
+        email: trimmedEmail,
         password,
-        firstName,
-        lastName,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
         role,
         active: true,
       });
       setShowAddModal(false);
-      setUsername('');
-      setEmail('');
-      setPassword('');
-      setFirstName('');
-      setLastName('');
-      setRole('OPERATOR');
-      loadUsers();
+      resetCreateForm();
+      await loadUsers();
     } catch (err: any) {
       setCreateError(err?.response?.data?.message || 'Failed to create user');
     } finally {
@@ -200,6 +231,21 @@ export const UserManagementPage: React.FC = () => {
               </div>
             )}
 
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="flex items-center justify-between">
+                <span>Identity</span>
+                <span className="font-mono text-cyan-400">{firstName.trim() || '—'} {lastName.trim() || ''}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Role</span>
+                <span className="font-mono text-slate-200">{role}</span>
+              </div>
+              <div className="flex items-center justify-between mt-1">
+                <span>Status</span>
+                <span className="text-emerald-400 font-semibold">Active</span>
+              </div>
+            </div>
+
             <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -274,7 +320,10 @@ export const UserManagementPage: React.FC = () => {
               <div className="flex items-center justify-end space-x-2 pt-4 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => {
+                    setShowAddModal(false);
+                    resetCreateForm();
+                  }}
                   className="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700"
                 >
                   Cancel

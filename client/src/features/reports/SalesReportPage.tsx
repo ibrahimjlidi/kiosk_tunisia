@@ -35,7 +35,9 @@ export const SalesReportPage: React.FC = () => {
       </div>
 
       <div className="glass-panel p-4 overflow-x-auto">
-        {loading ? <div>Loading...</div> : (
+        {loading ? <div>Loading...</div> : sales.length === 0 ? (
+          <div className="text-sm text-slate-400 py-4">No sales found for the selected period.</div>
+        ) : (
           <table className="w-full text-left text-sm text-slate-300">
             <thead className="text-xs uppercase tracking-wider text-slate-500 border-b border-slate-800">
               <tr>
