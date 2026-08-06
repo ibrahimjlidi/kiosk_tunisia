@@ -22,7 +22,7 @@ services:
     container_name: kiosk-frontend-prod
     restart: unless-stopped
     ports:
-      - '80:80'
+      - '8081:80'
     depends_on:
       - backend
     networks:
@@ -35,7 +35,7 @@ services:
     volumes:
       - mongo-data:/data/db
     ports:
-      - '27017:27017'
+      - '27018:27017'
     networks:
       - kiosk-network
 

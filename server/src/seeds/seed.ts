@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 import { User } from '../models/User';
 import { Station } from '../models/Station';
-import { Pump } from '../models/Pump';
+import { Pump, type IPump, type IPistol } from '../models/Pump';
 import { Product } from '../models/Product';
 import { Tank } from '../models/Tank';
 import { Shift } from '../models/Shift';
@@ -21,6 +21,11 @@ import { Team } from '../models/Team';
 import { Setting } from '../models/Setting';
 
 dotenv.config();
+
+type SeedPumpDocument = IPump & {
+  _id: mongoose.Types.ObjectId;
+  pistols: Array<IPistol & { _id?: mongoose.Types.ObjectId }>;
+};
 
 const toDate = (value: string) => new Date(value);
 const roundCurrency = (value: number) => Number(value.toFixed(2));
@@ -134,7 +139,7 @@ async function seed() {
         { pumpNumber: `PUMP-${index + 1}-B`, product: gasoil50._id, secondProduct: super95._id },
       ];
 
-      const createdPumps = await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
+      const createdPumps = (await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
         station: station._id,
         pumpNumber: pump.pumpNumber,
         active: true,
@@ -142,7 +147,7 @@ async function seed() {
           { pistolNumber: 1, product: pump.product, currentClosingIndex: 1100 + index * 50 + pumpIndex * 10, active: true },
           { pistolNumber: 2, product: pump.secondProduct, currentClosingIndex: 900 + index * 40 + pumpIndex * 10, active: true },
         ],
-      })));
+      })))) as unknown as SeedPumpDocument[];
 
       const createdTanks = await Tank.insertMany([
         { station: station._id, product: gasoil._id, tankNumber: `TANK-${index + 1}-A`, capacity: 20000, currentStock: 14000 + index * 300, minLevelAlert: 2000, active: true },
