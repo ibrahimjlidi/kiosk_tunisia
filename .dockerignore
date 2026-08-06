@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+Dockerfile
+Dockerfile*
+.git
+.env
+dist
+client/dist
+server/dist
+client/node_modules
+server/node_modules

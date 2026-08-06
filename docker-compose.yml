@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: kiosk-backend
+    restart: unless-stopped
+    env_file:
+      - ./server/.env.exemple
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+    networks:
+      - kiosk-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: kiosk-frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    networks:
+      - kiosk-network
+
+  mongo:
+    image: mongo:6.0
+    container_name: kiosk-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - '27017:27017'
+    networks:
+      - kiosk-network
+
+volumes:
+  mongo-data:
+
+networks:
+  kiosk-network:
+    driver: bridge

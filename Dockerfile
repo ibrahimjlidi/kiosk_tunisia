@@ -1,0 +1,1 @@
+# Root Dockerfile is intentionally left blank for now. Use service-specific Dockerfiles in client/ and server/.
