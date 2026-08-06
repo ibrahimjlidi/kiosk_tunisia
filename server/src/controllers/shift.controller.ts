@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Shift, ShiftType } from '../models/Shift';
 import { Station } from '../models/Station';
+import { Team } from '../models/Team';
+import { DailyClosure } from '../models/DailyClosure';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import {
   buildInitialPumpReadings,
@@ -12,9 +14,9 @@ import { createSalesForShift } from '../services/sale.service';
 import { normalizeApiError } from '../helpers/errorResponse';
 
 const SHIFT_TYPE_NUMBER: Record<ShiftType, number> = {
-  MORNING:   1,
+  MORNING: 1,
   AFTERNOON: 2,
-  NIGHT:     3,
+  NIGHT: 3,
 };
 
 /** GET /api/v1/shifts — list shifts with optional date filter */
@@ -23,19 +25,19 @@ export const getShifts = async (req: Request, res: Response): Promise<void> => {
     const filter: any = {};
 
     if (req.query.station) filter.station = req.query.station;
-    if (req.query.status)  filter.status  = req.query.status;
+    if (req.query.status) filter.status = req.query.status;
 
     if (req.query.date) {
       const day = new Date(req.query.date as string);
       const start = new Date(day); start.setHours(0, 0, 0, 0);
-      const end   = new Date(day); end.setHours(23, 59, 59, 999);
+      const end = new Date(day); end.setHours(23, 59, 59, 999);
       filter.shiftDate = { $gte: start, $lte: end };
     }
 
     const shifts = await Shift.find(filter)
-      .populate('station',   'name code')
-      .populate('openedBy',  'firstName lastName')
-      .populate('closedBy',  'firstName lastName')
+      .populate('station', 'name code')
+      .populate('openedBy', 'firstName lastName')
+      .populate('closedBy', 'firstName lastName')
       .populate('employees', 'firstName lastName')
       .sort({ shiftDate: -1, shiftNumber: 1 });
 
@@ -49,9 +51,9 @@ export const getShifts = async (req: Request, res: Response): Promise<void> => {
 export const getShiftById = async (req: Request, res: Response): Promise<void> => {
   try {
     const shift = await Shift.findById(req.params.id)
-      .populate('station',   'name code')
-      .populate('openedBy',  'firstName lastName')
-      .populate('closedBy',  'firstName lastName')
+      .populate('station', 'name code')
+      .populate('openedBy', 'firstName lastName')
+      .populate('closedBy', 'firstName lastName')
       .populate('employees', 'firstName lastName');
 
     if (!shift) { res.status(404).json({ success: false, message: 'Shift not found' }); return; }
@@ -64,10 +66,10 @@ export const getShiftById = async (req: Request, res: Response): Promise<void> =
 /** POST /api/v1/shifts — open a new shift */
 export const openShift = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { stationId, shiftType, shiftDate, employeeIds } = req.body;
+    const { stationId, shiftType, shiftDate, teamId } = req.body;
 
-    if (!stationId || !shiftType || !shiftDate) {
-      res.status(400).json({ success: false, message: 'stationId, shiftType, and shiftDate are required' });
+    if (!stationId || !shiftType || !shiftDate || !teamId) {
+      res.status(400).json({ success: false, message: 'stationId, shiftType, shiftDate, and teamId are required' });
       return;
     }
 
@@ -77,6 +79,22 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
     const date = new Date(shiftDate);
     const dayStart = new Date(date); dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(date); dayEnd.setHours(23, 59, 59, 999);
+
+    const dailyClosure = await DailyClosure.findOne({
+      station: stationId,
+      closureDate: { $gte: dayStart, $lte: dayEnd },
+      status: 'CLOSED'
+    });
+    if (dailyClosure) {
+      res.status(403).json({ success: false, message: 'Cannot open shift: daily closure already completed for this date' });
+      return;
+    }
+
+    const team = await Team.findById(teamId);
+    if (!team || !team.active) {
+      res.status(404).json({ success: false, message: 'Team not found or inactive' });
+      return;
+    }
 
     const existing = await Shift.findOne({
       station: stationId,
@@ -102,7 +120,8 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
       shiftDate: date,
       shiftNumber,
       openedBy: req.user!.id,
-      employees: employeeIds || [],
+      team: team._id,
+      employees: team.members || [],
       pumpReadings,
       openedAt: new Date(),
     });
@@ -180,14 +199,14 @@ export const updateShiftPayments = async (req: Request, res: Response): Promise<
 
     const { cashAmount = 0, bankCardAmount = 0, fuelCardAmount = 0, bankTransferAmount = 0, creditAmount = 0 } = req.body;
 
-    shift.cashAmount         = cashAmount;
-    shift.bankCardAmount     = bankCardAmount;
-    shift.fuelCardAmount     = fuelCardAmount;
+    shift.cashAmount = cashAmount;
+    shift.bankCardAmount = bankCardAmount;
+    shift.fuelCardAmount = fuelCardAmount;
     shift.bankTransferAmount = bankTransferAmount;
-    shift.creditAmount       = creditAmount;
-    shift.totalPayments      = parseFloat((cashAmount + bankCardAmount + fuelCardAmount + bankTransferAmount + creditAmount).toFixed(3));
-    shift.balance            = parseFloat((shift.totalPayments - shift.totalSalesTTC).toFixed(3));
-    shift.isBalanced         = Math.abs(shift.balance) < 0.001;
+    shift.creditAmount = creditAmount;
+    shift.totalPayments = parseFloat((cashAmount + bankCardAmount + fuelCardAmount + bankTransferAmount + creditAmount).toFixed(3));
+    shift.balance = parseFloat((shift.totalPayments - shift.totalSalesTTC).toFixed(3));
+    shift.isBalanced = Math.abs(shift.balance) < 0.001;
 
     await shift.save();
     res.status(200).json({ success: true, message: 'Payments updated', shift });
@@ -238,7 +257,7 @@ export const closeShift = async (req: AuthRequest, res: Response): Promise<void>
 
       res.status(200).json({ success: true, message: `Shift closed successfully, ${createdCount} sale(s) recorded, and indexes rolled over`, shift });
     } catch (error: any) {
-      await rolloverIndexesToPumps(shift.pumpReadings).catch(() => {});
+      await rolloverIndexesToPumps(shift.pumpReadings).catch(() => { });
       res.status(500).json({ success: false, message: normalizeApiError(error, 'Shift closed but failed to record sales.'), shift });
     }
   } catch (error: any) {

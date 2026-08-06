@@ -1,55 +1,54 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { fetchShifts, openShift as apiOpenShift, closeShift as apiCloseShift, reopenShift as apiReopenShift } from '../../services/shiftApi';
 import { fetchStations } from '../../services/stationApi';
-import { fetchAllUsers } from '../../services/authApi';
+import { fetchTeams } from '../../services/teamApi';
 import { Shift, ShiftType } from '../../types/shift';
 import { Station } from '../../types/station';
-import { User } from '../../types/auth';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Clock, Sun, Sunset, Moon, Plus, CheckCircle2, XCircle, Eye, RefreshCw, AlertCircle, RotateCcw } from 'lucide-react';
 
 const SHIFT_ICONS: Record<ShiftType, React.ReactNode> = {
-  MORNING:   <Sun    className="w-4 h-4 text-amber-400" />,
+  MORNING: <Sun className="w-4 h-4 text-amber-400" />,
   AFTERNOON: <Sunset className="w-4 h-4 text-orange-400" />,
-  NIGHT:     <Moon   className="w-4 h-4 text-blue-400" />,
+  NIGHT: <Moon className="w-4 h-4 text-blue-400" />,
 };
 
 const SHIFT_COLORS: Record<ShiftType, string> = {
-  MORNING:   'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  MORNING: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   AFTERNOON: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  NIGHT:     'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  NIGHT: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
 };
 
 export const ShiftsListPage: React.FC = () => {
   const { user } = useAuth();
-  const [shifts, setShifts]     = useState<Shift[]>([]);
+  const [shifts, setShifts] = useState<Shift[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
-  const [users, setUsers]       = useState<User[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [teams, setTeams] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Filter state
   const [dateFilter, setDateFilter] = useState<string>(new Date().toISOString().slice(0, 10));
   const [stationFilter, setStationFilter] = useState<string>('');
 
   // Open shift modal
-  const [showModal, setShowModal]     = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [newShiftType, setNewShiftType] = useState<ShiftType>('MORNING');
   const [newStationId, setNewStationId] = useState<string>('');
-  const [newDate, setNewDate]         = useState<string>(new Date().toISOString().slice(0, 10));
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
-  const [opening, setOpening]         = useState(false);
-  const [modalError, setModalError]   = useState<string | null>(null);
+  const [newDate, setNewDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [selectedTeam, setSelectedTeam] = useState<string>('');
+  const [opening, setOpening] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError(null);
 
     try {
-      const [shiftResult, stationResult, userResult] = await Promise.allSettled([
+      const [shiftResult, stationResult, teamResult] = await Promise.allSettled([
         fetchShifts({ date: dateFilter || undefined, station: stationFilter || undefined }),
         fetchStations(),
-        fetchAllUsers(),
+        fetchTeams(),
       ]);
 
       if (shiftResult.status === 'fulfilled') {
@@ -67,13 +66,16 @@ export const ShiftsListPage: React.FC = () => {
         setStations([]);
       }
 
-      if (userResult.status === 'fulfilled') {
-        setUsers(userResult.value.users.filter((u) => u.active));
+      if (teamResult.status === 'fulfilled') {
+        const resData = teamResult.value;
+        const allTeams = resData.teams || resData.data || resData || [];
+        const activeTeams = Array.isArray(allTeams) ? allTeams.filter((t: any) => t.active !== false) : [];
+        setTeams(activeTeams);
       } else {
-        setUsers([]);
+        setTeams([]);
       }
 
-      const hasAnyData = shiftResult.status === 'fulfilled' || stationResult.status === 'fulfilled' || userResult.status === 'fulfilled';
+      const hasAnyData = shiftResult.status === 'fulfilled' || stationResult.status === 'fulfilled' || teamResult.status === 'fulfilled';
       if (!hasAnyData) {
         setError('Failed to load shifts');
       }
@@ -90,7 +92,7 @@ export const ShiftsListPage: React.FC = () => {
     e.preventDefault();
     setModalError(null); setOpening(true);
     try {
-      await apiOpenShift({ stationId: newStationId, shiftType: newShiftType, shiftDate: newDate, employeeIds: selectedEmployees });
+      await apiOpenShift({ stationId: newStationId, shiftType: newShiftType, shiftDate: newDate, teamId: selectedTeam });
       setShowModal(false);
       load();
     } catch (err: any) {
@@ -204,7 +206,7 @@ export const ShiftsListPage: React.FC = () => {
                 {shifts.map((shift) => {
                   const balColor = shift.isBalanced
                     ? 'text-emerald-400' : shift.balance > 0
-                    ? 'text-blue-400' : 'text-red-400';
+                      ? 'text-blue-400' : 'text-red-400';
                   const station = typeof shift.station === 'object' ? shift.station : null;
                   const openedBy = typeof shift.openedBy === 'object' ? shift.openedBy : null;
                   return (
@@ -229,11 +231,10 @@ export const ShiftsListPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`flex items-center space-x-1 w-fit px-2 py-0.5 rounded text-[10px] font-bold border ${
-                          shift.status === 'OPEN'
+                        <span className={`flex items-center space-x-1 w-fit px-2 py-0.5 rounded text-[10px] font-bold border ${shift.status === 'OPEN'
                             ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                             : 'bg-slate-700/50 text-slate-400 border-slate-600'
-                        }`}>
+                          }`}>
                           {shift.status === 'OPEN' ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
                           <span>{shift.status}</span>
                         </span>
@@ -336,18 +337,18 @@ export const ShiftsListPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-slate-300 mb-1">Assigned staff</label>
+                <label className="block text-slate-300 mb-1">Assigned Team</label>
                 <select
-                  multiple
-                  value={selectedEmployees}
-                  onChange={(e) => setSelectedEmployees(Array.from(e.target.selectedOptions, (option) => option.value))}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 min-h-[96px]"
+                  value={selectedTeam}
+                  onChange={(e) => setSelectedTeam(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  required
                 >
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>{user.firstName} {user.lastName} · {user.role}</option>
+                  <option value="">Select a team...</option>
+                  {teams.map((team) => (
+                    <option key={team._id || team.id} value={team._id || team.id}>{team.name}</option>
                   ))}
                 </select>
-                <div className="text-[10px] text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple staff.</div>
               </div>
               <div className="flex items-center justify-end space-x-2 pt-4 border-t border-slate-800">
                 <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700">Cancel</button>

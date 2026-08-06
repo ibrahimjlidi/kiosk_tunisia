@@ -17,6 +17,8 @@ import { KifReturn } from '../models/KifReturn';
 import { DailyClosure } from '../models/DailyClosure';
 import { Sale } from '../models/Sale';
 import { CreditTransaction } from '../models/CreditTransaction';
+import { Team } from '../models/Team';
+import { Setting } from '../models/Setting';
 
 dotenv.config();
 
@@ -45,6 +47,8 @@ async function seed() {
       DailyClosure.deleteMany({}),
       Sale.deleteMany({}),
       CreditTransaction.deleteMany({}),
+      Team.deleteMany({}),
+      Setting.deleteMany({}),
     ]);
 
     const stationSeeds = [
@@ -85,6 +89,22 @@ async function seed() {
     const stationManagers = users.filter((user) => user.role === 'MANAGER');
     await Promise.all(stations.map((station, index) => Station.findByIdAndUpdate(station._id, { manager: stationManagers[index % stationManagers.length]._id })));
 
+    const teams = await Team.insertMany([
+      { name: 'Equipe Matin', station: stations[0]._id, leader: users[2]._id, members: [users[1]._id, users[2]._id, users[3]._id], active: true },
+      { name: 'Equipe Soir', station: stations[0]._id, leader: users[1]._id, members: [users[2]._id, users[3]._id], active: true },
+      { name: 'Equipe de Jour MS', station: stations[1]._id, leader: users[5]._id, members: [users[4]._id, users[5]._id], active: true },
+      { name: 'Equipe Sousse Principale', station: stations[2]._id, leader: users[6]._id, members: [users[6]._id], active: true },
+      { name: 'Equipe Monastir Unique', station: stations[3]._id, leader: users[7]._id, members: [users[7]._id], active: true },
+      { name: 'Equipe Sfax Centrale', station: stations[4]._id, leader: users[8]._id, members: [users[8]._id], active: true },
+    ]);
+
+    const settings = await Setting.insertMany([
+      { key: 'company_name', value: 'FuelStation Tunisie', type: 'string', category: 'general', updatedBy: adminUser._id },
+      { key: 'currency', value: 'TND', type: 'string', category: 'general', updatedBy: adminUser._id },
+      { key: 'default_vat', value: 19, type: 'number', category: 'finance', updatedBy: adminUser._id },
+      { key: 'enable_kif_returns', value: true, type: 'boolean', category: 'operations', updatedBy: adminUser._id },
+    ]);
+
     const suppliers = await Supplier.insertMany([
       { name: 'PetroTunisie', code: 'PT-001', contactPerson: 'Karim', phone: '71010101', email: 'sales@petrotunisie.tn', address: 'Tunis', taxId: '11111111' },
       { name: 'Fuel Supply Co.', code: 'FSC-002', contactPerson: 'Hajer', phone: '71020202', email: 'ops@fuelsupply.tn', address: 'Sfax', taxId: '22222222' },
@@ -105,12 +125,16 @@ async function seed() {
     for (let index = 0; index < stations.length; index += 1) {
       const station = stations[index];
       const stationUser = users.find((user) => user.station?.toString() === station._id.toString() && user.role !== 'ADMIN') || users[1];
+      const stationTeams = teams.filter((t) => t.station?.toString() === station._id.toString());
+      const teamMatin = stationTeams.find(t => t.name.toLowerCase().includes('matin') || t.name.toLowerCase().includes('jour')) || stationTeams[0];
+      const teamSoir = stationTeams.find(t => t.name.toLowerCase().includes('soir') || t.name.toLowerCase().includes('nuit')) || stationTeams[Math.min(1, stationTeams.length - 1)];
+
       const pumpSeed = [
         { pumpNumber: `PUMP-${index + 1}-A`, product: gasoil._id, secondProduct: super95._id },
         { pumpNumber: `PUMP-${index + 1}-B`, product: gasoil50._id, secondProduct: super95._id },
       ];
 
-      const createdPumps = (await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
+      const createdPumps = await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
         station: station._id,
         pumpNumber: pump.pumpNumber,
         active: true,
@@ -118,15 +142,7 @@ async function seed() {
           { pistolNumber: 1, product: pump.product, currentClosingIndex: 1100 + index * 50 + pumpIndex * 10, active: true },
           { pistolNumber: 2, product: pump.secondProduct, currentClosingIndex: 900 + index * 40 + pumpIndex * 10, active: true },
         ],
-      })))) as Array<{
-        _id: mongoose.Types.ObjectId;
-        pumpNumber: string;
-        pistols: Array<{
-          _id?: mongoose.Types.ObjectId;
-          pistolNumber: number;
-          product: mongoose.Types.ObjectId;
-        }>;
-      }>;
+      })));
 
       const createdTanks = await Tank.insertMany([
         { station: station._id, product: gasoil._id, tankNumber: `TANK-${index + 1}-A`, capacity: 20000, currentStock: 14000 + index * 300, minLevelAlert: 2000, active: true },
@@ -182,7 +198,8 @@ async function seed() {
         status: 'CLOSED',
         openedBy: stationUser?._id || adminUser._id,
         closedBy: stationUser?._id || adminUser._id,
-        employees: [stationUser?._id || adminUser._id],
+        team: teamMatin?._id,
+        employees: teamMatin?.members || [stationUser?._id || adminUser._id],
         pumpReadings: createdPumps.map((pump, pumpIndex) => ({
           pump: pump._id,
           pumpNumber: pump.pumpNumber,
@@ -202,7 +219,8 @@ async function seed() {
             vatAmount: roundCurrency((60 + index * 5 + pumpIndex * 3 + pistolIndex) * (pistol.product.toString() === gasoil._id.toString() ? gasoil.sellingPrice : super95.sellingPrice) / 1.19 * 0.19),
             amountTTC: roundCurrency((60 + index * 5 + pumpIndex * 3 + pistolIndex) * (pistol.product.toString() === gasoil._id.toString() ? gasoil.sellingPrice : super95.sellingPrice)),
             profit: roundCurrency((60 + index * 5 + pumpIndex * 3 + pistolIndex) * ((pistol.product.toString() === gasoil._id.toString() ? gasoil.sellingPrice : super95.sellingPrice) - (pistol.product.toString() === gasoil._id.toString() ? gasoil.purchasePrice : super95.purchasePrice))),
-          })) })),
+          }))
+        })),
         totalVolumeByProduct: [
           { product: gasoil._id, productName: gasoil.name, volumeSold: 100 + index * 10 },
           { product: super95._id, productName: super95.name, volumeSold: 80 + index * 8 },
@@ -232,7 +250,8 @@ async function seed() {
         shiftNumber: 2,
         status: 'OPEN',
         openedBy: stationUser?._id || adminUser._id,
-        employees: [stationUser?._id || adminUser._id],
+        team: teamSoir?._id,
+        employees: teamSoir?.members || [stationUser?._id || adminUser._id],
         pumpReadings: createdPumps.map((pump, pumpIndex) => ({
           pump: pump._id,
           pumpNumber: pump.pumpNumber,
@@ -252,7 +271,8 @@ async function seed() {
             vatAmount: 0,
             amountTTC: 0,
             profit: 0,
-          })) })),
+          }))
+        })),
         totalVolumeByProduct: [],
         totalSalesHT: 0,
         totalVAT: 0,

@@ -1,5 +1,6 @@
 import { Shift, IPumpReading } from '../models/Shift';
 import { Sale } from '../models/Sale';
+import { Tank } from '../models/Tank';
 import mongoose from 'mongoose';
 
 /**
@@ -43,5 +44,16 @@ export const createSalesForShift = async (shiftId: mongoose.Types.ObjectId | str
   if (created.length === 0) return 0;
 
   await Sale.insertMany(created);
+
+  // Deduct from Tanks
+  for (const doc of created) {
+    if (doc.quantity > 0) {
+      await Tank.updateOne(
+        { station: doc.station, product: doc.product },
+        { $inc: { currentStock: -doc.quantity } }
+      );
+    }
+  }
+
   return created.length;
 };

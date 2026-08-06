@@ -19,7 +19,7 @@ export const openShift = async (data: {
   stationId: string;
   shiftType: ShiftType;
   shiftDate: string;
-  employeeIds?: string[];
+  teamId?: string;
 }): Promise<{ success: boolean; shift: Shift }> => {
   const res = await api.post<{ success: boolean; shift: Shift }>('/shifts', data);
   return res.data;

@@ -50,7 +50,15 @@ const PumpSchema: Schema<IPump> = new Schema(
       required: [true, 'Pump number/name is required'],
       trim: true,
     },
-    pistols: [PistolSchema],
+    pistols: {
+      type: [PistolSchema],
+      validate: {
+        validator: function (val: any[]) {
+          return val.length <= 4;
+        },
+        message: '{PATH} exceeds the limit of 4 pistols per pump',
+      },
+    },
     active: {
       type: Boolean,
       default: true,
