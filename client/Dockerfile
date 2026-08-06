@@ -3,8 +3,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
-COPY tsconfig.json vite.config.ts postcss.config.js tailwind.config.js .
-COPY public ./public
+COPY tsconfig.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
 COPY src ./src
 RUN npm run build
 
