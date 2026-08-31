@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcrypt';
+
+import { comparePassword, hashPassword } from '../utils/password';
 
 export type UserRole = 'ADMIN' | 'MANAGER' | 'SUPERVISOR' | 'OPERATOR';
 
@@ -80,8 +81,7 @@ const UserSchema: Schema<IUser> = new Schema(
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password!, salt);
+    this.password = await hashPassword(this.password!);
     next();
   } catch (error) {
     next(error as Error);
@@ -91,7 +91,7 @@ UserSchema.pre('save', async function (next) {
 // Compare password method
 UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   if (!this.password) return false;
-  return bcrypt.compare(candidatePassword, this.password);
+  return comparePassword(candidatePassword, this.password);
 };
 
 // Hide password in JSON output

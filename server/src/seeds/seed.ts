@@ -73,8 +73,9 @@ async function seed() {
 
     const [gasoil, super95, gasoil50] = products;
 
+    console.log('Creating users...');
     const users = await User.create([
-      { username: 'admin', email: 'admin@fuelstation.tn', password: 'Admin@123', role: 'ADMIN', firstName: 'System', lastName: 'Administrator', phone: '71000000', active: true, station: stations[0]._id },
+      { username: 'admin', email: 'admin@fuelstation.tn', password: 'Admin123!', role: 'ADMIN', firstName: 'System', lastName: 'Administrator', phone: '71000000', active: true, station: stations[0]._id },
       { username: 'manager', email: 'manager@fuelstation.tn', password: 'Manager@123', role: 'MANAGER', firstName: 'Nabil', lastName: 'Hammami', phone: '71111111', active: true, station: stations[0]._id },
       { username: 'supervisor', email: 'supervisor@fuelstation.tn', password: 'Supervisor@123', role: 'SUPERVISOR', firstName: 'Salma', lastName: 'Ben Ali', phone: '71222222', active: true, station: stations[0]._id },
       { username: 'operator', email: 'operator@fuelstation.tn', password: 'Operator@123', role: 'OPERATOR', firstName: 'Hedi', lastName: 'Mansour', phone: '71333333', active: true, station: stations[0]._id },
@@ -84,6 +85,7 @@ async function seed() {
       { username: 'manager4', email: 'manager4@fuelstation.tn', password: 'Manager@123', role: 'MANAGER', firstName: 'Amine', lastName: 'Bouraoui', phone: '71888888', active: true, station: stations[3]._id },
       { username: 'manager5', email: 'manager5@fuelstation.tn', password: 'Manager@123', role: 'MANAGER', firstName: 'Sarra', lastName: 'Mekni', phone: '71999999', active: true, station: stations[4]._id },
     ]);
+    console.log(`Created ${users.length} users`);
 
     const adminUser = users[0];
     const stationManagers = users.filter((user) => user.role === 'MANAGER');
