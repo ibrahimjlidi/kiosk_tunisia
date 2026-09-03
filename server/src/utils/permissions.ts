@@ -60,6 +60,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'customers.read',
     'customers.manage',
     'users.read',
+    'users.manage',
     'settings.read',
     'audit.read',
   ],

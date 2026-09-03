@@ -17,3 +17,10 @@ test('ADMIN and MANAGER expose settings and audit permissions for production rea
   assert.ok(managerPermissions.includes('settings.read'));
   assert.ok(managerPermissions.includes('audit.read'));
 });
+
+test('MANAGER role can manage teams', () => {
+  const managerPermissions = getRolePermissions('MANAGER');
+
+  assert.ok(managerPermissions.includes('users.read'));
+  assert.ok(managerPermissions.includes('users.manage'));
+});
