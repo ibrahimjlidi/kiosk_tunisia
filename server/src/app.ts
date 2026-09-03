@@ -27,9 +27,22 @@ import { errorHandler } from './middlewares/errorHandler';
 
 const app: Application = express();
 
+const allowedOrigins = (config.corsOrigin || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .concat(['http://localhost:5173', 'http://127.0.0.1:5173', 'https://kiosk-tunisia.duckdns.org', 'http://kiosk-tunisia.duckdns.org']);
+
 // Middlewares
 app.use(cors({
-  origin: config.corsOrigin,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 app.use(express.json());
