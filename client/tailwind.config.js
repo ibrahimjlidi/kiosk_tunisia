@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const withOpacity = (variable) => `rgb(var(${variable}) / <alpha-value>)`;
+
 export default {
   content: [
     "./index.html",
@@ -7,21 +9,63 @@ export default {
   theme: {
     extend: {
       colors: {
+        slate: {
+          50: withOpacity('--bg-canvas-rgb'),
+          100: withOpacity('--card-bg-rgb'),
+          200: withOpacity('--border-color-rgb'),
+          300: withOpacity('--border-color-rgb'),
+          400: withOpacity('--text-secondary-rgb'),
+          500: withOpacity('--text-secondary-rgb'),
+          600: withOpacity('--text-secondary-rgb'),
+          700: withOpacity('--border-color-rgb'),
+          800: withOpacity('--border-color-rgb'),
+          900: withOpacity('--card-bg-rgb'),
+          950: withOpacity('--primary-navy-rgb'),
+        },
+        cyan: {
+          50: withOpacity('--accent-orange-rgb'),
+          100: withOpacity('--accent-orange-rgb'),
+          200: withOpacity('--accent-orange-rgb'),
+          300: withOpacity('--accent-orange-rgb'),
+          400: withOpacity('--accent-orange-rgb'),
+          500: withOpacity('--accent-orange-rgb'),
+          600: withOpacity('--accent-orange-rgb'),
+          700: withOpacity('--accent-orange-rgb'),
+          800: withOpacity('--accent-orange-rgb'),
+          900: withOpacity('--accent-orange-rgb'),
+          950: withOpacity('--accent-orange-rgb'),
+        },
+        amber: {
+          400: withOpacity('--accent-orange-rgb'),
+          500: withOpacity('--accent-orange-rgb'),
+          600: withOpacity('--accent-orange-rgb'),
+          700: withOpacity('--accent-orange-rgb'),
+        },
+        orange: {
+          500: withOpacity('--accent-orange-rgb'),
+          600: withOpacity('--accent-orange-rgb'),
+        },
+        emerald: {
+          400: withOpacity('--success-color-rgb'),
+          500: withOpacity('--success-color-rgb'),
+          600: withOpacity('--success-color-rgb'),
+          700: withOpacity('--success-color-rgb'),
+        },
+        red: {
+          400: withOpacity('--danger-color-rgb'),
+          500: withOpacity('--danger-color-rgb'),
+          600: withOpacity('--danger-color-rgb'),
+        },
         brand: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          500: '#0284c7',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
+          500: withOpacity('--accent-orange-rgb'),
+          600: withOpacity('--accent-orange-rgb'),
         },
         fuel: {
-          gasoil: '#10b981', // green
-          sansplomb: '#f59e0b', // amber
-          premium: '#ec4899', // pink
-        }
-      }
+          gasoil: 'var(--success-color)',
+          sansplomb: 'var(--accent-orange)',
+          premium: 'var(--primary-navy)',
+        },
+      },
     },
   },
   plugins: [],

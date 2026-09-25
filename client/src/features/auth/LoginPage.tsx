@@ -2,121 +2,247 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { loginUser } from '../../services/authApi';
-import { Fuel, Lock, Mail, AlertCircle, LogIn } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  BarChart3,
+  Eye,
+  EyeOff,
+  Fuel,
+  Gauge,
+  Lock,
+  Mail,
+  Radio,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+
+const stationStats = [
+  { label: 'Pump 01', value: '2,450 L', detail: 'Today', status: 'Online', type: 'status' },
+  { label: 'Pump 02', value: '1,980 L', detail: 'Today', status: 'Online', type: 'status' },
+  { label: "Today's Sales", value: '12,840 DT', detail: '+12%', type: 'trend' },
+  { label: 'Stock', value: '78%', detail: '78,560 L Available', type: 'stock' },
+] as const;
+
+const platformFeatures = [
+  { icon: Radio, label: 'Real-time Monitoring' },
+  { icon: BarChart3, label: 'Sales & Reports' },
+  { icon: Fuel, label: 'Fuel Stock Management' },
+  { icon: Users, label: 'Team & Roles' },
+];
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const clearError = () => {
+    if (error) setError(null);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (loading) return;
+
     setError(null);
     setLoading(true);
 
     try {
-      const res = await loginUser({ email, password });
-      login(res.token, res.user);
+      const response = await loginUser({ email, password });
+      login(response.token, response.user);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Login failed. Please check credentials.');
+      setError(err?.response?.data?.message || 'Identifiants incorrects. Veuillez vérifier votre email et votre mot de passe.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white mx-auto shadow-xl shadow-cyan-500/20">
-            <Fuel className="w-8 h-8" />
+    <div className="login-page">
+      <section className="login-hero" aria-label="Kiosk Fuel Management System">
+        <div className="login-hero__content">
+          <div className="login-hero__brand">
+            <div className="login-hero__logo" aria-hidden="true">
+              <Fuel className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="login-hero__wordmark">KIOSK</div>
+              <div className="login-hero__tagline">Fuel Management System</div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">FuelStation ERP</h1>
-          <p className="text-xs text-slate-400">Tunisia Fuel Station Operations & Management</p>
+
+          <div className="login-hero__message">
+            <p className="login-hero__eyebrow">Your station, always in control</p>
+            <h1>
+              Manage. Monitor. <span>Grow.</span>
+            </h1>
+            <p>Your complete fuel station management solution</p>
+          </div>
+
+          <div className="login-stat-section" aria-label="Illustrative station metrics">
+            <div className="login-stat-section__caption">Station preview <span>Illustrative metrics</span></div>
+            <div className="login-stat-grid">
+              {stationStats.map((stat) => (
+                <article className="login-stat-card" key={stat.label}>
+                  <div className="login-stat-card__label">
+                    <span>{stat.label}</span>
+                    {stat.type === 'status' && <span className="login-stat-card__online"><i />{stat.status}</span>}
+                  </div>
+                  <div className="login-stat-card__value">{stat.value}</div>
+                  <div className={`login-stat-card__detail login-stat-card__detail--${stat.type}`}>
+                    {stat.type === 'trend' && <TrendingUp className="h-3.5 w-3.5" />}
+                    {stat.type === 'stock' && <Gauge className="h-3.5 w-3.5" />}
+                    <span>{stat.detail}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Form Panel */}
-        <div className="glass-panel p-8 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-200 border-b border-slate-800 pb-3">
-            System Authentication
-          </h2>
+        <div className="login-hero__features" aria-label="Platform capabilities">
+          {platformFeatures.map(({ icon: Icon, label }) => (
+            <div className="login-hero__feature" key={label}>
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <main className="login-panel">
+        <div className="login-panel__content">
+          <div className="login-panel__topline">
+            Fueling a better tomorrow
+            <span aria-hidden="true" />
+          </div>
+
+          <div className="login-mobile-brand">
+            <div className="login-mobile-brand__icon" aria-hidden="true"><Fuel className="h-5 w-5" /></div>
+            <div>
+              <div>KIOSK</div>
+              <span>Fuel Management System</span>
+            </div>
+          </div>
+
+          <div className="login-form-brand">
+            <div className="login-form-brand__icon" aria-hidden="true"><Fuel className="h-7 w-7" /></div>
+            <div>
+              <div className="login-form-brand__wordmark">KIOSK</div>
+              <div className="login-form-brand__label">Dashboard</div>
+            </div>
+          </div>
+
+          <div className="login-form-heading">
+            <h2>Bienvenue <span aria-hidden="true">👋</span></h2>
+            <p>Connectez-vous à votre espace de gestion</p>
+          </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start space-x-3 text-red-400 text-xs">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div id="login-error" className="login-form-error" role="alert">
+              <AlertCircle className="h-5 w-5" aria-hidden="true" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-xs font-medium text-slate-300">Email Address</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <Mail className="w-4 h-4" />
-                </div>
+          <form className="login-form" onSubmit={handleSubmit} noValidate={false}>
+            <div className="login-form__field">
+              <label htmlFor="email">Email ou nom d&apos;utilisateur</label>
+              <div className="login-form__input-wrap">
+                <Mail className="login-form__input-icon h-5 w-5" aria-hidden="true" />
                 <input
                   id="email"
                   name="email"
                   type="email"
+                  autoComplete="username"
                   required
+                  disabled={loading}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@fuelstation.tn"
-                  className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 placeholder-slate-600 transition-all"
+                  onChange={(event) => {
+                    clearError();
+                    setEmail(event.target.value);
+                  }}
+                  placeholder="votre@email.com"
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? 'login-error' : undefined}
                 />
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-medium text-slate-300">Password</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <Lock className="w-4 h-4" />
-                </div>
+            <div className="login-form__field">
+              <label htmlFor="password">Mot de passe</label>
+              <div className="login-form__input-wrap">
+                <Lock className="login-form__input-icon h-5 w-5" aria-hidden="true" />
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
+                  disabled={loading}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-200 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 placeholder-slate-600 transition-all"
+                  onChange={(event) => {
+                    clearError();
+                    setPassword(event.target.value);
+                  }}
+                  placeholder="Saisissez votre mot de passe"
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? 'login-error' : undefined}
                 />
+                <button
+                  className="login-form__password-toggle"
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  disabled={loading}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
+                </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium rounded-lg text-sm shadow-lg shadow-cyan-600/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
-            >
+            <label className="login-form__remember">
+              <input
+                type="checkbox"
+                checked={remember}
+                disabled={loading}
+                onChange={(event) => setRemember(event.target.checked)}
+              />
+              <span>Se souvenir de moi</span>
+            </label>
+
+            <button className="login-form__submit" type="submit" disabled={loading}>
               {loading ? (
-                <span>Authenticating...</span>
+                <><span className="login-form__spinner" aria-hidden="true" />Connexion...</>
               ) : (
-                <>
-                  <LogIn className="w-4 h-4" />
-                  <span>Sign In to ERP</span>
-                </>
+                <>Se connecter <ArrowRight className="h-5 w-5" aria-hidden="true" /></>
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials Info */}
+          
+        </div>
+{/* Quick Demo Credentials Info */}
           <div className="border-t border-slate-800/80 pt-4 text-xs text-slate-400 space-y-1">
             <span className="font-semibold text-slate-300">Demo Accounts Available:</span>
             <div className="text-[11px] text-slate-400">
               Admin: <code className="text-cyan-400">admin@fuelstation.tn</code> / <code className="text-cyan-400">Admin123!</code>
             </div>
           </div>
-        </div>
-      </div>
+        <footer className="login-panel__footer">
+          <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+          <span>Kiosk Management System</span>
+          <span aria-hidden="true">•</span>
+          <span>© 2026. Tous droits réservés.</span>
+        </footer>
+      </main>
     </div>
   );
 };

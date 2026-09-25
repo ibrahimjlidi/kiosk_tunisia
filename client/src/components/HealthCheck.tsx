@@ -26,21 +26,21 @@ export const HealthCheck: React.FC = () => {
 
   return (
     <div className="glass-panel p-6 max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-cyan-500/10 rounded-lg border border-cyan-500/20 text-cyan-400">
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-100">System Connection Status</h2>
-            <p className="text-xs text-slate-400">Phase 1: Local Stack Architecture Validation</p>
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">System Connection Status</h2>
+            <p className="text-xs text-[var(--text-secondary)]">Phase 1: Local Stack Architecture Validation</p>
           </div>
         </div>
 
         <button
           onClick={fetchHealth}
           disabled={loading}
-          className="flex items-center space-x-2 px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors disabled:opacity-50"
+          className="button-primary flex items-center space-x-2 px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>Refresh</span>
@@ -65,30 +65,30 @@ export const HealthCheck: React.FC = () => {
         </div>
       ) : data ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-2">
+          <div className="app-card bg-[var(--bg-canvas)] p-4 space-y-2">
             <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
               <Server className="w-4 h-4 text-cyan-400" />
               <span>Backend Express Server</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-200">{data.system.appName}</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">{data.system.appName}</span>
               <span className="flex items-center text-xs text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                 Active
               </span>
             </div>
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-[var(--text-secondary)]">
               URL: http://localhost:5000/api/v1
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-2">
+          <div className="app-card bg-[var(--bg-canvas)] p-4 space-y-2">
             <div className="flex items-center space-x-2 text-xs font-medium text-slate-400">
               <Database className="w-4 h-4 text-amber-400" />
               <span>MongoDB Community Server</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-200">{data.system.database.name}</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">{data.system.database.name}</span>
               <span className={`flex items-center text-xs font-medium px-2 py-0.5 rounded border ${
                 data.system.database.connected 
                   ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
@@ -107,7 +107,7 @@ export const HealthCheck: React.FC = () => {
                 )}
               </span>
             </div>
-            <div className="text-[11px] text-slate-500">
+            <div className="text-[11px] text-[var(--text-secondary)]">
               Host: {data.system.database.host} (127.0.0.1:27017)
             </div>
           </div>

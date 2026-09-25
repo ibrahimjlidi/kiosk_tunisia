@@ -40,10 +40,20 @@ import { fetchProducts, fetchPumps, fetchStations, fetchTanks } from './services
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
+const readThemeColor = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
 const DashboardView: React.FC = () => {
   const [summary, setSummary] = useState<any>(null);
-  const [dashboardStats, setDashboardStats] = useState<Array<{ label: string; value: string; icon: JSX.Element; bgColor: string }>>([]);
+  const [dashboardStats, setDashboardStats] = useState<Array<{ label: string; value: string; icon: JSX.Element; tone: 'accent' | 'success' | 'navy' | 'danger' }>>([]);
   const [loading, setLoading] = useState(true);
+  const themeColors = useMemo(() => ({
+    accent: readThemeColor('--accent-orange'),
+    success: readThemeColor('--success-color'),
+    navy: readThemeColor('--primary-navy'),
+    danger: readThemeColor('--danger-color'),
+    secondary: readThemeColor('--text-secondary'),
+    border: readThemeColor('--border-color'),
+  }), []);
 
   useEffect(() => {
     const load = async () => {
@@ -62,12 +72,12 @@ const DashboardView: React.FC = () => {
         const liveSummary = analyticsRes.data;
         setSummary(liveSummary);
         setDashboardStats([
-          { icon: <Building2 className="w-6 h-6" />, bgColor: 'from-blue-500 to-blue-600', label: 'Stations', value: `${stationsRes.stations.length}` },
-          { icon: <Gauge className="w-6 h-6" />, bgColor: 'from-green-500 to-green-600', label: 'Pumps', value: `${pumpsRes.pumps.length}` },
-          { icon: <Package className="w-6 h-6" />, bgColor: 'from-amber-500 to-amber-600', label: 'Products', value: `${productsRes.products.length}` },
-          { icon: <Clock className="w-6 h-6" />, bgColor: 'from-cyan-500 to-cyan-600', label: 'Active Shifts', value: `${liveSummary?.audit?.openShifts ?? 0}` },
-          { icon: <Database className="w-6 h-6" />, bgColor: 'from-purple-500 to-purple-600', label: 'Tanks', value: `${tanksRes.tanks.length}` },
-          { icon: <ShieldCheck className="w-6 h-6" />, bgColor: 'from-rose-500 to-rose-600', label: 'Users', value: `${usersRes.users.length}` },
+          { icon: <Building2 className="w-6 h-6" />, tone: 'accent', label: 'Stations', value: `${stationsRes.stations.length}` },
+          { icon: <Gauge className="w-6 h-6" />, tone: 'success', label: 'Pumps', value: `${pumpsRes.pumps.length}` },
+          { icon: <Package className="w-6 h-6" />, tone: 'navy', label: 'Products', value: `${productsRes.products.length}` },
+          { icon: <Clock className="w-6 h-6" />, tone: 'accent', label: 'Active Shifts', value: `${liveSummary?.audit?.openShifts ?? 0}` },
+          { icon: <Database className="w-6 h-6" />, tone: 'success', label: 'Tanks', value: `${tanksRes.tanks.length}` },
+          { icon: <ShieldCheck className="w-6 h-6" />, tone: 'navy', label: 'Users', value: `${usersRes.users.length}` },
         ]);
       } catch (error) {
         console.error(error);
@@ -87,27 +97,27 @@ const DashboardView: React.FC = () => {
       datasets: [{
         label: 'Quantité vendue (L)',
         data: values,
-        backgroundColor: ['#38bdf8', '#34d399', '#f59e0b', '#a78bfa', '#fb7185'],
+        backgroundColor: [themeColors.accent, themeColors.success, themeColors.navy, themeColors.danger, themeColors.secondary],
         borderWidth: 1,
       }],
     };
-  }, [summary]);
+  }, [summary, themeColors]);
 
   const financialData = useMemo(() => ({
     labels: ['Ventes TTC', 'Profits', 'Dépenses', 'Achats'],
     datasets: [{
       label: 'Montants (TND)',
       data: [summary?.sales?.totalTTC || 0, summary?.sales?.totalProfit || 0, summary?.audit?.totalExpenses || 0, summary?.audit?.totalPurchases || 0],
-      backgroundColor: ['#34d399', '#38bdf8', '#f59e0b', '#fb7185'],
+      backgroundColor: [themeColors.success, themeColors.accent, themeColors.danger, themeColors.navy],
       borderRadius: 8,
     }],
-  }), [summary]);
+  }), [summary, themeColors]);
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-        <p className="text-sm text-slate-400 mt-1">Welcome to FuelStation ERP Management System</p>
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard</h2>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">Welcome to FuelStation ERP Management System</p>
       </div>
 
       <HealthCheck />
@@ -116,10 +126,10 @@ const DashboardView: React.FC = () => {
         {dashboardStats.map((stat, idx) => (
           <div key={idx} className="glass-panel p-6 flex items-start justify-between">
             <div>
-              <div className="text-slate-400 text-sm font-medium">{stat.label}</div>
-              <div className="text-3xl font-bold text-white mt-2">{stat.value}</div>
+              <div className="text-[var(--text-secondary)] text-sm font-medium">{stat.label}</div>
+              <div className="text-3xl font-bold text-[var(--text-primary)] mt-2">{stat.value}</div>
             </div>
-            <div className={`w-14 h-14 rounded-full bg-gradient-to-br ${stat.bgColor} flex items-center justify-center text-white shadow-lg`}>
+            <div className={`metric-icon metric-icon--${stat.tone} w-14 h-14 rounded-full shadow-lg`}>
               {stat.icon}
             </div>
           </div>
@@ -128,38 +138,38 @@ const DashboardView: React.FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="glass-panel p-5">
-          <div className="flex items-center gap-2 text-white font-semibold">
-            <BarChart3 className="w-5 h-5 text-cyan-400" />
+          <div className="flex items-center gap-2 text-[var(--text-primary)] font-semibold">
+            <BarChart3 className="w-5 h-5 text-[var(--accent-orange)]" />
             Répartition des ventes
           </div>
           <div className="mt-4 h-72">
-            {loading ? <div className="text-slate-400 text-sm">Chargement…</div> : <Doughnut data={productMixData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1' } } } }} />}
+            {loading ? <div className="text-[var(--text-secondary)] text-sm">Chargement…</div> : <Doughnut data={productMixData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: themeColors.secondary } } } }} />}
           </div>
         </div>
 
         <div className="glass-panel p-5">
-          <div className="flex items-center gap-2 text-white font-semibold">
-            <TrendingUp className="w-5 h-5 text-emerald-400" />
+          <div className="flex items-center gap-2 text-[var(--text-primary)] font-semibold">
+            <TrendingUp className="w-5 h-5 text-[var(--success-color)]" />
             Vue financière du jour
           </div>
           <div className="mt-4 h-72">
-            {loading ? <div className="text-slate-400 text-sm">Chargement…</div> : <Bar data={financialData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#cbd5e1' } } }, scales: { y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(148, 163, 184, 0.15)' } }, x: { ticks: { color: '#cbd5e1' }, grid: { display: false } } } }} />}
+            {loading ? <div className="text-[var(--text-secondary)] text-sm">Chargement…</div> : <Bar data={financialData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: themeColors.secondary } } }, scales: { y: { ticks: { color: themeColors.secondary }, grid: { color: themeColors.border } }, x: { ticks: { color: themeColors.secondary }, grid: { display: false } } } }} />}
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[
-          { icon: <ShieldCheck className="w-5 h-5" />, color: 'emerald', label: 'RBAC & JWT Auth', desc: 'Secure login with role-based access for Admin, Manager, Supervisor, Operator.' },
-          { icon: <Building2 className="w-5 h-5" />, color: 'cyan', label: 'Station Management', desc: 'Station profiles with address, Matricule Fiscal, tanks, pumps & pistols.' },
-          { icon: <Package className="w-5 h-5" />, color: 'amber', label: 'Fuel Product Catalog', desc: 'Gasoil 2.200, Sans Plomb 2.520, Gasoil 50 2.400 TND/L with TVA 19%.' },
-          { icon: <Gauge className="w-5 h-5" />, color: 'blue', label: 'Pumps & Pistols', desc: '4 Pumps × 2 Pistols with assigned products and rolling closing indexes.' },
-        ].map(({ icon, color, label, desc }) => (
+          { icon: <ShieldCheck className="w-5 h-5" />, tone: 'success', label: 'RBAC & JWT Auth', desc: 'Secure login with role-based access for Admin, Manager, Supervisor, Operator.' },
+          { icon: <Building2 className="w-5 h-5" />, tone: 'navy', label: 'Station Management', desc: 'Station profiles with address, Matricule Fiscal, tanks, pumps & pistols.' },
+          { icon: <Package className="w-5 h-5" />, tone: 'accent', label: 'Fuel Product Catalog', desc: 'Gasoil 2.200, Sans Plomb 2.520, Gasoil 50 2.400 TND/L with TVA 19%.' },
+          { icon: <Gauge className="w-5 h-5" />, tone: 'danger', label: 'Pumps & Pistols', desc: '4 Pumps × 2 Pistols with assigned products and rolling closing indexes.' },
+        ].map(({ icon, tone, label, desc }) => (
           <div key={label} className="glass-panel p-5 space-y-3">
-            <div className={`p-2 bg-${color}-500/10 rounded-lg w-fit text-${color}-400 border border-${color}-500/20`}>{icon}</div>
+            <div className={`feature-icon feature-icon--${tone} p-2 w-fit`}>{icon}</div>
             <div>
-              <h3 className="font-semibold text-slate-200 text-sm">{label}</h3>
-              <p className="text-xs text-slate-400 mt-1">{desc}</p>
+              <h3 className="font-semibold text-[var(--text-primary)] text-sm">{label}</h3>
+              <p className="text-xs text-[var(--text-secondary)] mt-1">{desc}</p>
             </div>
           </div>
         ))}

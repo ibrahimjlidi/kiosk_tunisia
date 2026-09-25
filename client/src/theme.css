@@ -1,0 +1,45 @@
+:root {
+  /* --- Brand & Layout Colors --- */
+  --primary-navy: #0A192F;
+  --accent-orange: #F59E0B;
+  --bg-canvas: #F4F6F9;
+  --card-bg: #FFFFFF;
+
+  /* --- Typography Colors --- */
+  --text-primary: #1E293B;
+  --text-secondary: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* --- Status & Alerts --- */
+  --success-color: #10B981;
+  --warning-color: #F59E0B;
+  --danger-color: #EF4444;
+
+  /* --- Shadows & UI Depth --- */
+  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --hover-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* --- Borders & Radius --- */
+  --border-color: #E2E8F0;
+  --border-radius: 16px;
+
+  --login-primary-navy: #0F172A;
+  --login-deep-blue: #13386C;
+  --login-primary-blue: #2563EB;
+  --login-electric-blue: #3E4DD2;
+  --login-surface: #F8FAFC;
+  --login-border: #CBD5E1;
+  --login-hero-glass: color-mix(in srgb, var(--card-bg) 12%, transparent);
+  --login-hero-border: color-mix(in srgb, var(--card-bg) 23%, transparent);
+  --login-hero-muted: color-mix(in srgb, var(--text-inverse) 72%, transparent);
+
+  --primary-navy-rgb: 10 25 47;
+  --accent-orange-rgb: 245 158 11;
+  --bg-canvas-rgb: 244 246 249;
+  --card-bg-rgb: 255 255 255;
+  --text-primary-rgb: 30 41 59;
+  --text-secondary-rgb: 100 116 139;
+  --border-color-rgb: 226 232 240;
+  --success-color-rgb: 16 185 129;
+  --danger-color-rgb: 239 68 68;
+}
