@@ -124,7 +124,7 @@ export const SuppliersPage: React.FC = () => {
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1); }}
               placeholder="Search suppliers..."
-              className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 w-48"
+              className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 w-48"
             />
           </div>
           {canManage && (
@@ -132,7 +132,7 @@ export const SuppliersPage: React.FC = () => {
               <Plus className="w-3.5 h-3.5 mr-1 inline" /> Add Supplier
             </button>
           )}
-          <button onClick={loadSuppliers} className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={loadSuppliers} className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-800 rounded-lg transition-colors">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
@@ -151,7 +151,7 @@ export const SuppliersPage: React.FC = () => {
                   <Truck className="w-4 h-4 text-amber-400" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-slate-200">{s.name}</div>
+                  <div className="text-sm font-semibold text-black">{s.name}</div>
                   <div className="text-[10px] text-slate-400 space-x-2">
                     <span className="font-mono text-amber-400">{s.code}</span>
                     {s.contactPerson && <span>• {s.contactPerson}</span>}
@@ -181,11 +181,11 @@ export const SuppliersPage: React.FC = () => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center space-x-2 text-xs">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed">
+          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-slate-400 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-slate-400">Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed">
+          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 text-slate-400 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -196,7 +196,7 @@ export const SuppliersPage: React.FC = () => {
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">{editing ? 'Edit Supplier' : 'New Supplier'}</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-slate-200">
+              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-black">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -205,14 +205,14 @@ export const SuppliersPage: React.FC = () => {
                 {modalError}
               </div>
             )}
-            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
               <div className="flex items-center justify-between">
                 <span>Name</span>
                 <span className="font-mono text-cyan-400">{form.name.trim() || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Code</span>
-                <span className="font-mono text-slate-200">{form.code.trim() || '—'}</span>
+                <span className="font-mono text-black">{form.code.trim() || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Contact</span>
@@ -222,35 +222,35 @@ export const SuppliersPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Name *</label>
-                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Code *</label>
-                <input value={form.code} onChange={e => setForm({ ...form, code: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.code} onChange={e => setForm({ ...form, code: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Contact Person</label>
-                <input value={form.contactPerson} onChange={e => setForm({ ...form, contactPerson: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.contactPerson} onChange={e => setForm({ ...form, contactPerson: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Phone</label>
-                <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Email</label>
-                <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div className="col-span-2">
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Address</label>
-                <input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Tax ID</label>
-                <input value={form.taxId} onChange={e => setForm({ ...form, taxId: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.taxId} onChange={e => setForm({ ...form, taxId: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
             </div>
             <div className="flex justify-end space-x-2 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg">Cancel</button>
+              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-black border border-slate-700 rounded-lg">Cancel</button>
               <button disabled={saving} onClick={handleSave} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-60">
                 {saving ? 'Saving...' : editing ? 'Update' : 'Create'}
               </button>

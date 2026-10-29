@@ -25,6 +25,7 @@ export const ShiftsListPage: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
+  const [teamError, setTeamError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,12 +68,24 @@ export const ShiftsListPage: React.FC = () => {
       }
 
       if (teamResult.status === 'fulfilled') {
+        setTeamError(null);
         const resData = teamResult.value;
         const allTeams = resData.teams || resData.data || resData || [];
         const activeTeams = Array.isArray(allTeams) ? allTeams.filter((t: any) => t.active !== false) : [];
         setTeams(activeTeams);
+        if (user?.role === 'OPERATOR' && activeTeams.length > 0) {
+          const currentStationHasTeam = activeTeams.some((team: any) => {
+            const teamStationId = typeof team.station === 'object' ? team.station?._id : team.station;
+            return teamStationId === newStationId;
+          });
+          if (!currentStationHasTeam) {
+            const firstTeamStation = activeTeams[0].station;
+            setNewStationId(typeof firstTeamStation === 'object' ? firstTeamStation?._id || '' : firstTeamStation || '');
+          }
+        }
       } else {
         setTeams([]);
+        setTeamError(teamResult.reason?.response?.data?.message || 'Unable to load your teams.');
       }
 
       const hasAnyData = shiftResult.status === 'fulfilled' || stationResult.status === 'fulfilled' || teamResult.status === 'fulfilled';
@@ -84,7 +97,7 @@ export const ShiftsListPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [dateFilter, stationFilter]);
+  }, [dateFilter, stationFilter, user?.role, newStationId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -122,6 +135,20 @@ export const ShiftsListPage: React.FC = () => {
     }
   };
 
+  const isOperator = user?.role === 'OPERATOR';
+  const canCloseShift = !isOperator;
+  const selectableTeams = teams.filter((team) => {
+    const teamStationId = typeof team.station === 'object' ? team.station?._id : team.station;
+    return !teamStationId || !newStationId || teamStationId === newStationId;
+  });
+  const canOpenShift = !isOperator || selectableTeams.length > 0;
+  const ledTeamStationIds = new Set(teams
+    .map((team) => typeof team.station === 'object' ? team.station?._id : team.station)
+    .filter(Boolean));
+  const availableStations = isOperator && ledTeamStationIds.size > 0
+    ? stations.filter((station) => ledTeamStationIds.has(station._id))
+    : stations;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -135,13 +162,19 @@ export const ShiftsListPage: React.FC = () => {
             Morning · Afternoon · Night shifts with pump index readings and financial reconciliation
           </p>
         </div>
-        <button
-          onClick={() => { setModalError(null); setShowModal(true); }}
-          className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-cyan-600/20 transition-all w-fit"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Open New Shift</span>
-        </button>
+        {canOpenShift ? (
+          <button
+            onClick={() => { setModalError(null); setShowModal(true); }}
+            className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-cyan-600/20 transition-all w-fit"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Open New Shift</span>
+          </button>
+        ) : !loading && (
+          <p role="status" className="text-xs text-muted">
+            {teamError || 'Only a team leader can open a shift. You can view and update shifts assigned to you.'}
+          </p>
+        )}
       </div>
 
       {/* Filters */}
@@ -152,7 +185,7 @@ export const ShiftsListPage: React.FC = () => {
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-800 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
+            className="rounded-control border border-border bg-surface px-2 py-1 text-xs text-foreground focus:border-focus focus:outline-none focus:ring-2 focus:ring-focus/20"
           />
         </div>
         <div className="flex items-center space-x-2">
@@ -160,15 +193,15 @@ export const ShiftsListPage: React.FC = () => {
           <select
             value={stationFilter}
             onChange={(e) => setStationFilter(e.target.value)}
-            className="bg-slate-900 border border-slate-800 rounded px-2 py-1 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
+            className="rounded-control border border-border bg-surface px-2 py-1 text-xs text-foreground focus:border-focus focus:outline-none focus:ring-2 focus:ring-focus/20"
           >
             <option value="">All Stations</option>
-            {stations.map((s) => (
+            {availableStations.map((s) => (
               <option key={s._id} value={s._id}>{s.name}</option>
             ))}
           </select>
         </div>
-        <button onClick={load} className="flex items-center space-x-1 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs">
+        <button onClick={load} className="flex items-center space-x-1 rounded-control bg-secondary px-3 py-1 text-xs font-medium text-inverse hover:bg-primary-hover focus-visible:outline-focus">
           <RefreshCw className="w-3 h-3" /><span>Refresh</span>
         </button>
       </div>
@@ -190,7 +223,7 @@ export const ShiftsListPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-xs text-black">
               <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">Shift</th>
@@ -242,7 +275,7 @@ export const ShiftsListPage: React.FC = () => {
                       <td className="px-4 py-3 font-mono font-semibold text-emerald-400">
                         {shift.totalSalesTTC.toFixed(3)} TND
                       </td>
-                      <td className="px-4 py-3 font-mono text-slate-300">
+                      <td className="px-4 py-3 font-mono text-black">
                         {shift.totalPayments.toFixed(3)} TND
                       </td>
                       <td className={`px-4 py-3 font-mono font-bold ${balColor}`}>
@@ -260,7 +293,7 @@ export const ShiftsListPage: React.FC = () => {
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Link>
-                          {shift.status === 'OPEN' && (
+                          {shift.status === 'OPEN' && canCloseShift && (
                             <button
                               onClick={() => handleClose(shift)}
                               className="px-2 py-1 text-[10px] font-semibold text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded transition-colors"
@@ -298,27 +331,30 @@ export const ShiftsListPage: React.FC = () => {
             )}
             <form onSubmit={handleOpenShift} className="space-y-3 text-xs">
               <div>
-                <label htmlFor="shift-station" className="block text-slate-300 mb-1">Station</label>
+                <label htmlFor="shift-station" className="block text-black mb-1">Station</label>
                 <select
                   id="shift-station"
                   name="shift-station"
                   required
                   value={newStationId}
-                  onChange={(e) => setNewStationId(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  onChange={(e) => {
+                    setNewStationId(e.target.value);
+                    setSelectedTeam('');
+                  }}
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 >
                   {stations.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="shift-type" className="block text-slate-300 mb-1">Shift Type</label>
+                  <label htmlFor="shift-type" className="block text-black mb-1">Shift Type</label>
                   <select
                     id="shift-type"
                     name="shift-type"
                     value={newShiftType}
                     onChange={(e) => setNewShiftType(e.target.value as ShiftType)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     <option value="MORNING">MORNING (Matin)</option>
                     <option value="AFTERNOON">AFTERNOON (Après-midi)</option>
@@ -326,32 +362,33 @@ export const ShiftsListPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Date</label>
+                  <label className="block text-black mb-1">Date</label>
                   <input
                     type="date"
                     required
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-slate-300 mb-1">Assigned Team</label>
+                <label className="block text-black mb-1">Assigned Team</label>
                 <select
+                  aria-label="Assigned Team"
                   value={selectedTeam}
                   onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   required
                 >
-                  <option value="">Select a team...</option>
-                  {teams.map((team) => (
+                  <option value="" disabled>Select a team...</option>
+                  {selectableTeams.map((team) => (
                     <option key={team._id || team.id} value={team._id || team.id}>{team.name}</option>
                   ))}
                 </select>
               </div>
               <div className="flex items-center justify-end space-x-2 pt-4 border-t border-slate-800">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700">Cancel</button>
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 text-black rounded hover:bg-slate-700">Cancel</button>
                 <button type="submit" disabled={opening} className="px-4 py-2 bg-cyan-600 text-white rounded font-semibold hover:bg-cyan-500 disabled:opacity-50">
                   {opening ? 'Opening...' : 'Open Shift'}
                 </button>

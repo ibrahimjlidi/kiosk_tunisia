@@ -7,7 +7,10 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "seed": "tsx src/seeds/seed.ts"
+    "test:e2e": "playwright test --config playwright.config.ts",
+    "seed": "tsx src/seeds/seed-demo.ts",
+    "seed:demo": "tsx src/seeds/seed-demo.ts",
+    "seed:reset": "tsx src/seeds/seed.ts --reset"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

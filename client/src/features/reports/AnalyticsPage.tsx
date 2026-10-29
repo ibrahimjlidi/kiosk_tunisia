@@ -55,8 +55,8 @@ export const AnalyticsPage: React.FC = () => {
           <p className="text-xs text-slate-400">Daily totals, product mix, and station performance snapshots from the live reporting backend.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
-          <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black" />
+          <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
             <option value="">All stations</option>
             {stations.map((station) => <option key={station._id} value={station._id}>{station.name}</option>)}
           </select>
@@ -86,7 +86,7 @@ export const AnalyticsPage: React.FC = () => {
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {summary.productMix.length > 0 ? summary.productMix.map((item: any) => (
-            <div key={item._id} className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-sm text-slate-300">
+            <div key={item._id} className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-sm text-black">
               <div className="flex items-center justify-between">
                 <span>{item.productName}</span>
                 <span className="text-cyan-400 font-semibold">{item.totalQuantity.toFixed(3)}</span>

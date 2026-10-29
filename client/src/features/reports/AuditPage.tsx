@@ -51,8 +51,8 @@ export const AuditPage: React.FC = () => {
           <p className="text-xs text-slate-400">Live close summary combining shifts, purchases, expenses, and station health from the backend analytics endpoint.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
-          <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black" />
+          <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
             <option value="">All stations</option>
             {stations.map((station) => <option key={station._id} value={station._id}>{station.name}</option>)}
           </select>
@@ -77,7 +77,7 @@ export const AuditPage: React.FC = () => {
 
       <div className="glass-panel overflow-hidden">
         <div className="border-b border-slate-800 px-4 py-3 text-sm font-semibold text-white">Shift close checklist</div>
-        <div className="divide-y divide-slate-800 text-sm text-slate-300">
+        <div className="divide-y divide-slate-800 text-sm text-black">
           {shifts.length > 0 ? shifts.map((shift: any) => (
             <div key={shift._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3">
               <div>

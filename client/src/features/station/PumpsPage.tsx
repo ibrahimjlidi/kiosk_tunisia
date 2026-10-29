@@ -209,7 +209,7 @@ export const PumpsPage: React.FC = () => {
           )}
           <button
             onClick={loadPumps}
-            className="flex items-center space-x-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all"
+            className="flex items-center space-x-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-black rounded-lg text-xs font-medium transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Refresh</span>
@@ -239,7 +239,7 @@ export const PumpsPage: React.FC = () => {
                       <Fuel className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-slate-100 text-sm">{pump.pumpNumber}</div>
+                      <div className="font-bold text-black text-sm">{pump.pumpNumber}</div>
                       <div className="text-[11px] text-slate-400">
                         {pump.pistols.length} pistol{pump.pistols.length !== 1 ? 's' : ''} registered
                       </div>
@@ -283,11 +283,11 @@ export const PumpsPage: React.FC = () => {
                     return (
                       <div key={pistol._id || pistol.pistolNumber} className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
                         <div className="flex items-center space-x-3">
-                          <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+                          <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-black">
                             P{pistol.pistolNumber}
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-slate-200">
+                            <div className="text-sm font-semibold text-black">
                               {product?.name || 'Unknown Product'}
                             </div>
                             <div className="text-[10px] text-slate-500">
@@ -337,12 +337,12 @@ export const PumpsPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Station</label>
+                  <label className="block text-black mb-1">Station</label>
                   <select
                     required
                     value={stationId}
                     onChange={(e) => setStationId(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     {stations.map((station) => (
                       <option key={station._id} value={station._id}>{station.name}</option>
@@ -350,14 +350,14 @@ export const PumpsPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Pump Number</label>
+                  <label className="block text-black mb-1">Pump Number</label>
                   <input
                     type="text"
                     required
                     value={pumpNumber}
                     onChange={(e) => setPumpNumber(e.target.value)}
                     placeholder="PUMP-001"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 uppercase"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black uppercase"
                   />
                 </div>
               </div>
@@ -367,20 +367,20 @@ export const PumpsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActive(!active)}
-                  className={`rounded-full px-3 py-1 text-slate-100 transition ${active ? 'bg-emerald-500/15 border border-emerald-500/20' : 'bg-red-500/15 border border-red-500/20'}`}
+                  className={`rounded-full px-3 py-1 text-black transition ${active ? 'bg-emerald-500/15 border border-emerald-500/20' : 'bg-red-500/15 border border-red-500/20'}`}
                 >
                   {active ? 'Active' : 'Inactive'}
                 </button>
               </div>
 
-              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
                 <div className="flex items-center justify-between">
                   <span>Station</span>
                   <span className="font-mono text-cyan-400">{stations.find((item) => item._id === stationId)?.name || '—'}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span>Pump</span>
-                  <span className="font-mono text-slate-200">{pumpNumber.trim() || '—'}</span>
+                  <span className="font-mono text-black">{pumpNumber.trim() || '—'}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span>Pistols</span>
@@ -390,11 +390,11 @@ export const PumpsPage: React.FC = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm font-semibold text-slate-100">Pistols</div>
+                  <div className="text-sm font-semibold text-black">Pistols</div>
                   <button
                     type="button"
                     onClick={addPistol}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-black rounded-lg text-xs transition"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add Pistol</span>
@@ -405,22 +405,22 @@ export const PumpsPage: React.FC = () => {
                   {pistols.map((pistol, index) => (
                     <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end p-4 rounded-2xl bg-slate-900 border border-slate-800">
                       <div>
-                        <label className="block text-slate-300 mb-1">Pistol Number</label>
+                        <label className="block text-black mb-1">Pistol Number</label>
                         <input
                           type="number"
                           min={1}
                           value={pistol.pistolNumber}
                           onChange={(e) => handlePistolChange(index, 'pistolNumber', Number(e.target.value))}
-                          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-100"
+                          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-black"
                         />
                       </div>
                       <div>
-                        <label className="block text-slate-300 mb-1">Product</label>
+                        <label className="block text-black mb-1">Product</label>
                         <select
                           required
                           value={pistol.productId}
                           onChange={(e) => handlePistolChange(index, 'productId', e.target.value)}
-                          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-100"
+                          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-black"
                         >
                           <option value="">Select product</option>
                           {products.map((product) => (
@@ -429,21 +429,21 @@ export const PumpsPage: React.FC = () => {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-slate-300 mb-1">Closing Index (L)</label>
+                        <label className="block text-black mb-1">Closing Index (L)</label>
                         <input
                           type="number"
                           min={0}
                           step={0.1}
                           value={pistol.currentClosingIndex}
                           onChange={(e) => handlePistolChange(index, 'currentClosingIndex', Number(e.target.value))}
-                          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-100"
+                          className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-black"
                         />
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         <button
                           type="button"
                           onClick={() => handlePistolChange(index, 'active', !pistol.active)}
-                          className={`rounded-full px-3 py-1 text-[11px] text-slate-100 transition ${pistol.active ? 'bg-emerald-500/15 border border-emerald-500/20' : 'bg-red-500/15 border border-red-500/20'}`}
+                          className={`rounded-full px-3 py-1 text-[11px] text-black transition ${pistol.active ? 'bg-emerald-500/15 border border-emerald-500/20' : 'bg-red-500/15 border border-red-500/20'}`}
                         >
                           {pistol.active ? 'On' : 'Off'}
                         </button>
@@ -474,7 +474,7 @@ export const PumpsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { setShowModal(false); resetForm(); }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-black rounded-lg text-xs transition"
                 >
                   <XCircle className="w-4 h-4" />
                   <span>Cancel</span>

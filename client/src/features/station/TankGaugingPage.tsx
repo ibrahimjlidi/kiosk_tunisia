@@ -94,14 +94,14 @@ export const TankGaugingPage: React.FC = () => {
         <div className="flex items-center space-x-2">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search by tank..." className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 w-48" />
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search by tank..." className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 w-48" />
           </div>
           {canCreate && (
             <button onClick={openCreate} className="btn-primary text-xs px-3 py-1.5">
               <Plus className="w-3.5 h-3.5 mr-1 inline" /> New Reading
             </button>
           )}
-          <button onClick={loadData} className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={loadData} className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-800 rounded-lg transition-colors">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
@@ -121,7 +121,7 @@ export const TankGaugingPage: React.FC = () => {
                     <Ruler className="w-4 h-4 text-purple-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-200">
+                    <div className="text-sm font-semibold text-black">
                       {typeof g.tank === 'object' ? g.tank?.tankNumber : 'N/A'}
                     </div>
                     <div className="text-[10px] text-slate-400">
@@ -137,10 +137,10 @@ export const TankGaugingPage: React.FC = () => {
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-2 text-[10px] text-slate-400">
-                <div>Volume: <span className="text-slate-200 font-semibold">{g.calculatedVolume?.toFixed(0) || '0'} L</span></div>
-                <div>Stock: <span className="text-slate-200 font-semibold">{g.theoreticalStock?.toFixed(0) || '0'} L</span></div>
-                <div>Water: <span className="text-slate-200 font-semibold">{g.waterLevel || 0} mm</span></div>
-                <div>Temp: <span className="text-slate-200 font-semibold">{g.temperature || 20}°C</span></div>
+                <div>Volume: <span className="text-black font-semibold">{g.calculatedVolume?.toFixed(0) || '0'} L</span></div>
+                <div>Stock: <span className="text-black font-semibold">{g.theoreticalStock?.toFixed(0) || '0'} L</span></div>
+                <div>Water: <span className="text-black font-semibold">{g.waterLevel || 0} mm</span></div>
+                <div>Temp: <span className="text-black font-semibold">{g.temperature || 20}°C</span></div>
               </div>
             </div>
           ))}
@@ -149,29 +149,29 @@ export const TankGaugingPage: React.FC = () => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center space-x-2 text-xs">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed">
+          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-slate-400 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-slate-400">Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed">
+          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 text-slate-400 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 backdrop-blur-sm">
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">New Tank Gauging</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-slate-200">
+              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-black">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <div className="space-y-3">
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Tank *</label>
-                <select value={form.tank} onChange={e => handleTankChange(e.target.value)} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50">
+                <select value={form.tank} onChange={e => handleTankChange(e.target.value)} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50">
                   <option value="">Select tank</option>
                   {tanks.map(t => (
                     <option key={t._id} value={t._id}>
@@ -183,28 +183,28 @@ export const TankGaugingPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-slate-400 uppercase tracking-wider">Dip Reading (mm) *</label>
-                  <input type="number" value={form.dipReading || ''} onChange={e => setForm({ ...form, dipReading: parseFloat(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                  <input type="number" value={form.dipReading || ''} onChange={e => setForm({ ...form, dipReading: parseFloat(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 uppercase tracking-wider">Calculated Volume (L) *</label>
-                  <input type="number" value={form.calculatedVolume || ''} onChange={e => setForm({ ...form, calculatedVolume: parseFloat(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                  <input type="number" value={form.calculatedVolume || ''} onChange={e => setForm({ ...form, calculatedVolume: parseFloat(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 uppercase tracking-wider">Water Level (mm)</label>
-                  <input type="number" value={form.waterLevel || ''} onChange={e => setForm({ ...form, waterLevel: parseFloat(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                  <input type="number" value={form.waterLevel || ''} onChange={e => setForm({ ...form, waterLevel: parseFloat(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 uppercase tracking-wider">Temperature (°C)</label>
-                  <input type="number" value={form.temperature || ''} onChange={e => setForm({ ...form, temperature: parseFloat(e.target.value) || 20 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                  <input type="number" value={form.temperature || ''} onChange={e => setForm({ ...form, temperature: parseFloat(e.target.value) || 20 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
                 </div>
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Notes</label>
-                <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
             </div>
             <div className="flex justify-end space-x-2 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg">Cancel</button>
+              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-black border border-slate-700 rounded-lg">Cancel</button>
               <button onClick={handleCreate} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors">Record Reading</button>
             </div>
           </div>

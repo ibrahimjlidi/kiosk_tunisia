@@ -63,7 +63,7 @@ export const KifReturnsPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search note/reason" className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search note/reason" className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black" />
           </div>
           <button onClick={() => setShowModal(true)} className="btn-primary text-xs px-3 py-1.5"><Plus className="w-3.5 h-3.5 mr-1 inline" /> Record</button>
         </div>
@@ -72,7 +72,7 @@ export const KifReturnsPage: React.FC = () => {
       {loading ? <div className="text-center py-12 text-slate-400 text-sm">Loading Kif returns...</div> : (
         <div className="glass-panel overflow-hidden">
           <div className="border-b border-slate-800 px-4 py-3 text-sm font-semibold text-white">Recorded returns</div>
-          <div className="divide-y divide-slate-800 text-sm text-slate-300">
+          <div className="divide-y divide-slate-800 text-sm text-black">
             {filtered.length > 0 ? filtered.map((item: any) => (
               <div key={item._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3">
                 <div>
@@ -87,23 +87,23 @@ export const KifReturnsPage: React.FC = () => {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 backdrop-blur-sm">
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-md space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">Record Kif Return</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-slate-200"><X className="w-4 h-4" /></button>
+              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-black"><X className="w-4 h-4" /></button>
             </div>
             <div className="space-y-3">
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Station *</label>
-                <select value={form.stationId} onChange={(e) => setForm({ ...form, stationId: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200">
+                <select value={form.stationId} onChange={(e) => setForm({ ...form, stationId: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black">
                   <option value="">Select station</option>
                   {stations.map((station) => <option key={station._id} value={station._id}>{station.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Product</label>
-                <select value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200">
+                <select value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black">
                   <option value="">Select product (optional)</option>
                   {products.map((product) => <option key={product._id} value={product._id}>{product.name}</option>)}
                 </select>
@@ -111,24 +111,24 @@ export const KifReturnsPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] text-slate-400 uppercase tracking-wider">Quantity (L)</label>
-                  <input type="number" value={form.quantity || ''} onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200" />
+                  <input type="number" value={form.quantity || ''} onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) || 0 })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black" />
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 uppercase tracking-wider">Date</label>
-                  <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200" />
+                  <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black" />
                 </div>
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Reason *</label>
-                <input value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200" />
+                <input value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Notes</label>
-                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200" />
+                <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black" />
               </div>
             </div>
             <div className="flex justify-end space-x-2 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg">Cancel</button>
+              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-black border border-slate-700 rounded-lg">Cancel</button>
               <button onClick={submit} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg">Save</button>
             </div>
           </div>

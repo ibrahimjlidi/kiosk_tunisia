@@ -35,12 +35,12 @@ export const CreditAgingPage: React.FC = () => {
           <div key={row.customer._id} className="glass-panel p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold text-slate-200">{row.customer.name}</div>
+                <div className="font-semibold text-black">{row.customer.name}</div>
                 <div className="text-xs text-slate-500">Balance: {row.totalBalance.toFixed(3)} TND</div>
               </div>
               <div className="text-xs text-slate-400">Last tx: {row.lastTxAt ? new Date(row.lastTxAt).toLocaleDateString() : '—'}</div>
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-300">
+            <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-black">
               <div className="bg-slate-950/80 p-3 rounded">0-30 days: {row.bucket0_30.toFixed(3)} TND</div>
               <div className="bg-slate-950/80 p-3 rounded">31-60 days: {row.bucket31_60.toFixed(3)} TND</div>
               <div className="bg-slate-950/80 p-3 rounded">61-90 days: {row.bucket61_90.toFixed(3)} TND</div>

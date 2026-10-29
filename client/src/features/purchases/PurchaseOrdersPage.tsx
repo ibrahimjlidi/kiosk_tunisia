@@ -137,7 +137,7 @@ export const PurchaseOrdersPage: React.FC = () => {
       DELIVERED: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
       CANCELLED: 'bg-red-500/10 text-red-400 border-red-500/20'
     };
-    return `px-2 py-0.5 rounded text-[10px] font-bold border ${colors[status] || 'bg-slate-800 text-slate-300'}`;
+    return `px-2 py-0.5 rounded text-[10px] font-bold border ${colors[status] || 'bg-slate-800 text-black'}`;
   };
 
   const canManage = user?.role === 'ADMIN' || user?.role === 'MANAGER';
@@ -157,14 +157,14 @@ export const PurchaseOrdersPage: React.FC = () => {
         <div className="flex items-center space-x-2">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search orders..." className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 w-48" />
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} placeholder="Search orders..." className="pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 w-48" />
           </div>
           {canManage && (
             <button onClick={openCreate} className="btn-primary text-xs px-3 py-1.5">
               <Plus className="w-3.5 h-3.5 mr-1 inline" /> New Order
             </button>
           )}
-          <button onClick={loadData} className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
+          <button onClick={loadData} className="p-1.5 text-slate-400 hover:text-black hover:bg-slate-800 rounded-lg transition-colors">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
@@ -184,7 +184,7 @@ export const PurchaseOrdersPage: React.FC = () => {
                     <ClipboardList className="w-4 h-4 text-blue-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-slate-200">{o.orderNumber}</div>
+                    <div className="text-sm font-semibold text-black">{o.orderNumber}</div>
                     <div className="text-[10px] text-slate-400">
                       {typeof o.supplier === 'object' ? o.supplier?.name : 'N/A'} • {new Date(o.orderDate).toLocaleDateString()}
                     </div>
@@ -215,11 +215,11 @@ export const PurchaseOrdersPage: React.FC = () => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center space-x-2 text-xs">
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed">
+          <button disabled={page === 1} onClick={() => setPage(p => p - 1)} className="p-1.5 text-slate-400 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-slate-400">Page {page} of {totalPages}</span>
-          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed">
+          <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)} className="p-1.5 text-slate-400 hover:text-black disabled:opacity-30 disabled:cursor-not-allowed">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -230,7 +230,7 @@ export const PurchaseOrdersPage: React.FC = () => {
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-bold text-white">New Purchase Order</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-slate-200">
+              <button onClick={() => setShowModal(false)} className="p-1 text-slate-400 hover:text-black">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -241,14 +241,14 @@ export const PurchaseOrdersPage: React.FC = () => {
               </div>
             )}
 
-            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
               <div className="flex items-center justify-between">
                 <span>Supplier</span>
                 <span className="font-mono text-cyan-400">{suppliers.find((item) => item._id === form.supplier)?.name || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Station</span>
-                <span className="font-mono text-slate-200">{stations.find((item) => item._id === form.station)?.name || '—'}</span>
+                <span className="font-mono text-black">{stations.find((item) => item._id === form.station)?.name || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Items</span>
@@ -259,18 +259,18 @@ export const PurchaseOrdersPage: React.FC = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Supplier *</label>
-                <select value={form.supplier} onChange={e => setForm({ ...form, supplier: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50">
+                <select value={form.supplier} onChange={e => setForm({ ...form, supplier: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50">
                   <option value="">Select supplier</option>
                   {suppliers.map(s => <option key={s._id} value={s._id}>{s.name} ({s.code})</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Order Number *</label>
-                <input value={form.orderNumber} onChange={e => setForm({ ...form, orderNumber: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input value={form.orderNumber} onChange={e => setForm({ ...form, orderNumber: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Station *</label>
-                <select value={form.station} onChange={e => setForm({ ...form, station: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50">
+                <select value={form.station} onChange={e => setForm({ ...form, station: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50">
                   <option value="">Select station</option>
                   {stations.map((station) => (
                     <option key={station._id} value={station._id}>{station.name}</option>
@@ -279,7 +279,7 @@ export const PurchaseOrdersPage: React.FC = () => {
               </div>
               <div>
                 <label className="text-[10px] text-slate-400 uppercase tracking-wider">Order Date</label>
-                <input type="date" value={form.orderDate} onChange={e => setForm({ ...form, orderDate: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                <input type="date" value={form.orderDate} onChange={e => setForm({ ...form, orderDate: e.target.value })} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
               </div>
             </div>
 
@@ -291,19 +291,19 @@ export const PurchaseOrdersPage: React.FC = () => {
               {form.items.map((item, idx) => (
                 <div key={idx} className="grid grid-cols-5 gap-2 mb-2 p-2 bg-slate-800/50 rounded-lg">
                   <div className="col-span-2">
-                    <select value={item.product} onChange={e => updateItem(idx, 'product', e.target.value)} className="w-full px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-slate-200 focus:outline-none focus:border-cyan-500/50">
+                    <select value={item.product} onChange={e => updateItem(idx, 'product', e.target.value)} className="w-full px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-black focus:outline-none focus:border-cyan-500/50">
                       <option value="">Product</option>
                       {products.map(p => <option key={p._id} value={p._id}>{p.name} ({p.code})</option>)}
                     </select>
                   </div>
                   <div>
-                    <input type="number" placeholder="Qty" value={item.quantity || ''} onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                    <input type="number" placeholder="Qty" value={item.quantity || ''} onChange={e => updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-black focus:outline-none focus:border-cyan-500/50" />
                   </div>
                   <div>
-                    <input type="number" step="0.001" placeholder="Price" value={item.unitPrice || ''} onChange={e => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+                    <input type="number" step="0.001" placeholder="Price" value={item.unitPrice || ''} onChange={e => updateItem(idx, 'unitPrice', parseFloat(e.target.value) || 0)} className="w-full px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-black focus:outline-none focus:border-cyan-500/50" />
                   </div>
                   <div className="flex items-center space-x-1">
-                    <select value={item.tank} onChange={e => updateItem(idx, 'tank', e.target.value)} className="flex-1 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-slate-200 focus:outline-none focus:border-cyan-500/50">
+                    <select value={item.tank} onChange={e => updateItem(idx, 'tank', e.target.value)} className="flex-1 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-[10px] text-black focus:outline-none focus:border-cyan-500/50">
                       <option value="">Tank</option>
                       {tanks.map(t => <option key={t._id} value={t._id}>{t.tankNumber}</option>)}
                     </select>
@@ -319,11 +319,11 @@ export const PurchaseOrdersPage: React.FC = () => {
 
             <div>
               <label className="text-[10px] text-slate-400 uppercase tracking-wider">Notes</label>
-              <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-500/50" />
+              <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={2} className="w-full mt-1 px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-black focus:outline-none focus:border-cyan-500/50" />
             </div>
 
             <div className="flex justify-end space-x-2 pt-2">
-              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg">Cancel</button>
+              <button onClick={() => setShowModal(false)} className="px-3 py-1.5 text-xs text-slate-400 hover:text-black border border-slate-700 rounded-lg">Cancel</button>
               <button disabled={saving} onClick={handleCreate} className="px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-60">
                 {saving ? 'Saving...' : 'Create Order'}
               </button>

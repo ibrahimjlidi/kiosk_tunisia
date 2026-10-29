@@ -72,24 +72,29 @@ Assurez-vous que MongoDB Community Server est en cours d'exécution sur :
 mongodb://127.0.0.1:27017/fuelstation_erp
 ```
 
-### 5. Initialisation des Données (Seed)
+### 5. Initialisation des Données de Démonstration (Seed)
 
-Pour peupler la base de données avec des données de test :
+Le seed de démonstration est additif et peut être relancé sans supprimer les données existantes :
 
 ```bash
 cd server
 npm run seed
 ```
 
-Cette commande crée :
-- **Station** : "Station Kiosque Tunis"
-- **Produits** : Gasoil (GO) et Sans Plomb (SP)
-- **Pompes** : PUMP-001 et PUMP-002 avec 2 pistolets chacune
-- **Cuves** : TANK-001 (Gasoil) et TANK-002 (Sans Plomb)
-- **Utilisateur Admin** :
-  - Identifiant : `admin`
-  - Email : `admin@fuelstation.com`
-  - Mot de passe : `Admin@123`
+Il ajoute des stations de démonstration à Sousse, Sfax et Hammamet, des équipes, utilisateurs de test, pompes, pistolets, cuves, ventes, quarts, fournisseurs, clients, achats, dépenses et données de rapports.
+
+Comptes de démonstration (mot de passe commun : `Demo@123`) :
+- Manager : `demo_st002_manager`, `demo_st003_manager`, `demo_st004_manager`
+- Supervisor : remplacer `manager` par `supervisor`
+- Operator : remplacer `manager` par `operator`
+
+Le seed historique qui efface et recrée les collections est séparé et nécessite une confirmation explicite :
+
+```bash
+npm run seed:reset
+```
+
+Ne l'utilisez que sur une base de test que vous pouvez réinitialiser.
 
 ## 🌐 Accès à l'Application
 
@@ -104,6 +109,10 @@ Cette commande crée :
 | Rôle | Email | Mot de passe |
 |------|-------|-------------|
 | Administrateur | admin@fuelstation.com | Admin@123 |
+
+## Workflows par rôle
+
+Consultez les [diagrammes des workflows utilisateurs](./docs/user-workflows.md) pour les parcours Admin, Manager, Supervisor et Operator, ainsi que la [checklist de test manuel Operator](./docs/operator-manual-test-checklist.md).
 
 ## 📁 Structure du Projet
 
@@ -150,6 +159,18 @@ kiosk_tunisia/
 | Développement | `npm run dev` | Lance le client avec Vite |
 | Build | `npm run build` | Compile pour la production |
 | Preview | `npm run preview` | Prévisualise le build de production |
+
+### Tests des workflows utilisateur
+
+Avec l'application démarrée et les comptes de démonstration disponibles :
+
+```bash
+cd server
+npx playwright install --with-deps chromium
+npm run test:e2e
+```
+
+Les tests vérifient les accès Admin, Manager, Supervisor et Operator, ainsi que des interactions qui n'écrivent pas dans la base. Pour cibler un autre environnement, définissez `E2E_BASE_URL` et les variables `E2E_ADMIN_*`, `E2E_MANAGER_*`, `E2E_SUPERVISOR_*`, `E2E_OPERATOR_*`.
 
 ## 🔧 Technologies Utilisées
 

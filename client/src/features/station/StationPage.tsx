@@ -149,7 +149,7 @@ export const StationPage: React.FC = () => {
           )}
           <button
             onClick={loadStations}
-            className="flex items-center space-x-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all"
+            className="flex items-center space-x-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-black rounded-lg text-xs font-medium transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Refresh</span>
@@ -177,7 +177,7 @@ export const StationPage: React.FC = () => {
                     <Building2 className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <div className="font-bold text-slate-100 text-sm">{station.name}</div>
+                    <div className="font-bold text-black text-sm">{station.name}</div>
                     <div className="font-mono text-[11px] text-cyan-400">{station.code}</div>
                   </div>
                 </div>
@@ -262,72 +262,72 @@ export const StationPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Station Name</label>
+                  <label className="block text-black mb-1">Station Name</label>
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Station Kiosque Tunis"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Station Code</label>
+                  <label className="block text-black mb-1">Station Code</label>
                   <input
                     type="text"
                     required
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                     placeholder="STATION-001"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono uppercase"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono uppercase"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Address</label>
+                  <label className="block text-black mb-1">Address</label>
                   <input
                     type="text"
                     required
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="Rue de l'Industrie"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">City</label>
+                  <label className="block text-black mb-1">City</label>
                   <input
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="Tunis"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Phone</label>
+                  <label className="block text-black mb-1">Phone</label>
                   <input
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+216 71 000 000"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Matricule Fiscal</label>
+                  <label className="block text-black mb-1">Matricule Fiscal</label>
                   <input
                     type="text"
                     value={taxId}
                     onChange={(e) => setTaxId(e.target.value)}
                     placeholder="123456A"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
               </div>
@@ -337,20 +337,20 @@ export const StationPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActive(!active)}
-                  className={`rounded-full px-3 py-1 text-slate-100 transition ${active ? 'bg-emerald-500/15 border border-emerald-500/20' : 'bg-red-500/15 border border-red-500/20'}`}
+                  className={`rounded-full px-3 py-1 text-black transition ${active ? 'bg-emerald-500/15 border border-emerald-500/20' : 'bg-red-500/15 border border-red-500/20'}`}
                 >
                   {active ? 'Active' : 'Inactive'}
                 </button>
               </div>
 
-              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
                 <div className="flex items-center justify-between">
                   <span>Station label</span>
                   <span className="font-mono text-cyan-400">{code.trim() || '—'}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span>City</span>
-                  <span className="font-mono text-slate-200">{city.trim() || '—'}</span>
+                  <span className="font-mono text-black">{city.trim() || '—'}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
                   <span>Status</span>
@@ -372,7 +372,7 @@ export const StationPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { setShowModal(false); resetForm(); }}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-black rounded-lg text-xs transition"
                 >
                   <XCircle className="w-4 h-4" />
                   <span>Cancel</span>

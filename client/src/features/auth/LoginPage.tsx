@@ -231,7 +231,7 @@ export const LoginPage: React.FC = () => {
         </div>
 {/* Quick Demo Credentials Info */}
           <div className="border-t border-slate-800/80 pt-4 text-xs text-slate-400 space-y-1">
-            <span className="font-semibold text-slate-300">Demo Accounts Available:</span>
+            <span className="font-semibold text-black">Demo Accounts Available:</span>
             <div className="text-[11px] text-slate-400">
               Admin: <code className="text-cyan-400">admin@fuelstation.tn</code> / <code className="text-cyan-400">Admin123!</code>
             </div>

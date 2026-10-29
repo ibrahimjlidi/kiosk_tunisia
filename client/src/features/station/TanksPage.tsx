@@ -188,7 +188,7 @@ export const TanksPage: React.FC = () => {
           <button onClick={openAddModal} className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg text-white text-xs font-semibold hover:bg-cyan-500 transition">
             <Plus className="w-4 h-4" /> Add Tank
           </button>
-          <button onClick={loadData} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-lg text-slate-200 text-xs hover:bg-slate-700 transition">
+          <button onClick={loadData} className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-lg text-black text-xs hover:bg-slate-700 transition">
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
         </div>
@@ -220,7 +220,7 @@ export const TanksPage: React.FC = () => {
               <div key={tank._id} className={`glass-panel overflow-hidden ${low ? 'ring-1 ring-red-500/40' : ''}`}>
                 <div className="px-5 pt-5 pb-3 flex items-start justify-between gap-3">
                   <div>
-                    <div className="font-bold text-slate-100 text-sm">{tank.tankNumber}</div>
+                    <div className="font-bold text-black text-sm">{tank.tankNumber}</div>
                     <div className="text-[11px] text-cyan-400 font-semibold mt-0.5">
                       {productObj?.name || 'Unknown Product'}
                     </div>
@@ -248,7 +248,7 @@ export const TanksPage: React.FC = () => {
                 <div className="px-5 py-2 space-y-2">
                   <div className="flex justify-between text-[10px] text-slate-400">
                     <span>Current Stock</span>
-                    <span className="font-mono font-semibold text-slate-200">{fillPct.toFixed(1)}%</span>
+                    <span className="font-mono font-semibold text-black">{fillPct.toFixed(1)}%</span>
                   </div>
                   <div className="h-3 bg-slate-800 rounded-full overflow-hidden border border-slate-700">
                     <div
@@ -265,7 +265,7 @@ export const TanksPage: React.FC = () => {
                   </div>
                   <div className="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
                     <div className="text-[10px] text-slate-500 mb-0.5">Capacity</div>
-                    <div className="font-mono font-bold text-slate-300 text-xs">{tank.capacity.toLocaleString('fr-TN')} L</div>
+                    <div className="font-mono font-bold text-black text-xs">{tank.capacity.toLocaleString('fr-TN')} L</div>
                   </div>
                   <div className="bg-slate-900/60 rounded-lg p-2 text-center border border-slate-800">
                     <div className="text-[10px] text-slate-500 mb-0.5">Min Alert</div>
@@ -276,7 +276,7 @@ export const TanksPage: React.FC = () => {
                 <div className="flex items-center justify-between gap-2 px-5 pb-5">
                   <button
                     onClick={() => openEditModal(tank)}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-semibold"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-black rounded text-xs font-semibold"
                   >
                     <Edit2 className="w-4 h-4" /> Edit
                   </button>
@@ -301,7 +301,7 @@ export const TanksPage: React.FC = () => {
                 <h3 className="text-lg font-bold text-white">{editingTank ? 'Edit Tank' : 'Add New Tank'}</h3>
                 <p className="text-xs text-slate-400">Manage physical tank capacity, stock, and product assignment.</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-100"><X className="w-5 h-5" /></button>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-black"><X className="w-5 h-5" /></button>
             </div>
 
             {modalError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs">{modalError}</div>}
@@ -309,11 +309,11 @@ export const TanksPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="grid gap-4 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Station</label>
+                  <label className="block text-black mb-1">Station</label>
                   <select
                     value={station}
                     onChange={(e) => setStation(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     {stations.map((stationItem) => (
                       <option key={stationItem._id} value={stationItem._id}>{stationItem.name}</option>
@@ -321,11 +321,11 @@ export const TanksPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Product</label>
+                  <label className="block text-black mb-1">Product</label>
                   <select
                     value={product}
                     onChange={(e) => setProduct(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     {products.map((productItem) => (
                       <option key={productItem._id} value={productItem._id}>{productItem.name}</option>
@@ -336,48 +336,48 @@ export const TanksPage: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Tank Number</label>
+                  <label className="block text-black mb-1">Tank Number</label>
                   <input
                     value={tankNumber}
                     onChange={(e) => setTankNumber(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                     placeholder="e.g. Tank A"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Capacity (L)</label>
+                  <label className="block text-black mb-1">Capacity (L)</label>
                   <input
                     type="number"
                     step="0.001"
                     min="0"
                     value={capacity}
                     onChange={(e) => setCapacity(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Current Stock (L)</label>
+                  <label className="block text-black mb-1">Current Stock (L)</label>
                   <input
                     type="number"
                     step="0.001"
                     min="0"
                     value={currentStock}
                     onChange={(e) => setCurrentStock(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Min Level Alert (L)</label>
+                  <label className="block text-black mb-1">Min Level Alert (L)</label>
                   <input
                     type="number"
                     step="0.001"
                     min="0"
                     value={minLevelAlert}
                     onChange={(e) => setMinLevelAlert(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
                 <div className="flex items-center gap-3 mt-6">
@@ -388,11 +388,11 @@ export const TanksPage: React.FC = () => {
                     onChange={(e) => setActive(e.target.checked)}
                     className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-cyan-500"
                   />
-                  <label htmlFor="tank-active" className="text-slate-300 text-sm">Active tank</label>
+                  <label htmlFor="tank-active" className="text-black text-sm">Active tank</label>
                 </div>
               </div>
 
-              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+              <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
                 <div className="flex items-center justify-between">
                   <span>Capacity</span>
                   <span className="font-mono text-cyan-400">{capacity.toLocaleString('fr-TN')} L</span>
@@ -408,7 +408,7 @@ export const TanksPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-slate-300 hover:bg-slate-700">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-black hover:bg-slate-700">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded text-white hover:bg-cyan-500 disabled:opacity-50">

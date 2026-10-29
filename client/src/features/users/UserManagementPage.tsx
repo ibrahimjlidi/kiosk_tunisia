@@ -149,7 +149,7 @@ export const UserManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-xs text-black">
               <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">User</th>
@@ -162,7 +162,7 @@ export const UserManagementPage: React.FC = () => {
                 {users.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-800/40 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-slate-100">{u.firstName} {u.lastName}</div>
+                      <div className="font-semibold text-black">{u.firstName} {u.lastName}</div>
                       <div className="text-[11px] text-slate-500">{u.email} (@{u.username})</div>
                     </td>
 
@@ -170,7 +170,7 @@ export const UserManagementPage: React.FC = () => {
                       <select
                         value={u.role}
                         onChange={(e) => handleRoleChange(u.id, e.target.value as UserRole)}
-                        className="bg-slate-900 border border-slate-800 rounded text-slate-200 px-2 py-1 text-xs focus:outline-none focus:border-cyan-500"
+                        className="bg-slate-900 border border-slate-800 rounded text-black px-2 py-1 text-xs focus:outline-none focus:border-cyan-500"
                       >
                         <option value="ADMIN">ADMIN</option>
                         <option value="MANAGER">MANAGER</option>
@@ -231,14 +231,14 @@ export const UserManagementPage: React.FC = () => {
               </div>
             )}
 
-            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
               <div className="flex items-center justify-between">
                 <span>Identity</span>
                 <span className="font-mono text-cyan-400">{firstName.trim() || '—'} {lastName.trim() || ''}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Role</span>
-                <span className="font-mono text-slate-200">{role}</span>
+                <span className="font-mono text-black">{role}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Status</span>
@@ -249,66 +249,66 @@ export const UserManagementPage: React.FC = () => {
             <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">First Name</label>
+                  <label className="block text-black mb-1">First Name</label>
                   <input
                     type="text"
                     required
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Last Name</label>
+                  <label className="block text-black mb-1">Last Name</label>
                   <input
                     type="text"
                     required
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Username</label>
+                <label className="block text-black mb-1">Username</label>
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Email</label>
+                <label className="block text-black mb-1">Email</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Password</label>
+                <label className="block text-black mb-1">Password</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Assigned Role</label>
+                <label className="block text-black mb-1">Assigned Role</label>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 >
                   <option value="ADMIN">ADMIN (Full Access)</option>
                   <option value="MANAGER">MANAGER (Station Manager)</option>
@@ -324,7 +324,7 @@ export const UserManagementPage: React.FC = () => {
                     setShowAddModal(false);
                     resetCreateForm();
                   }}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700"
+                  className="px-4 py-2 bg-slate-800 text-black rounded hover:bg-slate-700"
                 >
                   Cancel
                 </button>

@@ -28,7 +28,7 @@ export const AuditLogPage: React.FC = () => {
 
       <div className="glass-panel overflow-hidden">
         <div className="border-b border-slate-800 px-4 py-3 text-sm font-semibold text-white">Recent events</div>
-        <div className="divide-y divide-slate-800 text-sm text-slate-300">
+        <div className="divide-y divide-slate-800 text-sm text-black">
           {loading ? <div className="px-4 py-4 text-slate-400">Loading...</div> : logs.map((log: any) => (
             <div key={log._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-2">
               <div>

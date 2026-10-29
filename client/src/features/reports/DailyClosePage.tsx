@@ -69,8 +69,8 @@ export const DailyClosePage: React.FC = () => {
           <p className="text-xs text-slate-400">Close the day, review reconciliation, and record Kif returns for the selected station.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
-          <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black" />
+          <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
             <option value="">All stations</option>
             {stations.map((station) => <option key={station._id} value={station._id}>{station.name}</option>)}
           </select>
@@ -100,7 +100,7 @@ export const DailyClosePage: React.FC = () => {
             {summary?.isBalanced ? 'Balanced' : 'Variance detected'}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 text-sm text-slate-300">
+        <div className="grid grid-cols-2 gap-4 text-sm text-black">
           <div>Variance: <span className="font-semibold text-white">{(summary?.variance || 0).toFixed(3)} TND</span></div>
           <div>Open shifts: <span className="font-semibold text-white">{summary?.openShiftCount || 0}</span></div>
         </div>
@@ -108,7 +108,7 @@ export const DailyClosePage: React.FC = () => {
 
       <div className="glass-panel overflow-hidden">
         <div className="border-b border-slate-800 px-4 py-3 text-sm font-semibold text-white">Recent daily closures</div>
-        <div className="divide-y divide-slate-800 text-sm text-slate-300">
+        <div className="divide-y divide-slate-800 text-sm text-black">
           {history.length > 0 ? history.map((item: any) => (
             <div key={item._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3">
               <div>

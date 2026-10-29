@@ -5,7 +5,7 @@ import { listExpenses, addExpense, patchExpense } from '../controllers/expense.c
 const router = Router();
 router.use(authenticate);
 
-router.get('/', authorizeRoles('ADMIN','MANAGER','SUPERVISOR'), authorize('expenses.read'), listExpenses);
+router.get('/', authorizeRoles('ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'), authorize('expenses.read'), listExpenses);
 router.post('/', authorizeRoles('ADMIN','MANAGER'), authorize('expenses.manage'), addExpense);
 router.patch('/:id', authorizeRoles('ADMIN','MANAGER'), authorize('expenses.manage'), patchExpense);
 

@@ -148,7 +148,7 @@ export const PosPage: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Station</label>
-              <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+              <select value={stationId} onChange={(e) => setStationId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
                 {stations.map((station) => (
                   <option key={station._id} value={station._id}>{station.name}</option>
                 ))}
@@ -156,7 +156,7 @@ export const PosPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Payment</label>
-              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
                 <option value="CASH">Cash</option>
                 <option value="BANK_CARD">Bank Card</option>
                 <option value="FUEL_CARD">Fuel Card</option>
@@ -168,7 +168,7 @@ export const PosPage: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-[1fr_0.35fr]">
             <div>
               <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Product</label>
-              <select value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+              <select value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
                 {terminalProducts.map((product) => (
                   <option key={product._id} value={product._id}>{product.name} · {product.code}</option>
                 ))}
@@ -176,12 +176,12 @@ export const PosPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Quantity</label>
-              <input type="number" min="1" step="0.1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
+              <input type="number" min="1" step="0.1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black" />
             </div>
           </div>
 
           {selectedProduct && (
-            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-300">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-black">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-semibold text-white">{selectedProduct.name}</div>
@@ -199,7 +199,7 @@ export const PosPage: React.FC = () => {
             <button onClick={addToCart} className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500">
               <PlusCircle className="w-4 h-4" /> Add to cart
             </button>
-            <button onClick={() => setCart([])} className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm text-slate-300 hover:bg-slate-700">
+            <button onClick={() => setCart([])} className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm text-black hover:bg-slate-700">
               <RotateCcw className="w-4 h-4" /> Clear cart
             </button>
           </div>
@@ -221,7 +221,7 @@ export const PosPage: React.FC = () => {
           ) : (
             <div className="space-y-2">
               {cart.map((item) => (
-                <div key={`${item.product._id}-${item.paymentMethod}`} className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-sm text-slate-300">
+                <div key={`${item.product._id}-${item.paymentMethod}`} className="rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-sm text-black">
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold text-white">{item.product.name}</div>

@@ -102,7 +102,7 @@ export const SuppliersPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-xs text-black">
               <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">Name</th>
@@ -115,13 +115,13 @@ export const SuppliersPage: React.FC = () => {
               <tbody className="divide-y divide-slate-800/60">
                 {suppliers.map((supplier) => (
                   <tr key={supplier._id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="px-4 py-3 font-medium text-slate-100">{supplier.name}</td>
-                    <td className="px-4 py-3 text-slate-300">
+                    <td className="px-4 py-3 font-medium text-black">{supplier.name}</td>
+                    <td className="px-4 py-3 text-black">
                       {supplier.phone || '—'}
                       <br />
                       {supplier.email || '—'}
                     </td>
-                    <td className="px-4 py-3 text-slate-300">{supplier.address || '—'}</td>
+                    <td className="px-4 py-3 text-black">{supplier.address || '—'}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${supplier.active ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
                         {supplier.active ? 'Active' : 'Inactive'}
@@ -130,7 +130,7 @@ export const SuppliersPage: React.FC = () => {
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => toggleActive(supplier)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-slate-200 bg-slate-800 hover:bg-slate-700 transition"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-black bg-slate-800 hover:bg-slate-700 transition"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         {supplier.active ? 'Deactivate' : 'Activate'}
@@ -152,76 +152,76 @@ export const SuppliersPage: React.FC = () => {
                 <h3 className="text-lg font-bold text-white">New Supplier</h3>
                 <p className="text-xs text-slate-400">Add a supplier for purchases and expense tracking.</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-100">Close</button>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-black">Close</button>
             </div>
 
             {modalError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs">{modalError}</div>}
 
-            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
               <div className="flex items-center justify-between">
                 <span>Supplier</span>
                 <span className="font-mono text-cyan-400">{name.trim() || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Contact</span>
-                <span className="font-mono text-slate-200">{phone.trim() || '—'}</span>
+                <span className="font-mono text-black">{phone.trim() || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Email</span>
-                <span className="font-mono text-slate-200">{email.trim() || '—'}</span>
+                <span className="font-mono text-black">{email.trim() || '—'}</span>
               </div>
             </div>
 
             <form onSubmit={handleSubmit} className="grid gap-3 text-xs">
               <div>
-                <label htmlFor="supplier-name" className="block text-slate-300 mb-1">Supplier Name</label>
+                <label htmlFor="supplier-name" className="block text-black mb-1">Supplier Name</label>
                 <input
                   id="supplier-name"
                   name="supplier-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   placeholder="Supplier name"
                   required
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="supplier-phone" className="block text-slate-300 mb-1">Phone</label>
+                  <label htmlFor="supplier-phone" className="block text-black mb-1">Phone</label>
                   <input
                     id="supplier-phone"
                     name="supplier-phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                     placeholder="Phone"
                   />
                 </div>
                 <div>
-                  <label htmlFor="supplier-email" className="block text-slate-300 mb-1">Email</label>
+                  <label htmlFor="supplier-email" className="block text-black mb-1">Email</label>
                   <input
                     id="supplier-email"
                     name="supplier-email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                     placeholder="Email"
                   />
                 </div>
               </div>
               <div>
-                <label htmlFor="supplier-address" className="block text-slate-300 mb-1">Address</label>
+                <label htmlFor="supplier-address" className="block text-black mb-1">Address</label>
                 <textarea
                   id="supplier-address"
                   name="supplier-address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full min-h-[80px] bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full min-h-[80px] bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   placeholder="Address"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-slate-300 hover:bg-slate-700">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-black hover:bg-slate-700">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving} className="px-4 py-2 bg-cyan-600 rounded text-white hover:bg-cyan-500 disabled:opacity-50">

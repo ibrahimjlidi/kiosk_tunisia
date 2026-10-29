@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { Shift, ShiftType } from '../models/Shift';
+import { Response } from 'express';
+import { Shift, ShiftType, IShift } from '../models/Shift';
 import { Station } from '../models/Station';
 import { Team } from '../models/Team';
 import { DailyClosure } from '../models/DailyClosure';
@@ -20,9 +20,13 @@ const SHIFT_TYPE_NUMBER: Record<ShiftType, number> = {
 };
 
 /** GET /api/v1/shifts — list shifts with optional date filter */
-export const getShifts = async (req: Request, res: Response): Promise<void> => {
+export const getShifts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const filter: any = {};
+
+    if (req.user?.role === 'OPERATOR') {
+      filter.employees = req.user.id;
+    }
 
     if (req.query.station) filter.station = req.query.station;
     if (req.query.status) filter.status = req.query.status;
@@ -48,7 +52,7 @@ export const getShifts = async (req: Request, res: Response): Promise<void> => {
 };
 
 /** GET /api/v1/shifts/:id */
-export const getShiftById = async (req: Request, res: Response): Promise<void> => {
+export const getShiftById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const shift = await Shift.findById(req.params.id)
       .populate('station', 'name code')
@@ -57,6 +61,10 @@ export const getShiftById = async (req: Request, res: Response): Promise<void> =
       .populate('employees', 'firstName lastName');
 
     if (!shift) { res.status(404).json({ success: false, message: 'Shift not found' }); return; }
+    if (req.user?.role === 'OPERATOR' && !(await operatorCanAccessShift(req.user.id, shift))) {
+      res.status(404).json({ success: false, message: 'Shift not found' });
+      return;
+    }
     res.status(200).json({ success: true, shift });
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load shift.') });
@@ -70,6 +78,11 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
 
     if (!stationId || !shiftType || !shiftDate || !teamId) {
       res.status(400).json({ success: false, message: 'stationId, shiftType, shiftDate, and teamId are required' });
+      return;
+    }
+
+    if (req.user?.role === 'OPERATOR' && !(await Team.exists({ _id: teamId, leader: req.user.id, active: true }))) {
+      res.status(403).json({ success: false, message: 'Only the leader of an active team can open a shift for that team.' });
       return;
     }
 
@@ -93,6 +106,10 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
     const team = await Team.findById(teamId);
     if (!team || !team.active) {
       res.status(404).json({ success: false, message: 'Team not found or inactive' });
+      return;
+    }
+    if (team.station && team.station.toString() !== stationId) {
+      res.status(400).json({ success: false, message: 'The selected team does not belong to this station.' });
       return;
     }
 
@@ -121,7 +138,7 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
       shiftNumber,
       openedBy: req.user!.id,
       team: team._id,
-      employees: team.members || [],
+      employees: [...new Set([...(team.members || []).map((member) => member.toString()), team.leader?.toString()].filter(Boolean))],
       pumpReadings,
       openedAt: new Date(),
     });
@@ -133,10 +150,14 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
 };
 
 /** PUT /api/v1/shifts/:id/readings — update pump closing indexes and recalculate */
-export const updateShiftReadings = async (req: Request, res: Response): Promise<void> => {
+export const updateShiftReadings = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const shift = await Shift.findById(req.params.id);
     if (!shift) { res.status(404).json({ success: false, message: 'Shift not found' }); return; }
+    if (req.user?.role === 'OPERATOR' && !(await operatorCanAccessShift(req.user.id, shift))) {
+      res.status(404).json({ success: false, message: 'Shift not found' });
+      return;
+    }
     if (shift.status === 'CLOSED') {
       res.status(403).json({ success: false, message: 'Cannot edit a closed shift' });
       return;
@@ -188,10 +209,14 @@ export const updateShiftReadings = async (req: Request, res: Response): Promise<
 };
 
 /** PUT /api/v1/shifts/:id/payments — record payments */
-export const updateShiftPayments = async (req: Request, res: Response): Promise<void> => {
+export const updateShiftPayments = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const shift = await Shift.findById(req.params.id);
     if (!shift) { res.status(404).json({ success: false, message: 'Shift not found' }); return; }
+    if (req.user?.role === 'OPERATOR' && !(await operatorCanAccessShift(req.user.id, shift))) {
+      res.status(404).json({ success: false, message: 'Shift not found' });
+      return;
+    }
     if (shift.status === 'CLOSED') {
       res.status(403).json({ success: false, message: 'Cannot edit a closed shift' });
       return;
@@ -213,6 +238,10 @@ export const updateShiftPayments = async (req: Request, res: Response): Promise<
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to update shift payments.') });
   }
+};
+
+const operatorCanAccessShift = async (userId: string, shift: Pick<IShift, 'employees'>): Promise<boolean> => {
+  return shift.employees.some((employee) => employee.toString() === userId);
 };
 
 /** POST /api/v1/shifts/:id/close — close a shift */

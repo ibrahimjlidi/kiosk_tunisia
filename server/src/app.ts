@@ -31,7 +31,14 @@ const allowedOrigins = (config.corsOrigin || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
-  .concat(['http://localhost:5173', 'http://127.0.0.1:5173', 'https://kiosk-tunisia.duckdns.org', 'http://kiosk-tunisia.duckdns.org']);
+  .concat([
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://kiosk-tunisia.duckdns.org',
+    'http://kiosk-tunisia.duckdns.org',
+  ]);
 
 // Middlewares
 app.use(cors({

@@ -8,7 +8,7 @@ export const getAllUsers = async (_req: Request, res: Response): Promise<void> =
     res.status(200).json({
       success: true,
       count: users.length,
-      users,
+      users: users.map((user) => ({ ...user.toJSON(), id: user._id.toString() })),
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load users.') });
@@ -25,7 +25,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 
     res.status(200).json({
       success: true,
-      user,
+      user: { ...user.toJSON(), id: user._id.toString() },
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load user.') });

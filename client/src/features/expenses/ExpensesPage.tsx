@@ -5,11 +5,14 @@ import { fetchExpenses, createExpense, patchExpense } from '../../services/expen
 import { Station } from '../../types/station';
 import { Supplier } from '../../types/supplier';
 import { Expense, ExpenseType } from '../../types/expense';
+import { useAuth } from '../../context/AuthContext';
 import { FileText, Plus, RefreshCw, AlertCircle, CheckCircle2, DollarSign } from 'lucide-react';
 
 const expenseTypes: ExpenseType[] = ['OPERATING', 'MAINTENANCE', 'UTILITY', 'OTHER'];
 
 export const ExpensesPage: React.FC = () => {
+  const { user } = useAuth();
+  const canManageExpenses = user?.permissions?.includes('expenses.manage') ?? false;
   const [stations, setStations] = useState<Station[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -32,7 +35,7 @@ export const ExpensesPage: React.FC = () => {
     try {
       const [stationsRes, suppliersRes, expensesRes] = await Promise.all([
         fetchStations(),
-        fetchSuppliers(),
+        canManageExpenses ? fetchSuppliers() : Promise.resolve({ suppliers: [] as Supplier[] }),
         fetchExpenses(),
       ]);
       setStations(stationsRes.stations);
@@ -48,7 +51,7 @@ export const ExpensesPage: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [canManageExpenses]);
 
   const openModal = () => {
     setStation(stations[0]?._id || '');
@@ -108,9 +111,11 @@ export const ExpensesPage: React.FC = () => {
           </h2>
           <p className="text-xs text-slate-400">Track vendor and station operating expenses for accurate cost accounting.</p>
         </div>
-        <button onClick={openModal} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg text-white text-xs font-semibold hover:bg-cyan-500 transition">
-          <Plus className="w-4 h-4" /> New Expense
-        </button>
+        {canManageExpenses && (
+          <button onClick={openModal} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 rounded-lg text-white text-xs font-semibold hover:bg-cyan-500 transition">
+            <Plus className="w-4 h-4" /> New Expense
+          </button>
+        )}
       </div>
 
       <div className="glass-panel overflow-hidden">
@@ -124,7 +129,7 @@ export const ExpensesPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-xs text-black">
               <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">Date</th>
@@ -141,10 +146,10 @@ export const ExpensesPage: React.FC = () => {
                 {expenses.map((expense) => (
                   <tr key={expense._id} className="hover:bg-slate-800/40 transition-colors">
                     <td className="px-4 py-3 text-slate-400">{new Date(expense.createdAt || '').toLocaleDateString()}</td>
-                    <td className="px-4 py-3 text-slate-200">{expense.station?.name || 'General'}</td>
-                    <td className="px-4 py-3 text-slate-300">{expense.supplier?.name || '—'}</td>
-                    <td className="px-4 py-3 text-slate-200">{expense.type}</td>
-                    <td className="px-4 py-3 text-slate-300">{expense.description}</td>
+                    <td className="px-4 py-3 text-black">{expense.station?.name || 'General'}</td>
+                    <td className="px-4 py-3 text-black">{expense.supplier?.name || '—'}</td>
+                    <td className="px-4 py-3 text-black">{expense.type}</td>
+                    <td className="px-4 py-3 text-black">{expense.description}</td>
                     <td className="px-4 py-3 font-mono text-emerald-300">{expense.amount.toFixed(3)} TND</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-[10px] font-semibold ${expense.paid ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
@@ -152,13 +157,15 @@ export const ExpensesPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => togglePaid(expense)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-slate-200 bg-slate-800 hover:bg-slate-700 transition"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        {expense.paid ? 'Mark Pending' : 'Mark Paid'}
-                      </button>
+                      {canManageExpenses && (
+                        <button
+                          onClick={() => togglePaid(expense)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs text-black bg-slate-800 hover:bg-slate-700 transition"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          {expense.paid ? 'Mark Pending' : 'Mark Paid'}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -168,7 +175,7 @@ export const ExpensesPage: React.FC = () => {
         )}
       </div>
 
-      {showModal && (
+      {canManageExpenses && showModal && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="glass-panel p-6 max-w-2xl w-full space-y-4">
             <div className="flex items-center justify-between">
@@ -176,7 +183,7 @@ export const ExpensesPage: React.FC = () => {
                 <h3 className="text-lg font-bold text-white">Record Expense</h3>
                 <p className="text-xs text-slate-400">Capture operating expenses and track payables by supplier or station.</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-100">Close</button>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-black">Close</button>
             </div>
 
             {modalError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs">{modalError}</div>}
@@ -184,13 +191,13 @@ export const ExpensesPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="grid gap-4 text-xs">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="expense-station" className="block text-slate-300 mb-1">Station</label>
+                  <label htmlFor="expense-station" className="block text-black mb-1">Station</label>
                   <select
                     id="expense-station"
                     name="expense-station"
                     value={station}
                     onChange={(e) => setStation(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     <option value="">General</option>
                     {stations.map((stationItem) => (
@@ -201,13 +208,13 @@ export const ExpensesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="expense-supplier" className="block text-slate-300 mb-1">Supplier</label>
+                  <label htmlFor="expense-supplier" className="block text-black mb-1">Supplier</label>
                   <select
                     id="expense-supplier"
                     name="expense-supplier"
                     value={supplier}
                     onChange={(e) => setSupplier(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     <option value="">None</option>
                     {suppliers.map((supplierItem) => (
@@ -221,13 +228,13 @@ export const ExpensesPage: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="expense-type" className="block text-slate-300 mb-1">Expense Type</label>
+                  <label htmlFor="expense-type" className="block text-black mb-1">Expense Type</label>
                   <select
                     id="expense-type"
                     name="expense-type"
                     value={type}
                     onChange={(e) => setType(e.target.value as ExpenseType)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     {expenseTypes.map((expenseType) => (
                       <option key={expenseType} value={expenseType}>{expenseType}</option>
@@ -235,7 +242,7 @@ export const ExpensesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="expense-amount" className="block text-slate-300 mb-1">Amount</label>
+                  <label htmlFor="expense-amount" className="block text-black mb-1">Amount</label>
                   <input
                     id="expense-amount"
                     name="expense-amount"
@@ -244,44 +251,44 @@ export const ExpensesPage: React.FC = () => {
                     min="0"
                     value={amount}
                     onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                     placeholder="TND"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="expense-description" className="block text-slate-300 mb-1">Description</label>
+                <label htmlFor="expense-description" className="block text-black mb-1">Description</label>
                 <input
                   id="expense-description"
                   name="expense-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   placeholder="Expense description"
                   required
                 />
               </div>
 
               <div>
-                <label className="flex items-center gap-2 text-slate-300 mb-1">
+                <label className="flex items-center gap-2 text-black mb-1">
                   <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="form-checkbox rounded bg-slate-900 text-cyan-500" />
                   Mark as Paid
                 </label>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Notes</label>
+                <label className="block text-black mb-1">Notes</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full min-h-[88px] bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full min-h-[88px] bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   placeholder="Additional notes"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-slate-300 hover:bg-slate-700">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-black hover:bg-slate-700">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving} className="px-4 py-2 bg-cyan-600 rounded text-white hover:bg-cyan-500 disabled:opacity-50">

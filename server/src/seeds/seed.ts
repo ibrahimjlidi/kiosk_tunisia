@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 import { User } from '../models/User';
 import { Station } from '../models/Station';
-import { Pump } from '../models/Pump';
+import { IPump, Pump } from '../models/Pump';
 import { Product } from '../models/Product';
 import { Tank } from '../models/Tank';
 import { Shift } from '../models/Shift';
@@ -27,6 +27,10 @@ const roundCurrency = (value: number) => Number(value.toFixed(2));
 
 async function seed() {
   try {
+    if (!process.argv.includes('--reset')) {
+      throw new Error('This legacy seed clears existing database records. Use npm run seed for additive demo data, or npm run seed:reset to explicitly reset the database.');
+    }
+
     await mongoose.connect(process.env.MONGO_URI!);
     console.log('MongoDB connected');
 
@@ -136,7 +140,7 @@ async function seed() {
         { pumpNumber: `PUMP-${index + 1}-B`, product: gasoil50._id, secondProduct: super95._id },
       ];
 
-      const createdPumps = await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
+      const createdPumps: IPump[] = await Pump.insertMany(pumpSeed.map((pump, pumpIndex) => ({
         station: station._id,
         pumpNumber: pump.pumpNumber,
         active: true,

@@ -29,7 +29,7 @@ export const SalesReportPage: React.FC = () => {
           <p className="text-sm text-slate-400">View and filter recorded sales by date.</p>
         </div>
         <div className="flex items-center space-x-2">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-slate-100" />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="bg-slate-900 border border-slate-800 rounded px-3 py-2 text-black" />
           <button onClick={load} className="px-3 py-2 bg-cyan-600 text-white rounded">Filter</button>
         </div>
       </div>
@@ -38,7 +38,7 @@ export const SalesReportPage: React.FC = () => {
         {loading ? <div>Loading...</div> : sales.length === 0 ? (
           <div className="text-sm text-slate-400 py-4">No sales found for the selected period.</div>
         ) : (
-          <table className="w-full text-left text-sm text-slate-300">
+          <table className="w-full text-left text-sm text-black">
             <thead className="text-xs uppercase tracking-wider text-slate-500 border-b border-slate-800">
               <tr>
                 <th className="px-3 py-2">Date</th>

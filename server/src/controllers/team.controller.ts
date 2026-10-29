@@ -1,10 +1,19 @@
 import { Request, Response } from 'express';
 import { Team } from '../models/Team';
 import { normalizeApiError } from '../helpers/errorResponse';
+import { AuthRequest } from '../middlewares/auth.middleware';
 
-export const getAllTeams = async (_req: Request, res: Response): Promise<void> => {
+export const getAllTeams = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const teams = await Team.find().populate('station', 'name code').populate('leader', 'firstName lastName role').populate('members', 'firstName lastName role').sort({ createdAt: -1 }).lean();
+    const filter = req.user?.role === 'OPERATOR'
+      ? { leader: req.user.id, active: true }
+      : {};
+    const teams = await Team.find(filter)
+      .populate('station', 'name code')
+      .populate('leader', 'firstName lastName role')
+      .populate('members', 'firstName lastName role')
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json({ success: true, count: teams.length, teams });
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load teams.') });

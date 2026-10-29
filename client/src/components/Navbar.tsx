@@ -31,7 +31,7 @@ const NavLink: React.FC<NavLinkProps> = ({ to, icon, label, current }) => {
       className={`px-3 py-2 rounded-2xl text-xs font-medium transition-colors flex items-center space-x-3 ${
         active
           ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
-          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+          : 'text-slate-400 hover:text-black hover:bg-slate-800/50'
       }`}
     >
       {icon}
@@ -74,11 +74,11 @@ export const Sidebar: React.FC = () => {
               <Fuel className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-sm font-bold text-slate-100">FuelStation ERP</div>
+              <div className="text-sm font-bold text-black">FuelStation ERP</div>
               <div className="text-[10px] text-slate-400">Kiosque Tunisia</div>
             </div>
           </Link>
-          <button onClick={() => setMobileOpen(true)} className="p-2 text-slate-300 hover:text-white rounded-lg">
+          <button onClick={() => setMobileOpen(true)} className="p-2 text-black hover:text-white rounded-lg">
             <Menu className="w-5 h-5" />
           </button>
         </div>
@@ -137,7 +137,7 @@ export const Sidebar: React.FC = () => {
                 <div className="text-xs text-slate-400">Signed in as</div>
                 <div className="mt-2 text-sm font-semibold text-white">{user.firstName} {user.lastName}</div>
                 <div className="text-[11px] text-slate-500">{user.email}</div>
-                <div className={`mt-3 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold ${roleColors[user.role] || 'bg-slate-800 text-slate-300'}`}>
+                <div className={`mt-3 inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold ${roleColors[user.role] || 'bg-slate-800 text-black'}`}>
                   {user.role}
                 </div>
               </div>
@@ -162,7 +162,7 @@ export const Sidebar: React.FC = () => {
                   <div className="text-[10px] text-slate-400">Kiosque Tunisia</div>
                 </div>
               </div>
-              <button className="p-2 text-slate-300 hover:text-white" onClick={() => setMobileOpen(false)}>
+              <button className="p-2 text-black hover:text-white" onClick={() => setMobileOpen(false)}>
                 <X className="w-5 h-5" />
               </button>
             </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Doughnut, Bar } from 'react-chartjs-2';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { LoginPage } from './features/auth/LoginPage';
@@ -43,6 +43,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 const readThemeColor = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 const DashboardView: React.FC = () => {
+  const { user } = useAuth();
   const [summary, setSummary] = useState<any>(null);
   const [dashboardStats, setDashboardStats] = useState<Array<{ label: string; value: string; icon: JSX.Element; tone: 'accent' | 'success' | 'navy' | 'danger' }>>([]);
   const [loading, setLoading] = useState(true);
@@ -60,16 +61,18 @@ const DashboardView: React.FC = () => {
       try {
         setLoading(true);
         const today = new Date().toISOString().slice(0, 10);
+        const canReadUsers = user?.permissions?.includes('users.read') ?? false;
+        const canReadReports = ['ADMIN', 'MANAGER', 'SUPERVISOR'].includes(user?.role || '');
         const [analyticsRes, stationsRes, productsRes, pumpsRes, tanksRes, usersRes] = await Promise.all([
-          fetchAnalyticsSummary({ date: today }),
+          canReadReports ? fetchAnalyticsSummary({ date: today }) : Promise.resolve(null),
           fetchStations(),
           fetchProducts(),
           fetchPumps(),
           fetchTanks(),
-          fetchAllUsers(),
+          canReadUsers ? fetchAllUsers() : Promise.resolve(null),
         ]);
 
-        const liveSummary = analyticsRes.data;
+        const liveSummary = analyticsRes?.data;
         setSummary(liveSummary);
         setDashboardStats([
           { icon: <Building2 className="w-6 h-6" />, tone: 'accent', label: 'Stations', value: `${stationsRes.stations.length}` },
@@ -77,7 +80,7 @@ const DashboardView: React.FC = () => {
           { icon: <Package className="w-6 h-6" />, tone: 'navy', label: 'Products', value: `${productsRes.products.length}` },
           { icon: <Clock className="w-6 h-6" />, tone: 'accent', label: 'Active Shifts', value: `${liveSummary?.audit?.openShifts ?? 0}` },
           { icon: <Database className="w-6 h-6" />, tone: 'success', label: 'Tanks', value: `${tanksRes.tanks.length}` },
-          { icon: <ShieldCheck className="w-6 h-6" />, tone: 'navy', label: 'Users', value: `${usersRes.users.length}` },
+          ...(usersRes ? [{ icon: <ShieldCheck className="w-6 h-6" />, tone: 'navy' as const, label: 'Users', value: `${usersRes.users.length}` }] : []),
         ]);
       } catch (error) {
         console.error(error);
@@ -87,7 +90,7 @@ const DashboardView: React.FC = () => {
     };
 
     load();
-  }, []);
+  }, [user?.permissions]);
 
   const productMixData = useMemo(() => {
     const labels = (summary?.productMix || []).map((item: any) => item.productName || 'Product');
@@ -120,7 +123,7 @@ const DashboardView: React.FC = () => {
         <p className="text-sm text-[var(--text-secondary)] mt-1">Welcome to FuelStation ERP Management System</p>
       </div>
 
-      <HealthCheck />
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {dashboardStats.map((stat, idx) => (
@@ -174,6 +177,7 @@ const DashboardView: React.FC = () => {
           </div>
         ))}
       </div>
+      <HealthCheck />
     </div>
   );
 };

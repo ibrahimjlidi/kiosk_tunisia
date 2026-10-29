@@ -5,9 +5,12 @@ import { fetchSuppliers } from '../../services/supplierApi';
 import { Product, Station } from '../../types/station';
 import { Supplier } from '../../types/supplier';
 import { ProductPurchase } from '../../types/purchase';
+import { useAuth } from '../../context/AuthContext';
 import { ShoppingCart, Plus, RefreshCw, AlertCircle } from 'lucide-react';
 
 export const PurchasesPage: React.FC = () => {
+  const { user } = useAuth();
+  const canManagePurchases = user?.permissions?.includes('purchases.manage') ?? false;
   const [purchases, setPurchases] = useState<ProductPurchase[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
@@ -33,7 +36,7 @@ export const PurchasesPage: React.FC = () => {
         fetchPurchases(),
         fetchProducts(),
         fetchStations(),
-        fetchSuppliers(),
+        canManagePurchases ? fetchSuppliers() : Promise.resolve({ suppliers: [] as Supplier[] }),
       ]);
       setPurchases(purchaseRes.purchases || []);
       setProducts(productRes.products || []);
@@ -54,7 +57,7 @@ export const PurchasesPage: React.FC = () => {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [canManagePurchases]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,13 +113,15 @@ export const PurchasesPage: React.FC = () => {
           </h2>
           <p className="text-xs text-slate-400">Record incoming stock and review purchase history.</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-cyan-600/20 transition-all w-fit"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Purchase</span>
-        </button>
+        {canManagePurchases && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-cyan-600/20 transition-all w-fit"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Purchase</span>
+          </button>
+        )}
       </div>
 
       <div className="glass-panel overflow-hidden">
@@ -137,7 +142,7 @@ export const PurchasesPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-xs text-black">
               <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">Date</th>
@@ -154,12 +159,12 @@ export const PurchasesPage: React.FC = () => {
                 {purchases.map((purchase) => (
                   <tr key={purchase._id} className="hover:bg-slate-800/40 transition-colors">
                     <td className="px-4 py-3 text-slate-400">{new Date(purchase.createdAt || '').toLocaleDateString()}</td>
-                    <td className="px-4 py-3 text-slate-200">{purchase.station?.name || 'General'}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-100">{purchase.product.name}</td>
-                    <td className="px-4 py-3 text-slate-300">{purchase.supplier || '—'}</td>
+                    <td className="px-4 py-3 text-black">{purchase.station?.name || 'General'}</td>
+                    <td className="px-4 py-3 font-semibold text-black">{purchase.product.name}</td>
+                    <td className="px-4 py-3 text-black">{purchase.supplier || '—'}</td>
                     <td className="px-4 py-3 font-mono text-cyan-300">{purchase.quantity}</td>
                     <td className="px-4 py-3 font-mono text-emerald-300">{purchase.unitCost.toFixed(3)}</td>
-                    <td className="px-4 py-3 font-mono text-slate-200">{purchase.totalCost.toFixed(3)}</td>
+                    <td className="px-4 py-3 font-mono text-black">{purchase.totalCost.toFixed(3)}</td>
                     <td className="px-4 py-3 text-slate-400">{purchase.notes || '—'}</td>
                   </tr>
                 ))}
@@ -169,12 +174,12 @@ export const PurchasesPage: React.FC = () => {
         )}
       </div>
 
-      <div className="glass-panel p-4 text-sm text-slate-300 flex items-center justify-between">
+      <div className="glass-panel p-4 text-sm text-black flex items-center justify-between">
         <span>Total recorded purchases</span>
         <span className="font-semibold text-cyan-400">{totalCost.toFixed(3)} TND</span>
       </div>
 
-      {showModal && (
+      {canManagePurchases && showModal && (
         <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="glass-panel p-6 max-w-lg w-full space-y-4">
             <div className="flex items-center justify-between">
@@ -182,19 +187,19 @@ export const PurchasesPage: React.FC = () => {
                 <h3 className="text-lg font-bold text-white">Record Purchase</h3>
                 <p className="text-xs text-slate-400">Add stock and update product quantities.</p>
               </div>
-              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-100">Close</button>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-black">Close</button>
             </div>
 
             {modalError && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-xs">{modalError}</div>}
 
-            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-slate-300">
+            <div className="rounded border border-slate-800 bg-slate-900/70 p-3 text-[11px] text-black">
               <div className="flex items-center justify-between">
                 <span>Product</span>
                 <span className="font-mono text-cyan-400">{products.find((p) => p._id === selectedProduct)?.name || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Station</span>
-                <span className="font-mono text-slate-200">{stations.find((s) => s._id === selectedStation)?.name || '—'}</span>
+                <span className="font-mono text-black">{stations.find((s) => s._id === selectedStation)?.name || '—'}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span>Expected total</span>
@@ -204,13 +209,13 @@ export const PurchasesPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="grid gap-4 text-xs">
               <div>
-                <label htmlFor="purchase-product" className="block text-slate-300 mb-1">Product</label>
+                <label htmlFor="purchase-product" className="block text-black mb-1">Product</label>
                 <select
                   id="purchase-product"
                   name="purchase-product"
                   value={selectedProduct}
                   onChange={(e) => setSelectedProduct(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 >
                   {products.map((product) => (
                     <option key={product._id} value={product._id}>
@@ -222,11 +227,11 @@ export const PurchasesPage: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Station</label>
+                  <label className="block text-black mb-1">Station</label>
                   <select
                     value={selectedStation}
                     onChange={(e) => setSelectedStation(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     {stations.map((station) => (
                       <option key={station._id} value={station._id}>
@@ -236,11 +241,11 @@ export const PurchasesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Supplier</label>
+                  <label className="block text-black mb-1">Supplier</label>
                   <select
                     value={supplier}
                     onChange={(e) => setSupplier(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     <option value="">None</option>
                     {suppliers.map((supplierItem) => (
@@ -251,7 +256,7 @@ export const PurchasesPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="purchase-quantity" className="block text-slate-300 mb-1">Quantity</label>
+                  <label htmlFor="purchase-quantity" className="block text-black mb-1">Quantity</label>
                   <input
                     id="purchase-quantity"
                     name="purchase-quantity"
@@ -260,14 +265,14 @@ export const PurchasesPage: React.FC = () => {
                     min="0"
                     value={quantity}
                     onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="purchase-unit-cost" className="block text-slate-300 mb-1">Unit Cost</label>
+                  <label htmlFor="purchase-unit-cost" className="block text-black mb-1">Unit Cost</label>
                   <input
                     id="purchase-unit-cost"
                     name="purchase-unit-cost"
@@ -276,29 +281,29 @@ export const PurchasesPage: React.FC = () => {
                     min="0"
                     value={unitCost}
                     onChange={(e) => setUnitCost(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-300 mb-1">Total Cost</label>
-                  <div className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-100 font-mono">
+                  <label className="block text-black mb-1">Total Cost</label>
+                  <div className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-black font-mono">
                     {(quantity * unitCost).toFixed(3)} TND
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Notes</label>
+                <label className="block text-black mb-1">Notes</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full min-h-[88px] bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full min-h-[88px] bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 />
               </div>
 
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-slate-300 hover:bg-slate-700">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 rounded text-black hover:bg-slate-700">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving} className="px-4 py-2 bg-cyan-600 rounded text-white hover:bg-cyan-500 disabled:opacity-50">

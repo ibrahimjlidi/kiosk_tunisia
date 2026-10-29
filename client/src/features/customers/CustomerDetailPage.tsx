@@ -55,11 +55,11 @@ export const CustomerDetailPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="glass-panel p-4">
-          <h3 className="font-semibold text-slate-200 mb-2">Add Transaction</h3>
+          <h3 className="font-semibold text-black mb-2">Add Transaction</h3>
           <div className="space-y-2 text-sm">
             <div>
               <label className="text-xs text-slate-400">Type</label>
-              <select value={type} onChange={(e)=>setType(e.target.value as any)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100">
+              <select value={type} onChange={(e)=>setType(e.target.value as any)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black">
                 <option value="SALE">Sale (charge)</option>
                 <option value="PAYMENT">Payment (settlement)</option>
                 <option value="ADJUSTMENT">Adjustment</option>
@@ -67,11 +67,11 @@ export const CustomerDetailPage: React.FC = () => {
             </div>
             <div>
               <label className="text-xs text-slate-400">Amount</label>
-              <input type="number" step="0.001" value={amount} onChange={(e)=>setAmount(parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100" />
+              <input type="number" step="0.001" value={amount} onChange={(e)=>setAmount(parseFloat(e.target.value) || 0)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black" />
             </div>
             <div>
               <label className="text-xs text-slate-400">Notes</label>
-              <input value={notes} onChange={(e)=>setNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100" />
+              <input value={notes} onChange={(e)=>setNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black" />
             </div>
             <div className="flex justify-end">
               <button onClick={handleAdd} className="px-4 py-2 bg-cyan-600 text-white rounded">Add</button>
@@ -80,8 +80,8 @@ export const CustomerDetailPage: React.FC = () => {
         </div>
 
         <div className="glass-panel p-4">
-          <h3 className="font-semibold text-slate-200 mb-2">Transactions</h3>
-          <div className="text-sm text-slate-300 space-y-2">
+          <h3 className="font-semibold text-black mb-2">Transactions</h3>
+          <div className="text-sm text-black space-y-2">
             {txs.map(tx => (
               <div key={tx._id} className="flex justify-between border-b border-slate-800 pb-2">
                 <div>

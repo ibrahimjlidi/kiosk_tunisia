@@ -23,7 +23,7 @@ router.get('/', authorize('shifts.read'), getShifts);
 router.get('/:id', authorize('shifts.read'), getShiftById);
 router.post('/', authorizeRoles('ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'), authorize('shifts.manage'), openShiftValidator, openShift);
 router.put('/:id/readings', authorizeRoles('ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'), authorize('shifts.manage'), readingsUpdateValidator, updateShiftReadings);
-router.put('/:id/payments', authorizeRoles('ADMIN', 'MANAGER', 'SUPERVISOR'), authorize('shifts.manage'), paymentsUpdateValidator, updateShiftPayments);
+router.put('/:id/payments', authorizeRoles('ADMIN', 'MANAGER', 'SUPERVISOR', 'OPERATOR'), authorize('shifts.manage'), paymentsUpdateValidator, updateShiftPayments);
 router.post('/:id/close', authorizeRoles('ADMIN', 'MANAGER', 'SUPERVISOR'), authorize('shifts.manage'), closeShiftValidator, closeShift);
 router.post('/:id/reopen', authorizeRoles('ADMIN'), authorize('shifts.manage'), reopenShift);
 

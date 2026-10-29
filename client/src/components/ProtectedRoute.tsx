@@ -34,7 +34,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, re
           </div>
           <h2 className="text-xl font-bold text-white">Access Forbidden</h2>
           <p className="text-xs text-slate-400">
-            Your current role <span className="px-2 py-0.5 bg-slate-800 text-slate-200 rounded font-semibold">{user.role}</span> does not have authorization to view this module.
+            Your current role <span className="px-2 py-0.5 bg-slate-800 text-black rounded font-semibold">{user.role}</span> does not have authorization to view this module.
           </p>
         </div>
       </div>
@@ -54,7 +54,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, re
             </div>
             <h2 className="text-xl font-bold text-white">Access Forbidden</h2>
             <p className="text-xs text-slate-400">
-              Your account is missing the required permission(s): <span className="px-2 py-0.5 bg-slate-800 text-slate-200 rounded font-semibold">{missingPermissions.join(', ')}</span>.
+              Your account is missing the required permission(s): <span className="px-2 py-0.5 bg-slate-800 text-black rounded font-semibold">{missingPermissions.join(', ')}</span>.
             </p>
           </div>
         </div>

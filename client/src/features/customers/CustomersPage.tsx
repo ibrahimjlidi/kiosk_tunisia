@@ -43,7 +43,7 @@ export const CustomersPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-white flex items-center"><Users className="w-5 h-5 mr-2 text-cyan-400"/> Customers</h2>
         <div className="flex items-center space-x-2">
-          <button onClick={loadAging} className="px-3 py-1 bg-slate-800 text-slate-200 rounded">Load Aging</button>
+          <button onClick={loadAging} className="px-3 py-1 bg-slate-800 text-black rounded">Load Aging</button>
           <div className="flex items-center space-x-2">
             <input value={name} onChange={(e)=>setName(e.target.value)} className="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-sm" placeholder="New customer name" />
             <button onClick={handleAdd} className="px-3 py-1 bg-cyan-600 text-white rounded flex items-center space-x-1"><Plus className="w-4 h-4"/><span>Add</span></button>
@@ -53,9 +53,9 @@ export const CustomersPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-slate-200 mb-2">Customer List</h3>
+          <h3 className="text-sm font-semibold text-black mb-2">Customer List</h3>
           {loading ? <div>Loading...</div> : (
-            <ul className="space-y-2 text-sm text-slate-300">
+            <ul className="space-y-2 text-sm text-black">
               {customers.map(c => (
                 <li key={c._id} className="flex items-center justify-between">
                   <Link to={`/customers/${c._id}`} className="flex-1">
@@ -70,9 +70,9 @@ export const CustomersPage: React.FC = () => {
         </div>
 
         <div className="glass-panel p-4">
-          <h3 className="text-sm font-semibold text-slate-200 mb-2">Credit Aging</h3>
+          <h3 className="text-sm font-semibold text-black mb-2">Credit Aging</h3>
           {aging.length === 0 ? <div className="text-xs text-slate-500">No aging data loaded.</div> : (
-            <div className="space-y-3 text-sm text-slate-300">
+            <div className="space-y-3 text-sm text-black">
               {aging.map(a => (
                 <div key={a.customer._id} className="border-b border-slate-800 pb-2">
                   <div className="flex justify-between">

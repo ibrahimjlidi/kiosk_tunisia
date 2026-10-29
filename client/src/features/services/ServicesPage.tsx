@@ -83,7 +83,7 @@ export const ServicesPage: React.FC = () => {
         <div className="glass-panel p-5 space-y-4">
           <div>
             <label htmlFor="service-station" className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Station</label>
-            <select id="service-station" name="service-station" value={stationId} onChange={(e) => setStationId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+            <select id="service-station" name="service-station" value={stationId} onChange={(e) => setStationId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
               {stations.map((station) => (
                 <option key={station._id} value={station._id}>{station.name}</option>
               ))}
@@ -92,7 +92,7 @@ export const ServicesPage: React.FC = () => {
 
           <div>
             <label htmlFor="service-select" className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Service</label>
-            <select id="service-select" name="service-select" value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100">
+            <select id="service-select" name="service-select" value={selectedServiceId} onChange={(e) => setSelectedServiceId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black">
               {services.map((service) => (
                 <option key={service._id} value={service._id}>{service.name}</option>
               ))}
@@ -101,11 +101,11 @@ export const ServicesPage: React.FC = () => {
 
           <div>
             <label htmlFor="service-quantity" className="block text-xs uppercase tracking-wider text-slate-400 mb-1">Quantity</label>
-            <input id="service-quantity" name="service-quantity" type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-slate-100" />
+            <input id="service-quantity" name="service-quantity" type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(Number(e.target.value) || 1)} className="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm text-black" />
           </div>
 
           {selectedService && (
-            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-300">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-black">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-semibold text-white">{selectedService.name}</div>
@@ -129,7 +129,7 @@ export const ServicesPage: React.FC = () => {
             Service receipt preview
           </div>
           {selectedService ? (
-            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2 text-sm text-slate-300">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2 text-sm text-black">
               <div className="flex items-center justify-between">
                 <span>{selectedService.name}</span>
                 <span className="text-white font-semibold">x{quantity}</span>

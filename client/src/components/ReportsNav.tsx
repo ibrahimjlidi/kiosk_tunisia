@@ -9,7 +9,7 @@ const ReportLink: React.FC<{ to: string; label: string; icon: React.ReactNode }>
     <Link
       to={to}
       className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center space-x-2 transition-colors ${
-        active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+        active ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:text-black hover:bg-slate-800/50'
       }`}
     >
       {icon}

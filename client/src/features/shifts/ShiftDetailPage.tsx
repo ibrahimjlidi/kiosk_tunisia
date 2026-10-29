@@ -158,6 +158,7 @@ export const ShiftDetailPage: React.FC = () => {
   if (!shift) return null;
 
   const isClosed = shift.status === 'CLOSED';
+  const canCloseShift = user?.role !== 'OPERATOR';
   const station  = typeof shift.station  === 'object' ? shift.station  : null;
   const openedBy = typeof shift.openedBy === 'object' ? shift.openedBy : null;
 
@@ -182,7 +183,7 @@ export const ShiftDetailPage: React.FC = () => {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center space-x-3">
-        <button onClick={() => navigate('/shifts')} className="text-slate-400 hover:text-slate-200 transition-colors">
+        <button onClick={() => navigate('/shifts')} className="text-slate-400 hover:text-black transition-colors">
           <ArrowLeft className="w-4 h-4" />
         </button>
         <div className="flex items-center space-x-2">
@@ -200,7 +201,7 @@ export const ShiftDetailPage: React.FC = () => {
       {/* Live Financial Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Sales HT', value: liveHT,     color: 'text-slate-300', prefix: '' },
+          { label: 'Sales HT', value: liveHT,     color: 'text-black', prefix: '' },
           { label: 'TVA (19%)', value: liveVAT,   color: 'text-amber-400', prefix: '' },
           { label: 'Sales TTC', value: liveTTC,    color: 'text-emerald-400', prefix: '' },
           { label: 'Profit',   value: liveProfit, color: 'text-cyan-400',  prefix: '+' },
@@ -216,8 +217,8 @@ export const ShiftDetailPage: React.FC = () => {
       {/* Pump Readings Table */}
       <div className="glass-panel overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
-          <h3 className="font-semibold text-slate-200 text-sm">Pump Index Readings</h3>
-          {!isClosed && (
+          <h3 className="font-semibold text-black text-sm">Pump Index Readings</h3>
+          {!isClosed && canCloseShift && (
             <button
               onClick={handleSaveReadings}
               disabled={saving}
@@ -251,7 +252,7 @@ export const ShiftDetailPage: React.FC = () => {
                   const c   = calcLocally(pistol, ci);
                   return (
                     <tr key={key} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="px-4 py-2.5 font-semibold text-slate-300">
+                      <td className="px-4 py-2.5 font-semibold text-black">
                         {pr.pumpNumber} · P{pistol.pistolNumber}
                       </td>
                       <td className="px-4 py-2.5">
@@ -263,7 +264,7 @@ export const ShiftDetailPage: React.FC = () => {
                       </td>
                       <td className="px-4 py-2.5">
                         {isClosed ? (
-                          <span className="font-mono text-slate-300">{ci.toFixed(1)}</span>
+                          <span className="font-mono text-black">{ci.toFixed(1)}</span>
                         ) : (
                           <input
                             type="number"
@@ -274,12 +275,12 @@ export const ShiftDetailPage: React.FC = () => {
                               ...prev,
                               [key]: parseFloat(e.target.value) || pistol.openingIndex,
                             }))}
-                            className="w-28 bg-slate-900 border border-slate-700 focus:border-cyan-500 rounded px-2 py-1 text-slate-100 font-mono text-xs outline-none transition-colors"
+                            className="w-28 bg-slate-900 border border-slate-700 focus:border-cyan-500 rounded px-2 py-1 text-black font-mono text-xs outline-none transition-colors"
                           />
                         )}
                       </td>
                       <td className="px-4 py-2.5 font-mono font-bold text-amber-400">{c.volume.toFixed(3)}</td>
-                      <td className="px-4 py-2.5 font-mono text-slate-300">{c.amountHT.toFixed(3)}</td>
+                      <td className="px-4 py-2.5 font-mono text-black">{c.amountHT.toFixed(3)}</td>
                       <td className="px-4 py-2.5 font-mono text-amber-300">{c.vatAmount.toFixed(3)}</td>
                       <td className="px-4 py-2.5 font-mono font-semibold text-emerald-400">{c.amountTTC.toFixed(3)}</td>
                       <td className="px-4 py-2.5 font-mono text-cyan-400">+{c.profit.toFixed(3)}</td>
@@ -287,7 +288,7 @@ export const ShiftDetailPage: React.FC = () => {
                         {!isClosed && c.volume > 0 && (
                           <button
                             onClick={() => { setActivePistol({ pumpId: pr.pump, pistolId: pistol.pistolId, pr: { pr, pistol } }); setSaleModalOpen(true); }}
-                            className="px-2 py-1 bg-slate-800 text-slate-200 rounded text-xs">
+                            className="px-2 py-1 bg-slate-800 text-black rounded text-xs">
                             Record Sale
                           </button>
                         )}
@@ -305,7 +306,7 @@ export const ShiftDetailPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="glass-panel p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-200 text-sm flex items-center">
+            <h3 className="font-semibold text-black text-sm flex items-center">
               <Banknote className="w-4 h-4 mr-2 text-emerald-400" />Payments Entry
             </h3>
             {!isClosed && (
@@ -328,7 +329,7 @@ export const ShiftDetailPage: React.FC = () => {
             <div key={key} className="flex items-center justify-between">
               <label className="text-xs text-slate-400">{label}</label>
               {isClosed ? (
-                <span className="font-mono text-slate-300 text-xs">
+                <span className="font-mono text-black text-xs">
                   {(payments as any)[key].toFixed(3)} TND
                 </span>
               ) : (
@@ -338,20 +339,20 @@ export const ShiftDetailPage: React.FC = () => {
                   min={0}
                   value={(payments as any)[key]}
                   onChange={(e) => setPayments((prev) => ({ ...prev, [key]: parseFloat(e.target.value) || 0 }))}
-                  className="w-32 bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded px-2 py-1 text-slate-100 font-mono text-xs outline-none transition-colors text-right"
+                  className="w-32 bg-slate-900 border border-slate-700 focus:border-emerald-500 rounded px-2 py-1 text-black font-mono text-xs outline-none transition-colors text-right"
                 />
               )}
             </div>
           ))}
           <div className="border-t border-slate-700 pt-3 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-300">Total Payments</span>
+            <span className="text-xs font-bold text-black">Total Payments</span>
             <span className="font-mono font-bold text-emerald-400 text-sm">{livePaymentsTotal.toFixed(3)} TND</span>
           </div>
         </div>
 
         {/* Reconciliation Summary */}
         <div className="glass-panel p-5 space-y-4">
-          <h3 className="font-semibold text-slate-200 text-sm flex items-center">
+          <h3 className="font-semibold text-black text-sm flex items-center">
             <TrendingUp className="w-4 h-4 mr-2 text-cyan-400" />Reconciliation Summary
           </h3>
           <div className="space-y-3 text-xs">
@@ -373,7 +374,7 @@ export const ShiftDetailPage: React.FC = () => {
                 : 'bg-red-500/10 border-red-500/20'
             }`}>
               <div>
-                <div className="font-bold text-slate-200">
+                <div className="font-bold text-black">
                   {Math.abs(liveBalance) < 0.001 ? '✓ Balanced' : liveBalance > 0 ? '▲ Surplus' : '▼ Shortage'}
                 </div>
                 <div className="text-[10px] text-slate-400 mt-0.5">
@@ -419,7 +420,7 @@ export const ShiftDetailPage: React.FC = () => {
             <div className="space-y-3 mt-3 text-sm">
               <div>
                 <label className="block text-xs text-slate-400">Payment Method</label>
-                <select value={salePaymentMethod} onChange={(e)=>setSalePaymentMethod(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100">
+                <select value={salePaymentMethod} onChange={(e)=>setSalePaymentMethod(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black">
                   <option value="CASH">Cash</option>
                   <option value="BANK_CARD">Bank Card</option>
                   <option value="FUEL_CARD">Fuel Card</option>
@@ -430,14 +431,14 @@ export const ShiftDetailPage: React.FC = () => {
               {salePaymentMethod === 'CREDIT' && (
                 <div>
                   <label className="block text-xs text-slate-400">Customer</label>
-                  <select value={saleCustomerId} onChange={(e)=>setSaleCustomerId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100">
+                  <select value={saleCustomerId} onChange={(e)=>setSaleCustomerId(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black">
                     <option value="">Select customer</option>
                     {customers.map(c => <option key={c._id} value={c._id}>{c.name} — {c.creditBalance.toFixed(3)} TND</option>)}
                   </select>
                 </div>
               )}
               <div className="flex items-center justify-end space-x-2 pt-4">
-                <button onClick={()=>{ setSaleModalOpen(false); setActivePistol(null); }} className="px-4 py-2 bg-slate-800 text-slate-300 rounded">Cancel</button>
+                <button onClick={()=>{ setSaleModalOpen(false); setActivePistol(null); }} className="px-4 py-2 bg-slate-800 text-black rounded">Cancel</button>
                 <button onClick={async ()=>{
                   if (!activePistol) return;
                   const { pr, pistol } = activePistol.pr;

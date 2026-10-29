@@ -159,7 +159,7 @@ export const ProductsPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
+            <table className="w-full text-left text-xs text-black">
               <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">Product Name</th>
@@ -178,7 +178,7 @@ export const ProductsPage: React.FC = () => {
                   return (
                     <tr key={p._id} className="hover:bg-slate-800/40 transition-colors">
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-slate-100">{p.name}</div>
+                        <div className="font-semibold text-black">{p.name}</div>
                         <div className="text-[11px] text-cyan-400 font-mono">{p.code}</div>
                       </td>
 
@@ -194,7 +194,7 @@ export const ProductsPage: React.FC = () => {
                         </span>
                       </td>
 
-                      <td className="px-4 py-3 font-mono text-slate-300">
+                      <td className="px-4 py-3 font-mono text-black">
                         {p.purchasePrice.toFixed(3)} TND
                       </td>
 
@@ -206,7 +206,7 @@ export const ProductsPage: React.FC = () => {
                         {p.vatRate}%
                       </td>
 
-                      <td className="px-4 py-3 font-mono text-slate-300">
+                      <td className="px-4 py-3 font-mono text-black">
                         {p.currentStock.toLocaleString('fr-TN')} {p.unitOfMeasure === 'LITER' ? 'L' : p.unitOfMeasure === 'UNIT' ? 'pcs' : 'svc'}
                       </td>
 
@@ -260,7 +260,7 @@ export const ProductsPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-3 text-xs">
               <div>
-                <label htmlFor="product-name" className="block text-slate-300 mb-1">Product Name</label>
+                <label htmlFor="product-name" className="block text-black mb-1">Product Name</label>
                 <input
                   id="product-name"
                   name="product-name"
@@ -269,13 +269,13 @@ export const ProductsPage: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Diesel (Gasoil)"
-                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                  className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="product-code" className="block text-slate-300 mb-1">Product Code</label>
+                  <label htmlFor="product-code" className="block text-black mb-1">Product Code</label>
                   <input
                     id="product-code"
                     name="product-code"
@@ -284,18 +284,18 @@ export const ProductsPage: React.FC = () => {
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     placeholder="e.g. GASOIL"
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono uppercase"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono uppercase"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="product-category" className="block text-slate-300 mb-1">Category</label>
+                  <label htmlFor="product-category" className="block text-black mb-1">Category</label>
                   <select
                     id="product-category"
                     name="product-category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     <option value="FUEL">FUEL (Carburant)</option>
                     <option value="KIOSK">KIOSK (Boutique)</option>
@@ -306,7 +306,7 @@ export const ProductsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="product-purchase-price" className="block text-slate-300 mb-1">Purchase Price (TND)</label>
+                  <label htmlFor="product-purchase-price" className="block text-black mb-1">Purchase Price (TND)</label>
                   <input
                     id="product-purchase-price"
                     name="product-purchase-price"
@@ -315,12 +315,12 @@ export const ProductsPage: React.FC = () => {
                     required
                     value={purchasePrice}
                     onChange={(e) => setPurchasePrice(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="product-selling-price" className="block text-slate-300 mb-1">Selling Price (TTC/TND)</label>
+                  <label htmlFor="product-selling-price" className="block text-black mb-1">Selling Price (TTC/TND)</label>
                   <input
                     id="product-selling-price"
                     name="product-selling-price"
@@ -329,13 +329,13 @@ export const ProductsPage: React.FC = () => {
                     required
                     value={sellingPrice}
                     onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="product-current-stock" className="block text-slate-300 mb-1">Current Stock</label>
+                  <label htmlFor="product-current-stock" className="block text-black mb-1">Current Stock</label>
                   <input
                     id="product-current-stock"
                     name="product-current-stock"
@@ -343,16 +343,16 @@ export const ProductsPage: React.FC = () => {
                     step="0.001"
                     value={currentStock}
                     onChange={(e) => setCurrentStock(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
                 <div>
-                  <label htmlFor="product-status" className="block text-slate-300 mb-1">Status</label>
+                  <label htmlFor="product-status" className="block text-black mb-1">Status</label>
                   <select
                     id="product-status"
                     value={active ? 'active' : 'inactive'}
                     onChange={(e) => setActive(e.target.value === 'active')}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -362,7 +362,7 @@ export const ProductsPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="product-vat-rate" className="block text-slate-300 mb-1">VAT Rate (%)</label>
+                  <label htmlFor="product-vat-rate" className="block text-black mb-1">VAT Rate (%)</label>
                   <input
                     id="product-vat-rate"
                     name="product-vat-rate"
@@ -370,12 +370,12 @@ export const ProductsPage: React.FC = () => {
                     required
                     value={vatRate}
                     onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="product-min-stock-alert" className="block text-slate-300 mb-1">Min Alert Stock</label>
+                  <label htmlFor="product-min-stock-alert" className="block text-black mb-1">Min Alert Stock</label>
                   <input
                     id="product-min-stock-alert"
                     name="product-min-stock-alert"
@@ -383,7 +383,7 @@ export const ProductsPage: React.FC = () => {
                     required
                     value={minStockAlert}
                     onChange={(e) => setMinStockAlert(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-slate-100 font-mono"
+                    className="w-full bg-slate-900 border border-slate-800 rounded p-2 text-black font-mono"
                   />
                 </div>
               </div>
@@ -397,7 +397,7 @@ export const ProductsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 rounded hover:bg-slate-700"
+                  className="px-4 py-2 bg-slate-800 text-black rounded hover:bg-slate-700"
                 >
                   Cancel
                 </button>
