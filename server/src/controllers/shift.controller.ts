@@ -138,7 +138,7 @@ export const openShift = async (req: AuthRequest, res: Response): Promise<void> 
       shiftNumber,
       openedBy: req.user!.id,
       team: team._id,
-      employees: [...new Set([...(team.members || []).map((member) => member.toString()), team.leader?.toString()].filter(Boolean))],
+      employees: [...new Set([...(team.members || []).map((member: any) => member.toString()), team.leader?.toString()].filter(Boolean))],
       pumpReadings,
       openedAt: new Date(),
     });
@@ -166,13 +166,13 @@ export const updateShiftReadings = async (req: AuthRequest, res: Response): Prom
     const updates: { pumpId: string; pistolId: string; closingIndex: number }[] = req.body.readings || [];
 
     for (const update of updates) {
-      const pumpReading = shift.pumpReadings.find((pr) => pr.pump.toString() === update.pumpId);
+      const pumpReading = shift.pumpReadings.find((pr: any) => pr.pump.toString() === update.pumpId);
       if (!pumpReading) {
         res.status(400).json({ success: false, message: `Pump ${update.pumpId} is not part of this shift.` });
         return;
       }
 
-      const pistolReading = pumpReading.pistolReadings.find((pr) => pr.pistolId.toString() === update.pistolId);
+      const pistolReading = pumpReading.pistolReadings.find((pr: any) => pr.pistolId.toString() === update.pistolId);
       if (!pistolReading) {
         res.status(400).json({ success: false, message: `Pistol ${update.pistolId} is not linked to pump ${update.pumpId}.` });
         return;
@@ -241,7 +241,7 @@ export const updateShiftPayments = async (req: AuthRequest, res: Response): Prom
 };
 
 const operatorCanAccessShift = async (userId: string, shift: Pick<IShift, 'employees'>): Promise<boolean> => {
-  return shift.employees.some((employee) => employee.toString() === userId);
+  return shift.employees.some((employee: any) => employee.toString() === userId);
 };
 
 /** POST /api/v1/shifts/:id/close — close a shift */
@@ -254,8 +254,8 @@ export const closeShift = async (req: AuthRequest, res: Response): Promise<void>
       return;
     }
 
-    const hasReadings = shift.pumpReadings.some((pump) =>
-      pump.pistolReadings.some((pistol) => pistol.closingIndex >= pistol.openingIndex)
+    const hasReadings = shift.pumpReadings.some((pump: any) =>
+      pump.pistolReadings.some((pistol: any) => pistol.closingIndex >= pistol.openingIndex)
     );
 
     if (!hasReadings) {

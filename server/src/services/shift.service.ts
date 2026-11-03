@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { Pump, IPump } from '../models/Pump';
 import { IShift, IPumpReading } from '../models/Shift';
 
@@ -51,7 +50,7 @@ export const aggregateShiftTotals = (pumpReadings: IPumpReading[]) => {
   }
 
   const totalVolumeByProduct = Object.entries(productMap).map(([product, val]) => ({
-    product: new mongoose.Types.ObjectId(product),
+    product,
     productName: val.productName,
     volumeSold: parseFloat(val.volumeSold.toFixed(3)),
   }));
@@ -70,7 +69,7 @@ export const aggregateShiftTotals = (pumpReadings: IPumpReading[]) => {
  * Returns a map: pistolId => closingIndex
  */
 export const getPreviousClosingIndexes = async (
-  stationId: mongoose.Types.ObjectId | string,
+  stationId: string,
   shiftDate: Date,
   shiftNumber: number        // 1=Morning, 2=Afternoon, 3=Night
 ): Promise<Map<string, number>> => {
@@ -121,7 +120,7 @@ export const getPreviousClosingIndexes = async (
  * Build initial pump readings from DB pumps, using previous closing indexes.
  */
 export const buildInitialPumpReadings = async (
-  stationId: mongoose.Types.ObjectId | string,
+  stationId: string,
   shiftDate: Date,
   shiftNumber: number
 ): Promise<IPumpReading[]> => {
@@ -131,15 +130,15 @@ export const buildInitialPumpReadings = async (
   const prevIndexes = await getPreviousClosingIndexes(stationId, shiftDate, shiftNumber);
   
   const readings: IPumpReading[] = pumps.map((pump) => ({
-    pump: pump._id as mongoose.Types.ObjectId,
+    pump: pump._id,
     pumpNumber: pump.pumpNumber,
     pistolReadings: pump.pistols
-      .filter((p) => p.active)
-      .map((pistol) => {
+      .filter((p: any) => p.active)
+      .map((pistol: any) => {
         const product = pistol.product as any;
         const prevClosing = prevIndexes.get(pistol._id?.toString() || '') ?? pistol.currentClosingIndex;
         return {
-          pistolId:     pistol._id as mongoose.Types.ObjectId,
+          pistolId:     pistol._id,
           pistolNumber: pistol.pistolNumber,
           product:      product._id,
           productName:  product.name,
@@ -170,7 +169,7 @@ export const rolloverIndexesToPumps = async (pumpReadings: IPumpReading[]): Prom
     if (!pump) continue;
     for (const pistolReading of pr.pistolReadings) {
       const pistol = pump.pistols.find(
-        (p) => p._id?.toString() === pistolReading.pistolId.toString()
+        (p: any) => p._id?.toString() === pistolReading.pistolId.toString()
       );
       if (pistol) {
         pistol.currentClosingIndex = pistolReading.closingIndex;

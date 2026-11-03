@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { pool } from '../config/db';
 
 import { User } from '../models/User';
 import { Station } from '../models/Station';
@@ -31,29 +31,18 @@ async function seed() {
       throw new Error('This legacy seed clears existing database records. Use npm run seed for additive demo data, or npm run seed:reset to explicitly reset the database.');
     }
 
-    await mongoose.connect(process.env.MONGO_URI!);
-    console.log('MongoDB connected');
-
-    await Promise.all([
-      User.deleteMany({}),
-      Station.deleteMany({}),
-      Pump.deleteMany({}),
-      Product.deleteMany({}),
-      Tank.deleteMany({}),
-      Shift.deleteMany({}),
-      Customer.deleteMany({}),
-      Supplier.deleteMany({}),
-      Expense.deleteMany({}),
-      ProductPurchase.deleteMany({}),
-      PurchaseOrder.deleteMany({}),
-      TankGauging.deleteMany({}),
-      KifReturn.deleteMany({}),
-      DailyClosure.deleteMany({}),
-      Sale.deleteMany({}),
-      CreditTransaction.deleteMany({}),
-      Team.deleteMany({}),
-      Setting.deleteMany({}),
-    ]);
+    await pool.query('SELECT 1');
+    console.log('MySQL connected');
+    for (const table of [
+      'audit_logs', 'settings', 'day_closures', 'daily_closures', 'credit_transactions',
+      'kif_returns', 'tank_gaugings', 'sales', 'shift_pistol_readings', 'shift_pump_readings',
+      'shift_product_volumes', 'shift_employees', 'shifts', 'purchase_order_items',
+      'purchase_orders', 'pump_pistols', 'pumps', 'tanks', 'team_members', 'teams',
+      'product_purchases', 'expenses', 'customers', 'suppliers', 'products', 'stations',
+      'refresh_tokens', 'users',
+    ]) {
+      await pool.query(`DELETE FROM \`${table}\``);
+    }
 
     const stationSeeds = [
       { name: 'Station Kiosque Les Berges', code: 'STN-001', address: 'Avenue de la République, Tunis', city: 'Tunis', phone: '71234567', taxId: '123456789TUN' },
@@ -92,7 +81,7 @@ async function seed() {
     console.log(`Created ${users.length} users`);
 
     const adminUser = users[0];
-    const stationManagers = users.filter((user) => user.role === 'MANAGER');
+    const stationManagers = users.filter((user: any) => user.role === 'MANAGER');
     await Promise.all(stations.map((station, index) => Station.findByIdAndUpdate(station._id, { manager: stationManagers[index % stationManagers.length]._id })));
 
     const teams = await Team.insertMany([
@@ -130,7 +119,7 @@ async function seed() {
 
     for (let index = 0; index < stations.length; index += 1) {
       const station = stations[index];
-      const stationUser = users.find((user) => user.station?.toString() === station._id.toString() && user.role !== 'ADMIN') || users[1];
+      const stationUser = users.find((user: any) => user.station?.toString() === station._id.toString() && user.role !== 'ADMIN') || users[1];
       const stationTeams = teams.filter((t) => t.station?.toString() === station._id.toString());
       const teamMatin = stationTeams.find(t => t.name.toLowerCase().includes('matin') || t.name.toLowerCase().includes('jour')) || stationTeams[0];
       const teamSoir = stationTeams.find(t => t.name.toLowerCase().includes('soir') || t.name.toLowerCase().includes('nuit')) || stationTeams[Math.min(1, stationTeams.length - 1)];
@@ -206,10 +195,10 @@ async function seed() {
         closedBy: stationUser?._id || adminUser._id,
         team: teamMatin?._id,
         employees: teamMatin?.members || [stationUser?._id || adminUser._id],
-        pumpReadings: createdPumps.map((pump, pumpIndex) => ({
+        pumpReadings: createdPumps.map((pump: any, pumpIndex: number) => ({
           pump: pump._id,
           pumpNumber: pump.pumpNumber,
-          pistolReadings: pump.pistols.map((pistol, pistolIndex) => ({
+          pistolReadings: pump.pistols.map((pistol: any, pistolIndex: number) => ({
             pistolId: pistol._id,
             pistolNumber: pistol.pistolNumber ?? pistolIndex + 1,
             product: pistol.product,
@@ -257,10 +246,10 @@ async function seed() {
         openedBy: stationUser?._id || adminUser._id,
         team: teamSoir?._id,
         employees: teamSoir?.members || [stationUser?._id || adminUser._id],
-        pumpReadings: createdPumps.map((pump, pumpIndex) => ({
+        pumpReadings: createdPumps.map((pump: any, pumpIndex: number) => ({
           pump: pump._id,
           pumpNumber: pump.pumpNumber,
-          pistolReadings: pump.pistols.map((pistol, pistolIndex) => ({
+          pistolReadings: pump.pistols.map((pistol: any, pistolIndex: number) => ({
             pistolId: pistol._id,
             pistolNumber: pistol.pistolNumber ?? pistolIndex + 1,
             product: pistol.product,

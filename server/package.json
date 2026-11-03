@@ -10,7 +10,9 @@
     "test:e2e": "playwright test --config playwright.config.ts",
     "seed": "tsx src/seeds/seed-demo.ts",
     "seed:demo": "tsx src/seeds/seed-demo.ts",
-    "seed:reset": "tsx src/seeds/seed.ts --reset"
+    "seed:reset": "tsx src/seeds/seed.ts --reset",
+    "migrate:mongodb:mysql": "node migrations/migrate-mongodb-to-mysql.mjs",
+    "test:migration": "node --test migrations/*.test.mjs"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -21,7 +23,8 @@
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.1",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.24.6"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

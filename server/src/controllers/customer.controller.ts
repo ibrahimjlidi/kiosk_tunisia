@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Customer } from '../models/Customer';
 import { CreditTransaction } from '../models/CreditTransaction';
-import mongoose from 'mongoose';
 import { normalizeApiError } from '../helpers/errorResponse';
 
 export const createCustomer = async (req: Request, res: Response): Promise<void> => {
@@ -57,9 +56,9 @@ export const addCreditTransaction = async (req: Request, res: Response): Promise
 
     const tx = await CreditTransaction.create({
       customer: customer._id,
-      station: station ? new mongoose.Types.ObjectId(station) : undefined,
+      station: station || undefined,
       type,
-      referenceId: referenceId ? new mongoose.Types.ObjectId(referenceId) : undefined,
+      referenceId: referenceId || undefined,
       amount: normalizedAmount,
       notes,
     });

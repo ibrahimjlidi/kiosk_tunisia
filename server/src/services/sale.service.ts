@@ -1,13 +1,13 @@
 import { Shift, IPumpReading } from '../models/Shift';
 import { Sale } from '../models/Sale';
-import { Tank } from '../models/Tank';
-import mongoose from 'mongoose';
+import { withTransaction } from '../config/db';
+import { newId } from '../models/sqlModel';
 
 /**
  * Create Sale documents from a closed shift's pump readings.
  * Returns number of sales created.
  */
-export const createSalesForShift = async (shiftId: mongoose.Types.ObjectId | string) => {
+export const createSalesForShift = async (shiftId: string) => {
   const shift = await Shift.findById(shiftId);
   if (!shift) return 0;
 
@@ -43,17 +43,26 @@ export const createSalesForShift = async (shiftId: mongoose.Types.ObjectId | str
 
   if (created.length === 0) return 0;
 
-  await Sale.insertMany(created);
-
-  // Deduct from Tanks
-  for (const doc of created) {
-    if (doc.quantity > 0) {
-      await Tank.updateOne(
-        { station: doc.station, product: doc.product },
-        { $inc: { currentStock: -doc.quantity } }
+  await withTransaction(async (connection) => {
+    for (const doc of created) {
+      const id = newId();
+      await connection.execute(
+        `INSERT INTO sales
+         (id, station_id, shift_id, pump_id, pistol_id, product_id, product_name, product_code, employee_id,
+          quantity, purchase_price, selling_price, vat_rate, amount_ht, vat_amount, amount_ttc, profit, payment_method, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3))`,
+        [id, doc.station, doc.shift, doc.pump, doc.pistol, doc.product, doc.productName, doc.productCode, doc.employee,
+          doc.quantity, doc.purchasePrice, doc.sellingPrice, doc.vatRate, doc.amountHT, doc.vatAmount, doc.amountTTC, doc.profit, doc.paymentMethod],
       );
+      if (doc.quantity > 0) {
+        await connection.execute(
+          `UPDATE tanks SET current_stock = current_stock - ?
+           WHERE id = (SELECT id FROM (SELECT id FROM tanks WHERE station_id = ? AND product_id = ? ORDER BY id LIMIT 1) AS matching_tank)`,
+          [doc.quantity, doc.station, doc.product],
+        );
+      }
     }
-  }
+  });
 
   return created.length;
 };

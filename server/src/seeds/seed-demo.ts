@@ -1,5 +1,5 @@
-import mongoose, { AnyKeys, Document, FilterQuery, HydratedDocument, Model } from 'mongoose';
 import dotenv from 'dotenv';
+import { pool } from '../config/db';
 
 import { User, IUser } from '../models/User';
 import { Station, IStation } from '../models/Station';
@@ -28,11 +28,11 @@ const DEMO_STATIONS = [
   { code: 'ST-004', name: 'Station Hammamet Centre', address: 'Avenue de la République', city: 'Hammamet', phone: '+216 72 210 004', taxId: 'DEMO-004' },
 ];
 
-const findOrCreate = async <T extends Document>(
-  model: Model<T>,
-  filter: FilterQuery<T>,
-  values: AnyKeys<T>,
-): Promise<HydratedDocument<T>> => (await model.findOne(filter)) ?? model.create(values);
+const findOrCreate = async (
+  repository: { findOne(filter: Record<string, any>): PromiseLike<any>; create(values: Record<string, any>): Promise<any> },
+  filter: Record<string, any>,
+  values: Record<string, any>,
+): Promise<any> => (await repository.findOne(filter)) ?? repository.create(values);
 
 const startOfDay = (date: Date): Date => {
   const day = new Date(date);
@@ -47,20 +47,19 @@ async function seedDemo(): Promise<void> {
     throw new Error('Demo seeding is disabled in production. Set SEED_DEMO_IN_PRODUCTION=true only for an intentional test database.');
   }
 
-  await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/fuelstation_erp');
+  await pool.query('SELECT 1');
 
-  try {
     const admin = await User.findOne({ role: 'ADMIN' });
     if (!admin) {
       throw new Error('An admin user is required. Start the API once to create the default admin before seeding demo data.');
     }
 
-    const stations: HydratedDocument<IStation>[] = [];
+    const stations: IStation[] = [];
     const mainStation = await Station.findOne({ code: 'ST-001' });
     if (mainStation) stations.push(mainStation);
 
     for (const stationData of DEMO_STATIONS) {
-      stations.push(await findOrCreate<IStation>(
+      stations.push(await findOrCreate(
         Station,
         { code: stationData.code },
         { ...stationData, active: true },
@@ -76,7 +75,7 @@ async function seedDemo(): Promise<void> {
 
     while (fuelProducts.length < productTemplates.length) {
       const template = productTemplates[fuelProducts.length];
-      fuelProducts.push(await findOrCreate<IProduct>(
+      fuelProducts.push(await findOrCreate(
         Product,
         { code: template.code },
         {
@@ -92,7 +91,7 @@ async function seedDemo(): Promise<void> {
     }
 
     const [gasoil, petrol, premium] = fuelProducts;
-    const supplier = await findOrCreate<ISupplier>(
+    const supplier = await findOrCreate(
       Supplier,
       { code: 'DEMO-SUP-001' },
       {
@@ -106,7 +105,7 @@ async function seedDemo(): Promise<void> {
         active: true,
       },
     );
-    const customer = await findOrCreate<ICustomer>(
+    const customer = await findOrCreate(
       Customer,
       { email: 'client.demo@example.test' },
       {
@@ -153,7 +152,7 @@ async function seedDemo(): Promise<void> {
         await station.save();
       }
 
-      const morningTeam = await findOrCreate<ITeam>(
+      const morningTeam = await findOrCreate(
         Team,
         { name: `Demo ${station.code} Équipe Matin` },
         {
@@ -164,7 +163,7 @@ async function seedDemo(): Promise<void> {
           active: true,
         },
       );
-      const eveningTeam = await findOrCreate<ITeam>(
+      const eveningTeam = await findOrCreate(
         Team,
         { name: `Demo ${station.code} Équipe Soir` },
         {
@@ -178,7 +177,7 @@ async function seedDemo(): Promise<void> {
 
       const tanks: ITank[] = [];
       for (const [tankIndex, product] of [gasoil, petrol, premium].entries()) {
-        tanks.push(await findOrCreate<ITank>(
+        tanks.push(await findOrCreate(
           Tank,
           { station: station._id, tankNumber: `Demo ${station.code} Cuve ${tankIndex + 1}` },
           {
@@ -194,7 +193,7 @@ async function seedDemo(): Promise<void> {
       }
 
       const pumpNumber = `Demo ${station.code} Pompe 01`;
-      const pump: IPump = await findOrCreate<IPump>(
+      const pump: IPump = await findOrCreate(
         Pump,
         { station: station._id, pumpNumber },
         {
@@ -439,9 +438,6 @@ async function seedDemo(): Promise<void> {
     console.log(`[Demo seed] Completed. ${stations.length} stations are available; ${created} demo records added.`);
     console.log(`[Demo accounts] Password for generated manager, supervisor, and operator accounts: ${DEMO_PASSWORD}`);
     console.log('[Demo accounts] Usernames follow demo_<station-code>_<role>, for example demo_st002_manager.');
-  } finally {
-    await mongoose.disconnect();
-  }
 }
 
 void seedDemo().catch((error: unknown) => {

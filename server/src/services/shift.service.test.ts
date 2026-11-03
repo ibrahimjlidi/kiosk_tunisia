@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import mongoose from 'mongoose';
 import { aggregateShiftTotals, calcPistolFinancials } from './shift.service';
 
 test('calcPistolFinancials returns zero sales when opening and closing indexes match', () => {
@@ -24,10 +23,10 @@ test('calcPistolFinancials calculates liters, HT, VAT, TTC, and profit from inde
 });
 
 test('aggregateShiftTotals sums readings by product for the shift close', () => {
-  const product = new mongoose.Types.ObjectId();
-  const pump = new mongoose.Types.ObjectId();
-  const pistolOne = new mongoose.Types.ObjectId();
-  const pistolTwo = new mongoose.Types.ObjectId();
+  const product = '0123456789abcdef01234567';
+  const pump = '1123456789abcdef01234567';
+  const pistolOne = '2123456789abcdef01234567';
+  const pistolTwo = '3123456789abcdef01234567';
 
   const totals = aggregateShiftTotals([{
     pump,

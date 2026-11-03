@@ -1,13 +1,14 @@
 # Kiosk Tunisia — Station de Carburant ERP
 
-Système de gestion d'entreprise (ERP) pour stations-service en Tunisie, construit avec le **MERN Stack** (MongoDB, Express, React, Node.js) et TypeScript.
+Système de gestion d'entreprise (ERP) pour stations-service en Tunisie, construit avec Express, React, Node.js et TypeScript. MongoDB est conservé comme source pendant la migration progressive vers MySQL 8.4.
 
 ## 📋 Prérequis
 
 Avant de commencer, assurez-vous d'avoir installé :
 
 - **Node.js** (v18 ou supérieur)
-- **MongoDB Community Server** (en cours d'exécution localement)
+- **MongoDB Community Server** (source existante, à conserver pendant la migration)
+- **Docker Compose** (pour MySQL 8.4 et le déploiement conteneurisé)
 - **npm** ou **yarn**
 
 ## 🚀 Installation et Configuration
@@ -29,7 +30,7 @@ cd server
 npm install
 
 # Copier le fichier d'environnement
-cp .env.exemple .env
+cp -n .env.exemple .env
 ```
 
 Configurez ensuite le fichier `.env` avec vos propres valeurs :
@@ -37,10 +38,43 @@ Configurez ensuite le fichier `.env` avec vos propres valeurs :
 ```env
 PORT=5000
 MONGO_URI=mongodb://127.0.0.1:27017/fuelstation_erp
-JWT_SECRET=votre_secret_jwt_super_securise
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=station_app
+DB_PASSWORD=
+DB_NAME=fuelstation_erp
+JWT_SECRET=
+JWT_REFRESH_SECRET=
 ```
 
-Lancer le serveur en mode développement :
+Renseignez `DB_PASSWORD` et les secrets JWT avec des valeurs uniques avant le démarrage. Le modèle laisse volontairement ces secrets vides. Compose remplace les adresses hôte par les noms de services (`mongo`, `mysql`) à l'intérieur des conteneurs.
+
+### Base MySQL et migration progressive
+
+Les fichiers Compose démarrent MySQL 8.4 avec un volume persistant distinct en développement et en production. MongoDB et son volume existant restent présents pour permettre une migration par étapes. Compose ne migre pas automatiquement les données. Ne supprimez pas le volume MongoDB et n'utilisez pas `docker compose down -v`.
+
+Depuis la racine du dépôt, après avoir complété `server/.env`, définissez un mot de passe root MySQL fort dans le shell puis démarrez le profil souhaité :
+
+```bash
+read -rsp 'Mot de passe root MySQL: ' MYSQL_ROOT_PASSWORD; printf '\n'; export MYSQL_ROOT_PASSWORD
+docker compose --env-file server/.env -f docker-compose.yml up -d --build
+# En production, utiliser plutôt :
+docker compose --env-file server/.env -f docker-compose.prod.yml up -d --build
+```
+
+Le backend reçoit `DB_HOST=mysql`, `DB_PORT=3306` et les mêmes identifiants `DB_USER`, `DB_PASSWORD`, `DB_NAME` que MySQL. Avant toute bascule, sauvegardez MongoDB, vérifiez le plan sans écriture, puis appliquez explicitement la migration. Pour le Compose de développement (ports hôte MongoDB 27017 et MySQL 3306), exécutez depuis `server/` :
+
+```bash
+cd server
+MONGO_URI=mongodb://127.0.0.1:27017/fuelstation_erp DB_HOST=127.0.0.1 DB_PORT=3306 npm run migrate:mongodb:mysql -- --dry-run
+MONGO_URI=mongodb://127.0.0.1:27017/fuelstation_erp DB_HOST=127.0.0.1 DB_PORT=3306 npm run migrate:mongodb:mysql -- --apply
+```
+
+En production, exécutez la même paire de commandes avec `MONGO_URI=mongodb://127.0.0.1:27018/fuelstation_erp`, `DB_HOST=127.0.0.1` et `DB_PORT=3307`. Vérifiez les comptes et les données migrées avant la bascule applicative. Conservez MongoDB et sa sauvegarde jusqu'à validation complète et fin de la période de retour arrière. Les étapes de déploiement et de sauvegarde sont détaillées dans [les notes de préparation à la production](./docs/PRODUCTION_READINESS.md).
+
+### Démarrage local du backend
+
+Pour lancer le serveur en mode développement :
 
 ```bash
 npm run dev
@@ -65,7 +99,7 @@ npm run dev
 
 Le client démarre sur `http://localhost:5173`.
 
-### 4. Base de Données (MongoDB)
+### 4. Base de Données (MongoDB source)
 
 Assurez-vous que MongoDB Community Server est en cours d'exécution sur :
 ```
@@ -102,7 +136,7 @@ Ne l'utilisez que sur une base de test que vous pouvez réinitialiser.
 |-----------|-----|
 | Frontend (Client React) | http://localhost:5173 |
 | Backend API | http://localhost:5000 |
-| MongoDB | mongodb://127.0.0.1:27017/fuelstation_erp |
+| MongoDB (source) | mongodb://127.0.0.1:27017/fuelstation_erp |
 
 ### Identifiants de Connexion
 
@@ -178,7 +212,7 @@ Les tests vérifient les accès Admin, Manager, Supervisor et Operator, ainsi qu
 - **Runtime** : Node.js
 - **Framework** : Express.js
 - **Langage** : TypeScript
-- **Base de données** : MongoDB avec Mongoose ODM
+- **Base de données historique** : MongoDB avec Mongoose ODM; migration vers MySQL 8.4 progressive et explicite
 - **Authentification** : JWT + bcrypt
 - **Validation** : express-validator
 

@@ -1,7 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { config } from '../config/env';
 import { RefreshToken, IRefreshToken } from '../models/RefreshToken';
-import { Types } from 'mongoose';
 
 const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
 
@@ -72,7 +71,7 @@ export const createRefreshToken = async (userId: string): Promise<IRefreshToken>
   const token = generateRefreshToken(userId);
   const expiresAt = new Date(Date.now() + parseDurationToMs(config.jwtRefreshExpiresIn));
   return RefreshToken.create({
-    user: new Types.ObjectId(userId),
+    user: userId,
     token,
     expiresAt,
   });

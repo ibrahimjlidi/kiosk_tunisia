@@ -3,134 +3,55 @@ import { Station } from '../models/Station';
 import { Tank } from '../models/Tank';
 import { Pump } from '../models/Pump';
 
+const defaultProducts = [
+  { name: 'Diesel (Gasoil)', code: 'GASOIL', purchasePrice: 1.85, sellingPrice: 2.2, minStockAlert: 3000, currentStock: 15000 },
+  { name: 'Unleaded Petrol (Sans Plomb)', code: 'SANS_PLOMB', purchasePrice: 2.1, sellingPrice: 2.52, minStockAlert: 2500, currentStock: 18000 },
+  { name: 'Gasoil 50 Premium', code: 'GASOIL_50', purchasePrice: 2.02, sellingPrice: 2.4, minStockAlert: 2000, currentStock: 12000 },
+];
+
 export const seedStationData = async (): Promise<void> => {
   try {
-    // 1. Seed Products if none exist
-    const productCount = await Product.countDocuments();
-    if (productCount === 0) {
-      const gasoil = await Product.create({
-        name: 'Diesel (Gasoil)',
-        code: 'GASOIL',
+    const products = await Promise.all(defaultProducts.map(async (data) => (
+      await Product.findOne({ code: data.code }) ?? await Product.create({
+        ...data,
         category: 'FUEL',
-        purchasePrice: 1.850,
-        sellingPrice: 2.200,
         vatRate: 19,
         unitOfMeasure: 'LITER',
-        minStockAlert: 3000,
-        currentStock: 15000,
-      });
+      })
+    )));
+    const station = await Station.findOne({ code: 'ST-001' }) ?? await Station.create({
+      name: 'Station Kiosque - Les Berges du Lac 2',
+      code: 'ST-001',
+      address: 'Avenue de la Bourse, Lac 2',
+      city: 'Tunis',
+      phone: '+216 71 999 888',
+      taxId: '1234567/A/M/000',
+    });
 
-      const sansPlomb = await Product.create({
-        name: 'Unleaded Petrol (Sans Plomb)',
-        code: 'SANS_PLOMB',
-        category: 'FUEL',
-        purchasePrice: 2.100,
-        sellingPrice: 2.520,
-        vatRate: 19,
-        unitOfMeasure: 'LITER',
-        minStockAlert: 2500,
-        currentStock: 18000,
-      });
+    if (await Tank.countDocuments({ station: station._id }) === 0) {
+      await Tank.create([
+        { station: station._id, product: products[0]._id, tankNumber: 'Tank 1 - Gasoil (25,000L)', capacity: 25000, currentStock: 15000, minLevelAlert: 3000 },
+        { station: station._id, product: products[1]._id, tankNumber: 'Tank 2 - Sans Plomb (30,000L)', capacity: 30000, currentStock: 18000, minLevelAlert: 2500 },
+        { station: station._id, product: products[2]._id, tankNumber: 'Tank 3 - Gasoil 50 (20,000L)', capacity: 20000, currentStock: 12000, minLevelAlert: 2000 },
+      ]);
+    }
 
-      const gasoil50 = await Product.create({
-        name: 'Gasoil 50 Premium',
-        code: 'GASOIL_50',
-        category: 'FUEL',
-        purchasePrice: 2.020,
-        sellingPrice: 2.400,
-        vatRate: 19,
-        unitOfMeasure: 'LITER',
-        minStockAlert: 2000,
-        currentStock: 12000,
-      });
-
-      console.log('[Seed] Default Fuel Products created (Gasoil, Sans Plomb, Gasoil 50)');
-
-      // 2. Seed Default Station
-      let station = await Station.findOne({ code: 'ST-001' });
-      if (!station) {
-        station = await Station.create({
-          name: 'Station Kiosque - Les Berges du Lac 2',
-          code: 'ST-001',
-          address: 'Avenue de la Bourse, Lac 2',
-          city: 'Tunis',
-          phone: '+216 71 999 888',
-          taxId: '1234567/A/M/000',
-        });
-        console.log('[Seed] Default Station created (Lac 2 Tunis)');
-      }
-
-      // 3. Seed Tanks
-      const tankCount = await Tank.countDocuments();
-      if (tankCount === 0 && station) {
-        await Tank.create([
-          {
-            station: station._id,
-            product: gasoil._id,
-            tankNumber: 'Tank 1 - Gasoil (25,000L)',
-            capacity: 25000,
-            currentStock: 15000,
-            minLevelAlert: 3000,
-          },
-          {
-            station: station._id,
-            product: sansPlomb._id,
-            tankNumber: 'Tank 2 - Sans Plomb (30,000L)',
-            capacity: 30000,
-            currentStock: 18000,
-            minLevelAlert: 2500,
-          },
-          {
-            station: station._id,
-            product: gasoil50._id,
-            tankNumber: 'Tank 3 - Gasoil 50 (20,000L)',
-            capacity: 20000,
-            currentStock: 12000,
-            minLevelAlert: 2000,
-          },
-        ]);
-        console.log('[Seed] Default Fuel Tanks created');
-      }
-
-      // 4. Seed Pumps & Pistols
-      const pumpCount = await Pump.countDocuments();
-      if (pumpCount === 0 && station) {
-        await Pump.create([
-          {
-            station: station._id,
-            pumpNumber: 'Pump 01',
-            pistols: [
-              { pistolNumber: 1, product: gasoil._id, currentClosingIndex: 125000.0 },
-              { pistolNumber: 2, product: sansPlomb._id, currentClosingIndex: 98450.5 },
-            ],
-          },
-          {
-            station: station._id,
-            pumpNumber: 'Pump 02',
-            pistols: [
-              { pistolNumber: 1, product: gasoil._id, currentClosingIndex: 110200.0 },
-              { pistolNumber: 2, product: sansPlomb._id, currentClosingIndex: 85300.0 },
-            ],
-          },
-          {
-            station: station._id,
-            pumpNumber: 'Pump 03',
-            pistols: [
-              { pistolNumber: 1, product: gasoil50._id, currentClosingIndex: 45200.0 },
-              { pistolNumber: 2, product: sansPlomb._id, currentClosingIndex: 72100.5 },
-            ],
-          },
-          {
-            station: station._id,
-            pumpNumber: 'Pump 04',
-            pistols: [
-              { pistolNumber: 1, product: gasoil._id, currentClosingIndex: 95400.0 },
-              { pistolNumber: 2, product: gasoil50._id, currentClosingIndex: 38900.0 },
-            ],
-          },
-        ]);
-        console.log('[Seed] Default Pumps & Pistols created (4 Pumps, 8 Pistols)');
-      }
+    if (await Pump.countDocuments({ station: station._id }) === 0) {
+      const pumpSpecs = [
+        ['Pump 01', [0, 1], [125000, 98450.5]],
+        ['Pump 02', [0, 1], [110200, 85300]],
+        ['Pump 03', [2, 1], [45200, 72100.5]],
+        ['Pump 04', [0, 2], [95400, 38900]],
+      ] as const;
+      await Pump.create(pumpSpecs.map(([pumpNumber, productIndexes, indexes]) => ({
+        station: station._id,
+        pumpNumber,
+        pistols: productIndexes.map((productIndex, index) => ({
+          pistolNumber: index + 1,
+          product: products[productIndex]._id,
+          currentClosingIndex: indexes[index],
+        })),
+      })));
     }
   } catch (error) {
     console.error('[Seed Error] Failed to seed station data:', (error as Error).message);

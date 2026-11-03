@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { Sale } from '../models/Sale';
 import { CreditTransaction } from '../models/CreditTransaction';
 import { Customer } from '../models/Customer';
-import mongoose from 'mongoose';
 import { AuthRequest } from '../middlewares/auth.middleware';
 
 export const createSale = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -36,8 +35,8 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
 
       // Create credit transaction only for the credit portion
       await CreditTransaction.create({
-        customer: new mongoose.Types.ObjectId(customer._id),
-        station: data.station ? new mongoose.Types.ObjectId(data.station) : undefined,
+        customer: customer._id,
+        station: data.station || undefined,
         type: 'SALE',
         referenceId: sale._id,
         amount: creditAmount,

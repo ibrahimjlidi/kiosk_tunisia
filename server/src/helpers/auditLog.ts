@@ -1,8 +1,7 @@
 import { AuditLog } from '../models/AuditLog';
-import { Types } from 'mongoose';
 
 export interface AuditLogPayload {
-  user?: Types.ObjectId | string;
+  user?: string;
   action: string;
   status: 'SUCCESS' | 'FAILURE' | 'INFO';
   message?: string;

@@ -224,7 +224,11 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.user?.id);
+    if (!req.user?.id) {
+      sendError(res, 'User not found', 404);
+      return;
+    }
+    const user = await User.findById(req.user.id);
     if (!user) {
       sendError(res, 'User not found', 404);
       return;

@@ -3,7 +3,6 @@ import { Expense } from '../models/Expense';
 import { PurchaseOrder } from '../models/PurchaseOrder';
 import { KifReturn } from '../models/KifReturn';
 import { DailyClosure } from '../models/DailyClosure';
-import mongoose from 'mongoose';
 
 export interface DailyClosureSummaryInput {
   salesTTC: number;
@@ -36,7 +35,7 @@ export const buildDailyClosureSummary = (input: DailyClosureSummaryInput): Daily
   };
 };
 
-export const getDailyClosureSummary = async (stationId?: string | mongoose.Types.ObjectId, date?: Date | string) => {
+export const getDailyClosureSummary = async (stationId?: string, date?: Date | string) => {
   const targetDate = date ? new Date(date) : new Date();
   const dayStart = new Date(targetDate); dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(targetDate); dayEnd.setHours(23, 59, 59, 999);
@@ -52,11 +51,11 @@ export const getDailyClosureSummary = async (stationId?: string | mongoose.Types
     Shift.countDocuments({ ...filter, status: 'OPEN' }),
   ]);
 
-  const salesTTC = shifts.reduce((sum, shift) => sum + (shift.totalSalesTTC || 0), 0);
-  const totalPayments = shifts.reduce((sum, shift) => sum + (shift.totalPayments || 0), 0);
-  const expensesTotal = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
-  const purchasesTotal = purchaseOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-  const kifQuantity = kifReturns.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const salesTTC = shifts.reduce((sum: number, shift: any) => sum + (shift.totalSalesTTC || 0), 0);
+  const totalPayments = shifts.reduce((sum: number, shift: any) => sum + (shift.totalPayments || 0), 0);
+  const expensesTotal = expenses.reduce((sum: number, expense: any) => sum + (expense.amount || 0), 0);
+  const purchasesTotal = purchaseOrders.reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0);
+  const kifQuantity = kifReturns.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
 
   return buildDailyClosureSummary({
     salesTTC,
@@ -68,7 +67,7 @@ export const getDailyClosureSummary = async (stationId?: string | mongoose.Types
   });
 };
 
-export const getDailyClosures = async (stationId?: string | mongoose.Types.ObjectId) => {
+export const getDailyClosures = async (stationId?: string) => {
   const filter: any = {};
   if (stationId) filter.station = stationId;
   return DailyClosure.find(filter).populate('station', 'name code').populate('closedBy', 'firstName lastName').sort({ closureDate: -1 }).lean();
@@ -80,9 +79,9 @@ export const finalizeDailyClosure = async ({
   userId,
   notes,
 }: {
-  stationId: string | mongoose.Types.ObjectId;
+  stationId: string;
   date: Date | string;
-  userId: string | mongoose.Types.ObjectId;
+  userId: string;
   notes?: string;
 }) => {
   const targetDate = new Date(date);

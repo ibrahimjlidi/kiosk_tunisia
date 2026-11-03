@@ -47,7 +47,7 @@ export const closeDay = async (req: AuthRequest, res: Response): Promise<void> =
       shiftDate: { $gte: start, $lte: end },
     });
 
-    if (dayShifts.some((shift) => shift.status === 'OPEN')) {
+    if (dayShifts.some((shift: any) => shift.status === 'OPEN')) {
       res.status(400).json({ success: false, message: 'All shifts for this day must be closed before locking the day' });
       return;
     }
@@ -58,11 +58,15 @@ export const closeDay = async (req: AuthRequest, res: Response): Promise<void> =
       return;
     }
 
-    const record = existing || new DayClosure({ station, closureDate });
-    record.status = 'LOCKED';
-    record.closedBy = req.user?.id as any;
-    record.notes = notes || '';
-    await record.save();
+    const record = existing
+      ? existing
+      : await DayClosure.create({ station, closureDate, status: 'LOCKED', closedBy: req.user?.id, notes: notes || '' });
+    if (existing) {
+      record.status = 'LOCKED';
+      record.closedBy = req.user?.id as any;
+      record.notes = notes || '';
+      await record.save();
+    }
 
     res.status(200).json({ success: true, message: 'Day locked successfully', record });
   } catch (error: any) {
