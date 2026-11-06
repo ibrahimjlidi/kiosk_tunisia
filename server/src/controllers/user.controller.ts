@@ -2,13 +2,18 @@ import { Request, Response } from 'express';
 import { User, UserRole } from '../models/User';
 import { normalizeApiError } from '../helpers/errorResponse';
 
+const serializeUser = (user: any) => {
+  const value = typeof user.toJSON === 'function' ? user.toJSON() : { ...user };
+  return { ...value, id: user._id.toString() };
+};
+
 export const getAllUsers = async (_req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       count: users.length,
-      users: users.map((user: any) => ({ ...user.toJSON(), id: user._id.toString() })),
+      users: users.map(serializeUser),
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load users.') });
@@ -25,7 +30,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 
     res.status(200).json({
       success: true,
-      user: { ...user.toJSON(), id: user._id.toString() },
+      user: serializeUser(user),
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: normalizeApiError(error, 'Unable to load user.') });
