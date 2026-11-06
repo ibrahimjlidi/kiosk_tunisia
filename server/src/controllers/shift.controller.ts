@@ -305,8 +305,8 @@ export const reopenShift = async (req: AuthRequest, res: Response): Promise<void
     }
 
     shift.status = 'OPEN';
-    shift.closedBy = undefined;
-    shift.closedAt = undefined;
+    shift.closedBy = null;
+    shift.closedAt = null;
     await shift.save();
 
     res.status(200).json({ success: true, message: 'Shift reopened by administrator', shift });

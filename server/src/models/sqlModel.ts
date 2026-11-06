@@ -34,6 +34,8 @@ export interface ModelDefinition {
 }
 
 export const newId = (): string => randomBytes(12).toString('hex');
+export const omitUndefinedEntries = <T extends readonly [string, unknown]>(entries: readonly T[]): T[] =>
+  entries.filter(([, value]) => value !== undefined);
 const camel = (key: string) => key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 const identifier = (key: string) => {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key)) throw new Error(`Invalid SQL identifier: ${key}`);
@@ -395,9 +397,11 @@ export class SqlModel<T extends Row = Row> {
   }
 
   private async persistMain(value: Row, connection: PoolConnection, insert: boolean): Promise<void> {
-    const entries = Object.entries(this.definition.fields)
-      .filter(([property]) => property in value)
-      .map(([property, column]) => [column, value[property]] as const);
+    const entries = omitUndefinedEntries(
+      Object.entries(this.definition.fields)
+        .filter(([property]) => property in value)
+        .map(([property, column]) => [column, value[property]] as const),
+    );
     if (insert) entries.unshift(['id', value._id]);
     if (entries.length === 0) return;
     const names = entries.map(([column]) => identifier(column));
@@ -437,7 +441,7 @@ export class SqlModel<T extends Row = Row> {
     const entries: Array<[string, any]> = [[child.parentKey, parentId]];
     if (child.positionKey) entries.push([child.positionKey, position]);
     for (const [property, column] of Object.entries(child.columns)) {
-      if (property in row) entries.push([column, row[property]]);
+      if (property in row && row[property] !== undefined) entries.push([column, row[property]]);
     }
     await connection.execute(
       `INSERT INTO ${identifier(child.table)} (${entries.map(([column]) => identifier(column)).join(', ')}) VALUES (${entries.map(() => '?').join(', ')})`,
