@@ -6,6 +6,7 @@ import { getRolePermissions } from '../utils/permissions';
 import { sendSuccess, sendError } from '../helpers/apiResponse';
 import { logAuditEvent } from '../helpers/auditLog';
 import { parseCookies } from '../helpers/cookies';
+import { comparePassword } from '../utils/password';
 import {
   createRefreshToken,
   generateAccessToken,
@@ -106,7 +107,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = user.password
+      ? await comparePassword(password, user.password)
+      : false;
     if (!isMatch) {
       sendError(res, 'Invalid email or password', 401);
       return;
