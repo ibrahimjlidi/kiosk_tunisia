@@ -8,7 +8,7 @@ Scope : contrôles unitaires, schéma/migration, intégration HTTP, E2E navigate
 
 | Catégorie | Résultat | Détail |
 |---|---|---|
-| Unitaires backend | PASS | 11 tests réussis |
+| Unitaires backend | PASS | 19 tests réussis après les correctifs SQL/ORM et shift/daily close |
 | Migration | PASS | 5 tests réussis |
 | Intégration | PASS | API et MySQL connectés; une route protégée renvoie 401 sans authentification |
 | E2E | PARTIEL / BLOQUÉ | 2 tests isolés réussis antérieurement; dernière tentative complète bloquée avant exécution par l'absence de `libnspr4` pour Chromium |
@@ -48,7 +48,7 @@ Pour une URL API locale non standard, utiliser `TEST_API_URL`. Pour les mesures 
 
 Commande : `npm run test:unit`
 
-- 13 tests unitaires backend réussis après le retest du binding SQL et de la projection des produits imbriqués; 11 tests avaient réussi avant ces régressions.
+- 19 tests unitaires backend réussis après le retest du binding SQL, de la projection imbriquée, de l'hydratation ORM et des règles shift/daily close; 11 tests avaient réussi avant ces régressions.
 - 5 tests de migration réussis.
 
 ### Intégration API/MySQL
@@ -66,7 +66,16 @@ Commande : `npm run test:integration`
 - Vérification en lecture seule sur les données locales : 4 pompes et 8 pistolets produisent maintenant des lectures sans champs `undefined`.
 - Les insertions du shift et de ses lignes enfants ont été exécutées dans une transaction MySQL ensuite annulée (`ROLLBACK`); aucun shift de test n'a été conservé.
 - Le formulaire d'ouverture s'affiche sans erreur dans le navigateur. L'action finale d'ouverture n'a pas été soumise pour ne pas créer un shift opérationnel.
-- Build serveur, 13 tests unitaires et intégration API/MySQL réussis; le backend corrigé a été redéployé sans redémarrer MySQL.
+- Build serveur, 14 tests unitaires et intégration API/MySQL réussis; le backend corrigé a été redéployé sans redémarrer MySQL.
+
+### Cycle complet MORNING → AFTERNOON → NIGHT
+
+- Le 06/11/2026, MORNING était déjà clôturé et AFTERNOON déjà ouvert. Le test autorisé a d'abord clôturé MORNING avec `+1 L` sur `Pump 04 · P1` (Diesel), index 95400 → 95401, vente/paiement 2,200 TND.
+- L'ouverture enregistrée d'AFTERNOON était périmée (95400). Après autorisation, son index d'ouverture et index initial ont été corrigés à 95401. AFTERNOON a ensuite vendu 1 L (95401 → 95402), enregistré 2,200 TND en espèces et été clôturé.
+- NIGHT a été ouvert avec les index terminaux d'AFTERNOON (tous les 8 pistolets concordaient), puis a vendu 1 L (95402 → 95403), enregistré 2,200 TND en espèces et été clôturé.
+- Vérification finale avant daily close : les 3 shifts CLOSED, chacun avec 2,200 TND de ventes et paiements et un solde nul; index courant Pump 04 · P1 = 95403; zéro shift ouvert. Les ventes générées par les clôtures AFTERNOON et NIGHT correspondent à 1 L / 2,200 TND chacune. Le stock Diesel affiché après ces opérations est 14 997 L.
+- **Daily close non finalisé** à la demande de l'utilisateur. La page affichait 6,600 TND ventes / 6,600 TND paiements et « Balanced », mais le ledger contenait 6,833 TND. Deux anciennes ventes de MORNING (0,045 L / 0,099 TND et 0,053 L / 0,134 TND, créées avant sa clôture) n'étaient pas comprises dans le total du shift. Aucune DailyClosure n'a été créée et ces anciennes ventes n'ont pas été modifiées.
+- Investigation : le chemin manuel `Record Sale` associait directement des ventes au shift sans synchroniser ses totaux ni le stock; à la clôture, le service recréait les ventes depuis les index et diminuait le stock. Correctifs source (pas déployés sur l'instance durant cette session) : suppression de la saisie manuelle de ventes sur le détail shift, refus HTTP 409 des ventes manuelles liées à un shift, comparaison shift/ledger et blocage de la clôture quotidienne en cas d'écart, de shift ouvert ou de paiements non équilibrés.
 
 ### E2E Playwright
 

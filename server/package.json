@@ -7,7 +7,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "test:unit": "tsx --test src/helpers/apiResponse.test.ts src/models/repositories.test.ts src/services/dailyClosure.service.test.ts src/services/shift.service.test.ts src/utils/password.test.ts src/utils/permissions.test.ts src/utils/token.test.ts",
+    "test:unit": "tsx --test src/controllers/sale.controller.test.ts src/helpers/apiResponse.test.ts src/models/repositories.test.ts src/services/dailyClosure.service.test.ts src/services/shift.service.test.ts src/utils/password.test.ts src/utils/permissions.test.ts src/utils/token.test.ts",
     "test:integration": "node scripts/integration-smoke.mjs",
     "test:e2e": "playwright test --config playwright.config.ts",
     "test:performance": "node scripts/performance-smoke.mjs",

@@ -75,7 +75,11 @@ export const DailyClosePage: React.FC = () => {
             {stations.map((station) => <option key={station._id} value={station._id}>{station.name}</option>)}
           </select>
           <button onClick={load} className="rounded-lg bg-cyan-600 px-3 py-2 text-sm font-semibold text-white">{loading ? 'Loading…' : 'Load'}</button>
-          <button onClick={handleClose} disabled={saving || !stationId} className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
+          <button
+            onClick={handleClose}
+            disabled={saving || !stationId || !summary?.isBalanced || summary?.openShiftCount > 0}
+            className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          >
             {saving ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Closing</span> : 'Finalize Close'}
           </button>
         </div>
@@ -102,6 +106,7 @@ export const DailyClosePage: React.FC = () => {
         </div>
         <div className="grid grid-cols-2 gap-4 text-sm text-black">
           <div>Variance: <span className="font-semibold text-white">{(summary?.variance || 0).toFixed(3)} TND</span></div>
+          <div>Shift sales ledger variance: <span className="font-semibold text-white">{(summary?.shiftSalesLedgerVariance || 0).toFixed(3)} TND</span></div>
           <div>Open shifts: <span className="font-semibold text-white">{summary?.openShiftCount || 0}</span></div>
         </div>
       </div>

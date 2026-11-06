@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
-import { getDailyClosureSummary, getDailyClosures, finalizeDailyClosure } from '../services/dailyClosure.service';
+import {
+  DailyClosureNotReadyError,
+  getDailyClosureSummary,
+  getDailyClosures,
+  finalizeDailyClosure,
+} from '../services/dailyClosure.service';
 
 export const listDailyClosures = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -40,6 +45,7 @@ export const closeDailyClosure = async (req: AuthRequest, res: Response): Promis
 
     res.status(200).json({ success: true, message: 'Daily closure finalized', closure });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message || 'Failed to finalize daily closure' });
+    const statusCode = error instanceof DailyClosureNotReadyError ? 409 : 500;
+    res.status(statusCode).json({ success: false, message: error.message || 'Failed to finalize daily closure' });
   }
 };

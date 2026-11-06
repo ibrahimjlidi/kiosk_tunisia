@@ -35,6 +35,8 @@ Ce document formalise les règles métier indispensables à respecter dans la ph
 - Un shift fermé ne doit plus être modifié pour les lectures et les paiements.
 - La fermeture quotidienne (`daily closure`) verrouille les actions du jour.
 - Le shift suivant doit démarrer à partir des valeurs d’index du shift précédent.
+- Les ventes carburant d’un shift sont générées à partir des index de pompe enregistrés lors de sa clôture; les ventes manuelles liées au shift sont interdites pour éviter les doublons. Les paiements encaissés sont saisis dans le rapprochement du shift.
+- La clôture quotidienne ne peut être finalisée que si tous les shifts sont fermés, si les paiements correspondent aux ventes et si le total des ventes du shift correspond au ledger.
 
 ## Inventaire et jaugeage
 

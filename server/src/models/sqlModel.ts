@@ -4,6 +4,11 @@ import { query, withTransaction } from '../config/db';
 
 type Row = Record<string, any>;
 type FieldMap = Record<string, string>;
+type Hydrated<T extends Row> = T & {
+  save: () => Promise<void>;
+  toJSON: () => Row;
+  comparePassword?: (candidate: string) => Promise<boolean>;
+};
 type Relation = { table: string; local: string; foreign?: string; fields?: string[]; many?: boolean };
 type CollectionRelation = { table: string; ownerColumn: string; itemColumn: string; targetTable: string; orderColumn?: string };
 type NestedRelation = { collection: string; localProperty: string; table: string; targetId?: string; fields?: string[] };
@@ -190,7 +195,7 @@ class SqlQuery<T extends Row> implements PromiseLike<T[]> {
       return value;
     })) as T[];
     const hidden = this.model.definition.hiddenFields ?? [];
-    result = result.map((row) => applyFieldSelection(row, this.selected, this.excluded, hidden, this.includeHidden));
+    result = result.map((row) => this.model.project(row, this.selected, this.excluded, hidden, this.includeHidden));
     for (const relation of this.relations) {
       for (const row of result) await this.model.populate(row, relation.path, relation.select);
     }
@@ -279,7 +284,7 @@ export class SqlModel<T extends Row = Row> {
     Object.assign(value, await this.findById(value._id));
   }
 
-  hydrate(value: Row): T {
+  hydrate(value: Row): Hydrated<T> {
     const model = this;
     Object.defineProperty(value, 'save', {
       enumerable: false,
@@ -304,7 +309,17 @@ export class SqlModel<T extends Row = Row> {
         },
       });
     }
-    return value as T;
+    return value as Hydrated<T>;
+  }
+
+  project(
+    row: T,
+    selected: string[] | undefined,
+    excluded: string[],
+    hidden: string[],
+    includeHidden: string[],
+  ): Hydrated<T> {
+    return this.hydrate(applyFieldSelection(row, selected, excluded, hidden, includeHidden));
   }
 
   async loadChildren(value: Row): Promise<void> {

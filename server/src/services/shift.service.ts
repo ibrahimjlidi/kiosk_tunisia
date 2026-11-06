@@ -1,5 +1,6 @@
 import { Pump, IPump } from '../models/Pump';
 import { IShift, IPumpReading } from '../models/Shift';
+import { withTransaction } from '../config/db';
 
 /**
  * Calculate all financial fields for a single pistol reading.
@@ -164,17 +165,17 @@ export const buildInitialPumpReadings = async (
  * After shift closure, roll over closing indexes → currentClosingIndex on each Pump pistol.
  */
 export const rolloverIndexesToPumps = async (pumpReadings: IPumpReading[]): Promise<void> => {
-  for (const pr of pumpReadings) {
-    const pump = await Pump.findById(pr.pump);
-    if (!pump) continue;
-    for (const pistolReading of pr.pistolReadings) {
-      const pistol = pump.pistols.find(
-        (p: any) => p._id?.toString() === pistolReading.pistolId.toString()
-      );
-      if (pistol) {
-        pistol.currentClosingIndex = pistolReading.closingIndex;
+  await withTransaction(async (connection) => {
+    for (const pumpReading of pumpReadings) {
+      for (const pistolReading of pumpReading.pistolReadings) {
+        const [result] = await connection.execute(
+          'UPDATE pump_pistols SET current_closing_index = ? WHERE pump_id = ? AND pistol_id = ?',
+          [pistolReading.closingIndex, pumpReading.pump, pistolReading.pistolId],
+        );
+        if (!('affectedRows' in result) || result.affectedRows !== 1) {
+          throw new Error(`Unable to roll over index for pistol ${pistolReading.pistolId}.`);
+        }
       }
     }
-    await pump.save();
-  }
+  });
 };

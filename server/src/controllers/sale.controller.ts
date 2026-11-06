@@ -16,6 +16,14 @@ export const createSale = async (req: AuthRequest, res: Response): Promise<void>
       }
     }
 
+    if (data.shift) {
+      res.status(409).json({
+        success: false,
+        message: 'Sales for a shift are generated from saved pump readings when the shift closes. Record payment totals on the shift instead.',
+      });
+      return;
+    }
+
     // If sale is on credit, customerId is required and we will create a credit transaction
     // Support partial payment allocation (payments.credit) or full credit via paymentMethod
     const creditAmount = (data.payments && data.payments.credit) ? parseFloat(data.payments.credit) : (data.paymentMethod === 'CREDIT' ? parseFloat(data.amountTTC) : 0);

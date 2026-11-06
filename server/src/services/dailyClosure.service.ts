@@ -3,14 +3,16 @@ import { Expense } from '../models/Expense';
 import { PurchaseOrder } from '../models/PurchaseOrder';
 import { KifReturn } from '../models/KifReturn';
 import { DailyClosure } from '../models/DailyClosure';
+import { query } from '../config/db';
 
 export interface DailyClosureSummaryInput {
   salesTTC: number;
+  shiftSalesLedgerTTC: number;
   totalPayments: number;
   expenses: number;
   purchases: number;
   kifQuantity: number;
-  openShiftCount?: number;
+  openShiftCount: number;
 }
 
 export interface DailyClosureSummary extends DailyClosureSummaryInput {
@@ -19,11 +21,13 @@ export interface DailyClosureSummary extends DailyClosureSummaryInput {
   totalPurchases: number;
   totalKifQuantity: number;
   variance: number;
+  shiftSalesLedgerVariance: number;
   isBalanced: boolean;
 }
 
 export const buildDailyClosureSummary = (input: DailyClosureSummaryInput): DailyClosureSummary => {
   const variance = input.totalPayments - input.salesTTC;
+  const shiftSalesLedgerVariance = parseFloat((input.shiftSalesLedgerTTC - input.salesTTC).toFixed(3));
   return {
     ...input,
     totalSalesTTC: input.salesTTC,
@@ -31,8 +35,30 @@ export const buildDailyClosureSummary = (input: DailyClosureSummaryInput): Daily
     totalPurchases: input.purchases,
     totalKifQuantity: input.kifQuantity,
     variance,
-    isBalanced: Math.abs(variance) < 0.001,
+    shiftSalesLedgerVariance,
+    isBalanced: Math.abs(variance) < 0.001 && Math.abs(shiftSalesLedgerVariance) < 0.001,
   };
+};
+
+export class DailyClosureNotReadyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DailyClosureNotReadyError';
+  }
+}
+
+export const assertDailyClosureReady = (summary: DailyClosureSummary): void => {
+  if (summary.openShiftCount > 0) {
+    throw new DailyClosureNotReadyError(`Cannot finalize daily closure while ${summary.openShiftCount} shift(s) remain open.`);
+  }
+  if (Math.abs(summary.variance) >= 0.001) {
+    throw new DailyClosureNotReadyError(`Cannot finalize daily closure with a payment variance of ${summary.variance.toFixed(3)} TND.`);
+  }
+  if (Math.abs(summary.shiftSalesLedgerVariance) >= 0.001) {
+    throw new DailyClosureNotReadyError(
+      `Cannot finalize daily closure: shift sales differ from the sales ledger by ${summary.shiftSalesLedgerVariance.toFixed(3)} TND.`,
+    );
+  }
 };
 
 export const getDailyClosureSummary = async (stationId?: string, date?: Date | string) => {
@@ -51,6 +77,18 @@ export const getDailyClosureSummary = async (stationId?: string, date?: Date | s
     Shift.countDocuments({ ...filter, status: 'OPEN' }),
   ]);
 
+  const stationCondition = stationId ? 'AND shifts.station_id = ?' : '';
+  const ledgerValues = stationId ? [dayStart, dayEnd, stationId] : [dayStart, dayEnd];
+  const ledgerRows = await query<{ total: number }>(
+    `SELECT COALESCE(SUM(sales.amount_ttc), 0) AS total
+     FROM sales
+     INNER JOIN shifts ON shifts.id = sales.shift_id
+     WHERE shifts.shift_date >= ? AND shifts.shift_date <= ? ${stationCondition}`,
+    ledgerValues,
+  );
+  const ledgerTotal = ledgerRows[0];
+  if (!ledgerTotal) throw new Error('Unable to calculate shift sales ledger total.');
+
   const salesTTC = shifts.reduce((sum: number, shift: any) => sum + (shift.totalSalesTTC || 0), 0);
   const totalPayments = shifts.reduce((sum: number, shift: any) => sum + (shift.totalPayments || 0), 0);
   const expensesTotal = expenses.reduce((sum: number, expense: any) => sum + (expense.amount || 0), 0);
@@ -59,11 +97,12 @@ export const getDailyClosureSummary = async (stationId?: string, date?: Date | s
 
   return buildDailyClosureSummary({
     salesTTC,
+    shiftSalesLedgerTTC: Number(ledgerTotal.total),
     totalPayments,
     expenses: expensesTotal,
     purchases: purchasesTotal,
     kifQuantity,
-    openShiftCount: openShifts,
+    openShiftCount: Number(openShifts),
   });
 };
 
@@ -88,6 +127,7 @@ export const finalizeDailyClosure = async ({
   const dayStart = new Date(targetDate); dayStart.setHours(0, 0, 0, 0);
   const dayStartKey = new Date(dayStart);
   const summary = await getDailyClosureSummary(stationId, dayStartKey);
+  assertDailyClosureReady(summary);
 
   let closure = await DailyClosure.findOne({ station: stationId, closureDate: dayStartKey });
   if (!closure) {
