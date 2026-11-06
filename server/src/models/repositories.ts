@@ -5,7 +5,10 @@ import { model, ModelDefinition, newId } from './sqlModel';
 
 type Row = Record<string, any>;
 const fields = (pairs: string): Record<string, string> => Object.fromEntries(
-  pairs.split(/\s+/).filter(Boolean).map((field) => [field, field.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)]),
+  pairs.split(/\s+/).filter(Boolean).map((field) => [
+    field,
+    field.replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase(),
+  ]),
 );
 const idFields = (pairs: string, ...references: string[]): Record<string, string> => {
   const result = fields(pairs);
