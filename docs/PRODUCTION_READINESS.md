@@ -28,6 +28,10 @@
 - Frontend: `npm run build`
 
 ## Production deployment checklist
+- For the Vercel frontend + Render API + managed MySQL deployment, follow [DEPLOYMENT_VERCEL_RENDER_MYSQL.md](./DEPLOYMENT_VERCEL_RENDER_MYSQL.md). Neon is PostgreSQL and is not compatible with the current MySQL driver/schema without a separate database migration.
+
+### Docker Compose deployment
+
 - Set unique production values for `JWT_SECRET`, `JWT_REFRESH_SECRET`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` in a private `server/.env`; set a separate strong `MYSQL_ROOT_PASSWORD` in the deployment environment. Do not deploy the example file's blank secrets or reuse development credentials.
 - Start the production Compose stack with `docker compose --env-file server/.env -f docker-compose.prod.yml up -d --build`. MySQL 8.4 listens on host port 3307; the backend uses `mysql:3306`. The backend waits for MySQL and MongoDB health checks.
 - MongoDB remains the migration source on host port 27018 and its existing `mongo-data` volume must remain attached. Back up MongoDB and keep that volume; do not run `docker compose down -v` or remove/rename the volume as part of this rollout. MySQL persists separately in `kiosk-mysql-data-prod`.

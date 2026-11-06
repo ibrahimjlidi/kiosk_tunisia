@@ -12,6 +12,9 @@ export const pool: Pool = mysql.createPool({
   user: config.database.user,
   password: config.database.password,
   database: config.database.name,
+  ssl: config.database.ssl
+    ? { rejectUnauthorized: true, ...(config.database.sslCa ? { ca: config.database.sslCa } : {}) }
+    : undefined,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -142,7 +145,9 @@ export const connectDB = async (): Promise<void> => {
     isConnected = true;
     console.log(`[MySQL] Connected successfully to ${config.database.host}:${config.database.port}/${config.database.name}`);
     await seedAdminUser();
-    await seedStationData();
+    if (config.nodeEnv !== 'production') {
+      await seedStationData();
+    }
   } catch (error) {
     isConnected = false;
     console.error(`[MySQL Error] Could not connect to ${config.database.host}:${config.database.port}/${config.database.name}: ${(error as Error).message}`);

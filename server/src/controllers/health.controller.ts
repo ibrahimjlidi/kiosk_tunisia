@@ -5,9 +5,9 @@ import { isDatabaseConnected } from '../config/db';
 export const getHealthStatus = async (_req: Request, res: Response): Promise<void> => {
   const connected = isDatabaseConnected();
 
-  res.status(200).json({
-    success: true,
-    message: 'FuelStation ERP API is running smoothly',
+  res.status(connected ? 200 : 503).json({
+    success: connected,
+    message: connected ? 'FuelStation ERP API is running smoothly' : 'Database connection is unavailable',
     system: {
       appName: 'FuelStation ERP',
       environment: process.env.NODE_ENV || 'development',
