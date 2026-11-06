@@ -54,7 +54,7 @@ function mapRow(row: Row, definition: ModelDefinition): Row {
   return result;
 }
 
-function projectRelation(value: Row, select?: string): Row {
+export function projectRelation(value: Row, select?: string): Row {
   if (!select) return value;
   const fields = select.split(/\s+/).filter((field) => field && !field.startsWith('+') && !field.startsWith('-'));
   const excluded = select.split(/\s+/).filter((field) => field.startsWith('-')).map((field) => field.slice(1));
@@ -335,7 +335,7 @@ export class SqlModel<T extends Row = Row> {
     if (nestedRelation) {
       const items = row[nestedRelation.collection];
       if (!Array.isArray(items)) return;
-      const select = nestedRelation.fields?.length
+      const columns = nestedRelation.fields?.length
         ? nestedRelation.fields.map(identifier).join(', ')
         : nestedRelation.table === 'users'
           ? '`id`, `username`, `email`, `role`, `first_name`, `last_name`, `phone`, `active`, `station_id`, `created_at`, `updated_at`'
@@ -344,7 +344,7 @@ export class SqlModel<T extends Row = Row> {
         const id = item[nestedRelation.localProperty];
         if (id == null) { item[nestedRelation.localProperty] = null; continue; }
         const rows = await query<Row & RowDataPacket>(
-          `SELECT ${select} FROM ${identifier(nestedRelation.table)} WHERE ${identifier(nestedRelation.targetId ?? 'id')} = ? LIMIT 1`,
+          `SELECT ${columns} FROM ${identifier(nestedRelation.table)} WHERE ${identifier(nestedRelation.targetId ?? 'id')} = ? LIMIT 1`,
           [id],
         );
         if (rows[0]) item[nestedRelation.localProperty] = projectRelation(

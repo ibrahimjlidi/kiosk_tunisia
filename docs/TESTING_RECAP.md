@@ -48,7 +48,7 @@ Pour une URL API locale non standard, utiliser `TEST_API_URL`. Pour les mesures 
 
 Commande : `npm run test:unit`
 
-- 11 tests unitaires backend réussis, notamment permissions, tokens, mots de passe, logique de shift/clôture et mapping des champs SQL camelCase.
+- 13 tests unitaires backend réussis après le retest du binding SQL et de la projection des produits imbriqués; 11 tests avaient réussi avant ces régressions.
 - 5 tests de migration réussis.
 
 ### Intégration API/MySQL
@@ -58,6 +58,15 @@ Commande : `npm run test:integration`
 - API locale disponible.
 - MySQL répond connecté pour `fuelstation_erp`.
 - `GET /stations` sans authentification renvoie HTTP 401.
+
+### Retest du binding SQL lors de l'ouverture d'un shift
+
+- Le navigateur a montré que l'erreur persistait après le premier correctif. La cause restante était la projection du produit imbriqué des pistolets : la liste des colonnes SQL était utilisée à tort comme liste de propriétés camelCase, supprimant les prix et libellés attendus et laissant des paramètres `undefined`.
+- Correction dans `sqlModel.ts` : distinction entre la sélection SQL et les champs à projeter.
+- Vérification en lecture seule sur les données locales : 4 pompes et 8 pistolets produisent maintenant des lectures sans champs `undefined`.
+- Les insertions du shift et de ses lignes enfants ont été exécutées dans une transaction MySQL ensuite annulée (`ROLLBACK`); aucun shift de test n'a été conservé.
+- Le formulaire d'ouverture s'affiche sans erreur dans le navigateur. L'action finale d'ouverture n'a pas été soumise pour ne pas créer un shift opérationnel.
+- Build serveur, 13 tests unitaires et intégration API/MySQL réussis; le backend corrigé a été redéployé sans redémarrer MySQL.
 
 ### E2E Playwright
 
