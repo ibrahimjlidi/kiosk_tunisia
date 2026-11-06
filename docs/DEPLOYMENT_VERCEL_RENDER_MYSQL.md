@@ -40,7 +40,7 @@ Create a Vercel project from the same repository:
 - Build command: `npm run build`
 - Output directory: `dist`
 
-Set the build-time environment variable `VITE_API_URL` to the Render API URL followed by `/api/v1`, for example `https://your-api.onrender.com/api/v1`. Redeploy after setting or changing this variable. The client includes SPA rewrites so application routes resolve to `index.html`.
+The Vercel configuration proxies `/api/*` requests to `https://kiosk-tunisia.onrender.com/api/*` before the SPA fallback. This allows the client default `/api/v1` API URL to work without a `VITE_API_URL` setting. If your Render service has a different URL, update the API rewrite destination in [client/vercel.json](../client/vercel.json) and redeploy Vercel. Alternatively, set the build-time `VITE_API_URL` to your Render URL followed by `/api/v1`; redeploy after changing it. The final rewrite sends application routes to `index.html`.
 
 Once Vercel has assigned the final production domain, ensure Render's `CORS_ORIGIN` exactly matches it, then redeploy the API if needed. If using a custom frontend domain, include that origin as well.
 
