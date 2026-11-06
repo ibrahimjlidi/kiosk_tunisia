@@ -8,7 +8,10 @@
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "test:unit": "tsx --test src/helpers/apiResponse.test.ts src/models/repositories.test.ts src/services/dailyClosure.service.test.ts src/services/shift.service.test.ts src/utils/password.test.ts src/utils/permissions.test.ts src/utils/token.test.ts",
+    "test:integration": "node scripts/integration-smoke.mjs",
     "test:e2e": "playwright test --config playwright.config.ts",
+    "test:performance": "node scripts/performance-smoke.mjs",
+    "test:security": "node scripts/security-smoke.mjs && npm audit --audit-level=high",
     "seed": "tsx src/seeds/seed-demo.ts",
     "seed:demo": "tsx src/seeds/seed-demo.ts",
     "seed:reset": "tsx src/seeds/seed.ts --reset",
@@ -16,11 +19,10 @@
     "test:migration": "node --test migrations/*.test.mjs"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^4.22.3",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.1",
@@ -29,7 +31,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",

@@ -229,13 +229,14 @@ export const LoginPage: React.FC = () => {
           </form>
           
         </div>
-{/* Quick Demo Credentials Info */}
+        {import.meta.env.DEV && (
           <div className="border-t border-slate-800/80 pt-4 text-xs text-slate-400 space-y-1">
             <span className="font-semibold text-black">Demo Accounts Available:</span>
             <div className="text-[11px] text-slate-400">
               Admin: <code className="text-cyan-400">admin@fuelstation.tn</code> / <code className="text-cyan-400">Admin123!</code>
             </div>
           </div>
+        )}
         <footer className="login-panel__footer">
           <ShieldCheck className="h-4 w-4" aria-hidden="true" />
           <span>Kiosk Management System</span>

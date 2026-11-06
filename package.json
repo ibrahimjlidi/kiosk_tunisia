@@ -3,7 +3,11 @@
   "private": true,
   "scripts": {
     "test:unit": "npm run test:unit --prefix server && npm run test:migration --prefix server",
+    "test:integration": "npm run test:integration --prefix server",
     "test:e2e": "npm run test:e2e --prefix server",
-    "test": "npm run test:unit && npm run test:e2e"
+    "test:performance": "npm run test:performance --prefix server",
+    "test:security": "npm run test:security --prefix server && npm audit --prefix client --audit-level=high",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:performance && npm run test:security"
   }
 }

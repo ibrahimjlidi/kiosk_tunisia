@@ -196,22 +196,24 @@ kiosk_tunisia/
 
 ### Tests
 
-Les tests unitaires backend et migration se lancent depuis la racine :
+Depuis la racine du dépôt :
 
 ```bash
-npm run test:unit
+npm run test:unit         # Backend unit + migration tests
+npm run test:integration  # Local API + MySQL health/auth smoke
+npm run test:e2e          # Playwright browser workflows
+npm run test:performance  # Bounded localhost health-endpoint smoke
+npm run test:security     # Local authentication smoke + server/client dependency audits
+npm audit --prefix server --audit-level=high
+npm audit --prefix client --audit-level=high
+npm run test:all          # Run every suite above
 ```
 
-Les tests Playwright requièrent l'application accessible sur `http://localhost` et les comptes de démonstration. Installez Chromium une fois, puis lancez tous les tests depuis la racine :
+Les tests d'intégration, performance et sécurité nécessitent une API locale et la base MySQL démarrées. `TEST_API_URL` configure l'API locale (par défaut `http://localhost:5000/api/v1`); `PERF_API_URL`, `PERF_REQUESTS` et `PERF_CONCURRENCY` règlent le smoke test de performance, limité à localhost et au plus 200 requêtes / 10 requêtes concurrentes.
 
-```bash
-cd server
-npx playwright install --with-deps chromium
-cd ..
-npm test
-```
+Playwright nécessite Chromium, l'interface accessible (par défaut `http://localhost`) et les comptes définis dans `server/e2e/`. Installez Chromium une fois, puis lancez `npm run test:e2e`. `E2E_BASE_URL` désigne l'interface, `E2E_API_BASE_URL` l'API et les variables `E2E_ADMIN_*`, `E2E_MANAGER_*`, `E2E_SUPERVISOR_*` et `E2E_OPERATOR_*` configurent les comptes. Les tests de parcours métier supposent les fixtures de rôle de démonstration. Créez-les uniquement dans une base de test dédiée, jamais dans la base de production.
 
-`npm run test:e2e` lance uniquement Playwright. La suite couvre les accès Admin, Manager, Supervisor et Operator, les parcours principaux, ainsi que des actions utilisant des API simulées pour éviter d'écrire des ventes dans la base. `E2E_BASE_URL` désigne l'interface et `E2E_API_BASE_URL` l'API pour les vérifications directes; par défaut, l'interface et l'API sont supposées servies à la même adresse (`http://localhost`). Les variables `E2E_ADMIN_*`, `E2E_MANAGER_*`, `E2E_SUPERVISOR_*` et `E2E_OPERATOR_*` permettent de configurer les comptes.
+Le smoke test de performance n'est pas un benchmark de capacité. Les résultats détaillés, prérequis, limites et résultats de la dernière exécution sont consignés dans [le récapitulatif de tests](./docs/TESTING_RECAP.md).
 
 ## 🔧 Technologies Utilisées
 
