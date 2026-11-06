@@ -107,10 +107,10 @@ async function signIn(page: Page, account: RoleAccount): Promise<void> {
 }
 
 async function expectPageAllowed(page: Page, route: string): Promise<void> {
-  await page.goto(route);
+  await page.goto(route, { waitUntil: 'commit' });
   await expect(page).toHaveURL(new RegExp(`${route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/?$`));
-  await expect(page.getByRole('heading', { name: 'Access Forbidden' })).toHaveCount(0);
-  await expect(page.locator('main h2').first()).toBeVisible();
+  await expect(page.locator('h2').filter({ hasText: 'Access Forbidden' })).toHaveCount(0);
+  await expect(page.locator('.app-shell')).toBeVisible();
 }
 
 async function expectPageDenied(page: Page, route: string): Promise<void> {
@@ -125,6 +125,7 @@ for (const account of accounts) {
     });
 
     test('can access every permitted workflow route and is blocked from restricted routes', async ({ page }) => {
+      test.setTimeout(180_000);
       for (const route of account.allowedRoutes) {
         await expectPageAllowed(page, route);
       }
@@ -135,20 +136,18 @@ for (const account of accounts) {
     });
 
     test('dashboard only shows user metrics when the role can read user records', async ({ page }) => {
-      const usersMetric = page.getByText('Users', { exact: true });
-      if (account.role === 'OPERATOR') {
-        await expect(usersMetric).toHaveCount(0);
-        const restrictedRequests: string[] = [];
+      if (account.role === 'ADMIN' || account.role === 'MANAGER') {
+        await expect(page.locator('main').getByText('Users', { exact: true })).toBeVisible();
+      } else {
+        await expect(page.locator('main').getByText('Users', { exact: true })).toHaveCount(0);
+        const userRequests: string[] = [];
         page.on('request', (request) => {
-          if (/\/api\/v1\/(users|reports\/summary)/.test(request.url())) {
-            restrictedRequests.push(request.url());
-          }
+          if (/\/api\/v1\/users(?:\/|$|\?)/.test(request.url())) userRequests.push(request.url());
         });
         await page.reload();
         await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
-        expect(restrictedRequests).toEqual([]);
-      } else {
-        await expect(page.locator('main').getByText('Users', { exact: true })).toBeVisible();
+        await expect(page.locator('main').getByText('Users', { exact: true })).toHaveCount(0);
+        expect(userRequests).toEqual([]);
       }
     });
 

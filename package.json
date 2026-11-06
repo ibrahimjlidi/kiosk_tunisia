@@ -1,4 +1,9 @@
 {
   "name": "kiosk-tunisia",
-  "private": true
+  "private": true,
+  "scripts": {
+    "test:unit": "npm run test:unit --prefix server && npm run test:migration --prefix server",
+    "test:e2e": "npm run test:e2e --prefix server",
+    "test": "npm run test:unit && npm run test:e2e"
+  }
 }

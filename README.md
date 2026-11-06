@@ -194,17 +194,24 @@ kiosk_tunisia/
 | Build | `npm run build` | Compile pour la production |
 | Preview | `npm run preview` | Prévisualise le build de production |
 
-### Tests des workflows utilisateur
+### Tests
 
-Avec l'application démarrée et les comptes de démonstration disponibles :
+Les tests unitaires backend et migration se lancent depuis la racine :
+
+```bash
+npm run test:unit
+```
+
+Les tests Playwright requièrent l'application accessible sur `http://localhost` et les comptes de démonstration. Installez Chromium une fois, puis lancez tous les tests depuis la racine :
 
 ```bash
 cd server
 npx playwright install --with-deps chromium
-npm run test:e2e
+cd ..
+npm test
 ```
 
-Les tests vérifient les accès Admin, Manager, Supervisor et Operator, ainsi que des interactions qui n'écrivent pas dans la base. Pour cibler un autre environnement, définissez `E2E_BASE_URL` et les variables `E2E_ADMIN_*`, `E2E_MANAGER_*`, `E2E_SUPERVISOR_*`, `E2E_OPERATOR_*`.
+`npm run test:e2e` lance uniquement Playwright. La suite couvre les accès Admin, Manager, Supervisor et Operator, les parcours principaux, ainsi que des actions utilisant des API simulées pour éviter d'écrire des ventes dans la base. `E2E_BASE_URL` désigne l'interface et `E2E_API_BASE_URL` l'API pour les vérifications directes; par défaut, l'interface et l'API sont supposées servies à la même adresse (`http://localhost`). Les variables `E2E_ADMIN_*`, `E2E_MANAGER_*`, `E2E_SUPERVISOR_*` et `E2E_OPERATOR_*` permettent de configurer les comptes.
 
 ## 🔧 Technologies Utilisées
 

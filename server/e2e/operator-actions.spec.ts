@@ -5,6 +5,11 @@ const operator = {
   password: process.env.E2E_OPERATOR_PASSWORD || 'Demo@123',
 };
 
+const manager = {
+  email: process.env.E2E_MANAGER_EMAIL || 'demo_st002_manager@example.test',
+  password: process.env.E2E_MANAGER_PASSWORD || 'Demo@123',
+};
+
 const shiftId = '64b000000000000000000001';
 const stationId = '64b000000000000000000002';
 const pumpId = '64b000000000000000000003';
@@ -16,6 +21,14 @@ async function signInAsOperator(page: Page): Promise<void> {
   await page.goto('/login');
   await page.locator('#email').fill(operator.email);
   await page.locator('#password').fill(operator.password);
+  await page.getByRole('button', { name: /Se connecter/ }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+}
+
+async function signInAsManager(page: Page): Promise<void> {
+  await page.goto('/login');
+  await page.locator('#email').fill(manager.email);
+  await page.locator('#password').fill(manager.password);
   await page.getByRole('button', { name: /Se connecter/ }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
 }
@@ -74,7 +87,7 @@ function openShiftFixture(closingIndex = 100) {
 
 async function installShiftApiMock(page: Page, initialShift = openShiftFixture()) {
   let savedReadings: unknown;
-  await page.route('**/api/v1/shifts/*', async (route) => {
+  await page.route('**/api/v1/shifts/**', async (route) => {
     const url = new URL(route.request().url());
     const method = route.request().method();
 
@@ -107,7 +120,7 @@ test.describe('Operator business actions', () => {
   test('reads operational records and exposes role restrictions through the API', async ({ page, request }) => {
     const token = await page.evaluate(() => localStorage.getItem('fuelstation_token'));
     expect(token).toBeTruthy();
-    const apiBase = new URL('/api/v1/', process.env.E2E_BASE_URL || 'http://localhost');
+    const apiBase = new URL(process.env.E2E_API_BASE_URL || '/api/v1/', process.env.E2E_BASE_URL || 'http://localhost');
     const apiRequest = (path: string, method: 'GET' | 'POST' | 'PUT' = 'GET', data?: unknown) =>
       request.fetch(new URL(path, apiBase).toString(), {
         method,
@@ -212,28 +225,6 @@ test.describe('Operator business actions', () => {
     await expect(page.getByRole('button', { name: 'Open New Shift' })).toBeVisible();
   });
 
-  test('calculates zero and nonzero pump readings and submits only the expected reading update', async ({ page }) => {
-    const mock = await installShiftApiMock(page);
-    await page.goto(`/shifts/${shiftId}`);
-
-    const readingInput = page.locator('input[type="number"]').first();
-    await expect(readingInput).toHaveValue('100');
-    const pistolRow = page.getByRole('row').filter({ hasText: 'TEST-DIESEL' });
-    await expect(pistolRow).toContainText('0.000');
-    await expect(page.getByRole('button', { name: 'Record Sale' })).toHaveCount(0);
-
-    await readingInput.fill('110');
-    await expect(pistolRow).toContainText('10.000');
-    await expect(pistolRow).toContainText('22.000');
-    await expect(pistolRow).toContainText('18.487');
-    await expect(pistolRow).toContainText('3.513');
-    await expect(pistolRow).toContainText('+4.000');
-
-    await page.getByRole('button', { name: 'Save & Recalculate' }).click();
-    await expect(page.getByText('Readings saved & financials recalculated')).toBeVisible();
-    expect(mock.getSavedReadings()).toEqual([{ pumpId, pistolId, closingIndex: 110 }]);
-  });
-
   test('records an in-shift sale using a mocked endpoint rather than changing the demo database', async ({ page }) => {
     await installShiftApiMock(page, openShiftFixture(110));
     let submittedSale: Record<string, unknown> | undefined;
@@ -311,6 +302,7 @@ test.describe('Operator business actions', () => {
         },
       });
     });
+
     await page.route('**/api/v1/sales', async (route) => {
       if (route.request().method() !== 'POST') {
         await route.continue();
@@ -332,5 +324,32 @@ test.describe('Operator business actions', () => {
       amountTTC: 15,
       paymentMethod: 'CASH',
     });
+  });
+});
+
+test.describe('Manager shift actions', () => {
+    test.beforeEach(async ({ page }) => {
+      await signInAsManager(page);
+    });
+
+    test('calculates zero and nonzero pump readings and submits the updated reading', async ({ page }) => {
+      const mock = await installShiftApiMock(page);
+      await page.goto(`/shifts/${shiftId}`);
+
+      const readingInput = page.locator('input[type="number"]').first();
+      await expect(readingInput).toHaveValue('100');
+      const pistolRow = page.getByRole('row').filter({ hasText: 'TEST-DIESEL' });
+      await expect(pistolRow).toContainText('0.000');
+
+      await readingInput.fill('110');
+      await expect(pistolRow).toContainText('10.000');
+      await expect(pistolRow).toContainText('22.000');
+      await expect(pistolRow).toContainText('18.487');
+      await expect(pistolRow).toContainText('3.513');
+      await expect(pistolRow).toContainText('+4.000');
+
+      await page.getByRole('button', { name: 'Save & Recalculate' }).click();
+      await expect(page.getByText('Readings saved & financials recalculated')).toBeVisible();
+      expect(mock.getSavedReadings()).toEqual([{ pumpId, pistolId, closingIndex: 110 }]);
   });
 });

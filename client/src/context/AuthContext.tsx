@@ -108,15 +108,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = async () => {
+    localStorage.removeItem('fuelstation_token');
+    setToken(null);
+    setUser(null);
+
     try {
       await logoutUser();
     } catch (error) {
       // ignore network issues during logout, still remove local state
     }
-
-    localStorage.removeItem('fuelstation_token');
-    setToken(null);
-    setUser(null);
   };
 
   const refreshUser = async () => {

@@ -61,7 +61,7 @@ const DashboardView: React.FC = () => {
       try {
         setLoading(true);
         const today = new Date().toISOString().slice(0, 10);
-        const canReadUsers = user?.permissions?.includes('users.read') ?? false;
+        const canReadUsers = ['ADMIN', 'MANAGER'].includes(user?.role || '');
         const canReadReports = ['ADMIN', 'MANAGER', 'SUPERVISOR'].includes(user?.role || '');
         const [analyticsRes, stationsRes, productsRes, pumpsRes, tanksRes, usersRes] = await Promise.all([
           canReadReports ? fetchAnalyticsSummary({ date: today }) : Promise.resolve(null),
